@@ -11,8 +11,8 @@
 
 ## Automation
 
-- `CI` ตรวจ lint, typecheck, unit test, build, integration test และ Compose config
-- `Compose smoke test` เปิดระบบรวมและเก็บ log หลัง Merge เข้า `main`
+- `CI` ตรวจ dependency, typecheck และ Compose syntax แบบรวดเร็ว
+- `Compose smoke test` กดรันเองเมื่อต้องการเปิดระบบรวมและเก็บ log
 - `Manual k6 load test` ใช้สั่งทดสอบโหลดด้วยตนเองเมื่อมี `k6/competition.js`
 
 Workflow จะข้ามขั้นตอนของแอปชั่วคราวระหว่างที่ยังไม่มี `package.json` หรือ Compose file และจะเริ่มตรวจส่วนเหล่านั้นอัตโนมัติเมื่อไฟล์ถูกเพิ่มเข้ามา
