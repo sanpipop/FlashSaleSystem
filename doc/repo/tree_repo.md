@@ -71,15 +71,9 @@
 │       ├── load-testing.md
 │       └── testing-strategy.md
 ├── .github
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug.yml
-│   │   ├── config.yml
-│   │   └── task.yml
 │   ├── pull_request_template.md
 │   └── workflows
-│       ├── ci.yml
-│       ├── load-test.yml
-│       └── smoke.yml
+│       └── ci.yml
 ├── output
 │   └── Flash_Sale_Competition_Fastest_Safe_TH.docx
 └── README.md
@@ -99,9 +93,8 @@
 
 - **[README.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/README.md)**: อธิบายภาพรวมโปรเจกต์ เป้าหมายระบบ Flash Sale และการรัน Automation
 - **[CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md)**: แนวทางการทำงานร่วมกันของทีม ตารางแบ่งบทบาทและ Reviewer กฎ Definition of Done และรอบ Stand-up
-- **[.github/ISSUE_TEMPLATE/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/ISSUE_TEMPLATE)**: แบบฟอร์มสร้าง Issue ([bug.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/ISSUE_TEMPLATE/bug.yml), [task.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/ISSUE_TEMPLATE/task.yml), [config.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/ISSUE_TEMPLATE/config.yml))
 - **[.github/pull_request_template.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/pull_request_template.md)**: Checklist ตรวจทานก่อน Merge PR
-- **[.github/workflows/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows)**: Workflows CI/CD ([ci.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows/ci.yml), [smoke.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows/smoke.yml), [load-test.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows/load-test.yml))
+- **[.github/workflows/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows)**: Workflow ตรวจ Pull Request แบบรวดเร็ว ([ci.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows/ci.yml))
 
 ---
 

@@ -57,7 +57,7 @@ No (รันเป็นงานสุดท้ายของโปรเจ�
 
 ### 5. Dimension E: Repository Governance & Security Audit
 - [ ] คำสั่ง `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration` และ `pnpm build` รันผ่านสีเขียว 100%
-- [ ] GitHub Actions CI (`ci.yml`, `smoke.yml`) ผ่านการตรวจสมบูรณ์
+- [ ] GitHub Actions Quick Check (`ci.yml`) ผ่านการตรวจสมบูรณ์
 - [ ] ไม่มีการ Commit Secret, Password จริง หรือไฟล์ `.env` ค้างอยู่ใน Git Repository
 - [ ] เอกสารคู่มือ [README.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/README.md) อธิบายขั้นตอนการเปิดระบบและการรันสคริปต์ได้ชัดเจน
 
