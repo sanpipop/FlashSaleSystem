@@ -14,7 +14,7 @@
 
 ## ขั้นตอนทำงานหนึ่งงาน
 
-1. สร้าง GitHub Issue และระบุ Contract, Allowed paths, Acceptance criteria และ Test
+1. ตกลงเป้าหมาย Contract ขอบเขตไฟล์ และเงื่อนไขที่ถือว่าเสร็จในทีม แล้วใส่ข้อมูลสั้น ๆ ไว้ใน Draft PR
 2. ดึง `main` ล่าสุด แล้วสร้าง Branch ตามงาน เช่น `feat/worker-microbatch`
 3. Commit เป็นช่วงสั้น ๆ และ Push อย่างน้อยวันละสองครั้ง
 4. เปิด Draft PR ได้ตั้งแต่เริ่ม เพื่อให้คนอื่นเห็น Contract ที่กำลังใช้
@@ -27,10 +27,10 @@
 
 ## กติกาป้องกัน Conflict
 
-- หนึ่ง Issue มีผู้แก้หลักหนึ่งคน และควรเสร็จภายในครึ่งวันถึงหนึ่งวัน
+- หนึ่ง Branch มีผู้แก้หลักหนึ่งคน และควรเสร็จภายในครึ่งวันถึงหนึ่งวัน
 - ก่อนแก้ `packages/contracts`, Compose, Environment variables หรือ Database schema ต้องแจ้งทุกคน
 - Integration Captain เป็นผู้รวมการเปลี่ยนไฟล์ส่วนกลางในรอบนั้น
-- หาก PR ต้องแก้ไฟล์นอก Allowed paths ให้หยุดและปรับ Issue ก่อน
+- หาก PR ต้องแก้ไฟล์นอกขอบเขตที่ระบุ ให้แจ้งทีมและแก้คำอธิบาย PR ก่อน
 - หาก Contract ยังไม่ลงตัว ให้ตกลงตัวอย่าง Request, Response และ Job payload ก่อนเขียน Implementation
 
 ## รอบรวมงานประจำวัน
@@ -59,7 +59,7 @@ Integration Captain หมุนเวียนวันที่ 1–5 เป�
 
 ## การใช้ AI
 
-ส่ง Issue ทั้งก้อนให้ AI พร้อม Allowed paths, Contract, Test command และสิ่งที่ห้ามแก้เสมอ โค้ดจาก AI ต้องอยู่บน Feature Branch ผ่าน CI และผ่าน Human Review เหมือนโค้ดอื่น ห้ามให้ AI เปลี่ยน Contract, Schema หรือ Compose โดยไม่แจ้งทีม
+ส่งรายละเอียดงานให้ AI พร้อมขอบเขตไฟล์ Contract คำสั่งทดสอบ และสิ่งที่ห้ามแก้เสมอ โค้ดจาก AI ต้องอยู่บน Feature Branch ผ่าน CI และผ่าน Human Review เหมือนโค้ดอื่น ห้ามให้ AI เปลี่ยน Contract, Schema หรือ Compose โดยไม่แจ้งทีม
 
 ## การทดสอบโหลด
 
