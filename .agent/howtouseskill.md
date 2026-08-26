@@ -412,6 +412,8 @@ Requirements:
 - Extract userId strictly from JWT context (never trust userId from request body).
 - Implement atomic SET NX claim guard using Redis key fs:claim:order:{userId}:{productId}.
 - Enqueue valid jobs to BullMQ queue 'orders' matching queue contract payload.
+- On a won Claim, await queue.add and return 202 immediately; do not call queue.getJob on the normal path.
+- Call queue.getJob only after a lost Claim to verify the existing deterministic Job before an idempotent 202 response.
 - Return HTTP 202 Accepted with camelCase orderJobId envelope.
 - Keep Controller, Service, and Queue Producer separated into clean single-responsibility files.
 

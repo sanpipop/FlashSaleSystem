@@ -135,15 +135,18 @@ sequenceDiagram
     Note over API: 1. Verify JWT & Extract userId<br/>2. Validate productId & forced quantity=1<br/>3. Compute Duplicate Protection Key / Job ID
     
     API->>RedisOps: SET claim-key randomToken NX EX 60
-    API->>RedisOps: queue.add with ord-SHA256 Job ID
     
-    alt Admission Success (คำขอถูกต้อง / เข้าคิวสำเร็จ)
-        RedisOps-->>API: Enqueue Confirmed (Job ID created)
+    alt Claim Won / First Admission
+        RedisOps-->>API: OK
+        API->>RedisOps: await queue.add with ord-SHA256 Job ID
+        RedisOps-->>API: queue.add resolved (enqueue confirmed)
+        Note over API,RedisOps: Fast path ไม่เรียก queue.getJob ซ้ำ
         API-->>Nginx: 202 Accepted { status: "ACCEPTED", jobId: "..." }
-    else Duplicate Claim
+    else Claim Failed / Duplicate Admission
+        RedisOps-->>API: nil
         API->>RedisOps: queue.getJob(deterministic jobId)
         RedisOps-->>API: Existing Job or not-yet-visible
-        API-->>Nginx: 202 with same ID if Job exists; otherwise 409 in-progress
+        API-->>Nginx: 202 with same ID if Job exists; otherwise bounded recheck then 409
     end
     
     Nginx-->>Client: Return API Response

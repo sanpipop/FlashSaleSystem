@@ -63,6 +63,7 @@ POST /api/v1/orders           → Flash Sale Order Admission (Async 202 Accepted
   `Validate DTO → Verify JWT → SET NX Token → ord-SHA256 Job ID → queue.add → Return 202`
 - HTTP `202 Accepted` means **"Order request accepted for queue processing"**. It does NOT mean purchase is confirmed.
 - The API controller MUST NOT wait for the BullMQ Worker to finish DB stock processing before returning 202.
+- On the Claim-winner path, the successful awaited result of `queue.add()` is the enqueue confirmation. Return 202 immediately; DO NOT call `queue.getJob()` again on this normal path.
 - On a duplicate Claim, return 202 with the same ID only after `queue.getJob(jobId)` confirms the Job exists; otherwise return the frozen in-progress error. Never emit a false 202.
 - If enqueue fails after winning the Claim, release only the matching token through Lua compare-and-delete.
 
@@ -94,7 +95,7 @@ graph TD
     I --> J[Verify JWT userId]
     J --> K[Redis SET NX Claim Guard]
     K -- Claim Won --> L[Enqueue BullMQ Job with ord-SHA256 ID]
-    L --> M[Return 202 Accepted + orderJobId]
+    L -- queue.add resolved --> M[Return 202 Accepted + orderJobId]
     K -- Claim Failed --> N[Verify Existing Job then Idempotent Response]
 ```
 
@@ -110,6 +111,7 @@ graph TD
 
 ## Performance Considerations
 - **No Heavy Operations in Event Loop:** Keep controller execution path minimal (< 5ms admission latency).
+- **No Redundant Queue Read:** Never add `queue.getJob()` after a successful `queue.add()`; reserve it for the duplicate-Claim branch only.
 - **Stateless Scaling:** Ensure API Containers do not store any local in-memory session arrays.
 - **HTTP Adapter:** Adapter selection (Express vs Fastify) is a project-level architecture decision. Do not switch adapters unilaterally during feature implementation.
 

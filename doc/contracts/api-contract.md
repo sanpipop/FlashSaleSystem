@@ -200,6 +200,7 @@
 ## 9. พฤติกรรมคำขอซ้ำที่ Freeze แล้ว
 
 - API คำนวณ deterministic `orderJobId` เดิมจาก `(userId, productId)` ทุกครั้ง
+- หาก `SET NX` สำเร็จ ให้รอเพียง `queue.add()` สำเร็จแล้วตอบ `202 Accepted` ทันที โดยไม่เรียก `queue.getJob()` ซ้ำในเส้นทางคำขอแรก
 - หาก `SET NX` ไม่สำเร็จและ `queue.getJob(orderJobId)` พบ Job เดิม ให้ตอบ `202 Accepted` พร้อม Job ID เดิมแบบ Idempotent
 - หาก Claim มีอยู่แต่ยังหา Job ไม่พบ ให้รอแบบสั้นและตรวจซ้ำหนึ่งครั้ง; หากยังไม่พบให้ตอบ `409 ORDER_ADMISSION_IN_PROGRESS` ห้ามตอบ 202 เท็จ
 - ผลซื้อจริงยังยึด `order_results`/`orders` ใน PostgreSQL เท่านั้น

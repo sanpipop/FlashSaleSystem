@@ -60,8 +60,9 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
   - `productId` alone is NOT sufficient (different users can buy the same product).
 - **Atomic Semantics:** ALWAYS use atomic `SET key value EX TTL NX`.
   - **Claim Won (`OK`):** Proceed to enqueue job in BullMQ.
-  - **Claim Failed (`null`):** Return fast duplicate admission rejection.
+  - **Claim Failed (`null`):** Do not enqueue. Compute the deterministic Job ID and call `queue.getJob(jobId)` only on this duplicate path. Return the idempotent 202 response when the Job exists; otherwise perform the single bounded recheck from the API contract and return `409 ORDER_ADMISSION_IN_PROGRESS` if it is still not visible.
 - **Claim + Enqueue Failure Safety:** If `queue.add()` fails, use Lua compare-and-delete with the request token. Never blindly `DEL` a claim.
+- **No Redundant Verification:** A resolved `queue.add()` already confirms the Claim winner's enqueue operation. Do not add a follow-up `queue.getJob()` to the normal request path.
 
 ### 3. Cache Invalidation Sequence
 - Invalidation sequence MUST follow:
@@ -77,9 +78,11 @@ graph TD
     A[Order Request] --> B[Extract userId & productId]
     B --> C[Execute Redis SET claim-key randomToken EX 60 NX]
     C -- Claim Won --> D[Enqueue Job to BullMQ Queue]
-    D -- Enqueue Success --> E[Return 202 Accepted]
+    D -- queue.add resolved --> E[Return 202 Accepted without getJob]
     D -- Enqueue Fail --> F[Lua compare-delete Claim & Return Error]
-    C -- Claim Failed --> G[Return Fast Duplicate Rejection]
+    C -- Claim Failed --> G[Call getJob only for duplicate]
+    G -- Existing Job --> H[Return 202 with same Job ID]
+    G -- Not Visible after bounded recheck --> I[Return 409 Admission In Progress]
 ```
 
 1. **Step 1 — Key Formatting:** Use helper methods to format exact contract keys.
@@ -95,6 +98,7 @@ graph TD
 
 ## Performance Considerations
 - **Connection Pool:** Reuse Redis connection pool across API handlers.
+- **Fast Admission Path:** Keep the Claim-winner path to `SET NX → queue.add → 202`; do not pay for an extra queue lookup.
 - **Serialization:** Store JSON-compatible stringified DTO objects in cache; avoid storing complex class instances.
 - **Key Expiry Jitter:** Include ±5s jitter on cache TTL to prevent Cache Stampede.
 - **One-Hop Hit Path:** Preload the read script, handle `NOSCRIPT` by reloading once, and never use `KEYS` on the request path.

@@ -60,6 +60,12 @@ Job payload passed to BullMQ MUST strictly match `queue-contract.md`:
 - **`requestId`:** Unique identifier generated per HTTP request for end-to-end tracing.
 - **`jobId`:** Frozen as `ord-<lowercase SHA256(userId|productId)>`; it MUST NOT contain `:` or consist only of digits.
 
+### 2.1 Producer Enqueue Confirmation
+- On the Redis Claim-winner path, `await queue.add(...)` resolving successfully is the enqueue confirmation required before returning HTTP 202.
+- Do not call `queue.getJob()` after a successful `queue.add()`; that redundant Redis read increases normal-path latency without adding correctness.
+- Use `queue.getJob(deterministicJobId)` only when `SET NX` loses, to determine whether an existing Job can safely be returned as the idempotent 202 response.
+- If `queue.add()` throws, do not return 202. Release only the matching Claim token through Lua compare-and-delete and map the failure to the frozen dependency error.
+
 ### 3. Business Rejection vs. Transient Infrastructure Failure
 - **Transient Infrastructure Failure (Retryable):** DB connection timeout, Redis socket drop. BullMQ SHOULD retry job with exponential backoff.
 - **Business Rejections (Non-Retryable):** `SOLD_OUT`, `DUPLICATE_ORDER`, `FLASH_SALE_INACTIVE`. Worker MUST handle business rejections gracefully, record outcome, and complete job WITHOUT throwing uncaught exceptions that cause endless retry loops.
@@ -108,6 +114,7 @@ graph TD
 ## Performance Considerations
 - **Worker Concurrency Tuning:** Compare 8/12/16 and record DB lock wait plus queue drain time.
 - **Job Retention:** Use the exact bounded age/count policy in `queue-contract.md`; never remove completed jobs immediately during the benchmark window.
+- **Producer Fast Path:** Preserve `SET NX → queue.add → 202` with no `getJob()` read on successful first admission.
 
 ## Common Anti-Patterns to Avoid
 - **Anti-Pattern 1:** Mixing Producer and Consumer code in a single god file (`queue.ts`).

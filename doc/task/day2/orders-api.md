@@ -38,6 +38,7 @@ No (ต้องใช้ JwtAuthGuard และ Queue Producer Package)
 - รับ Request Body `{ "productId": "p-1001" }`
 - สร้าง Random Request Token แล้วเรียก `SET fs:claim:order:{userId}:{productId} <token> EX 60 NX`
 - สร้าง Deterministic `jobId = ord-<SHA256(userId|productId)>` ซึ่งไม่มี `:` แล้ว Enqueue เข้า Queue `orders`
+- เมื่อ Claim สำเร็จ ให้ใช้ผลสำเร็จจาก `await queue.add()` เป็นหลักฐานการ Enqueue แล้วตอบ 202 ทันที ห้ามเรียก `queue.getJob()` ซ้ำบนเส้นทางปกติ
 - หาก Enqueue ล้มเหลว ให้ Lua compare-and-delete Claim เฉพาะ Token ของ Request นี้
 - หาก Claim แพ้ ให้ตรวจ `queue.getJob(jobId)`; พบ Job เดิมตอบ 202 พร้อม ID เดิม ไม่พบให้รอสั้นและตรวจซ้ำก่อนตอบ 409 ห้ามตอบ 202 เท็จ
 - ตอบกลับ HTTP `202 Accepted` พร้อม `{ "status": "processing", "orderJobId": "..." }`

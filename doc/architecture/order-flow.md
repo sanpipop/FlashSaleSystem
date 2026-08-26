@@ -40,10 +40,18 @@ sequenceDiagram
         Client->>Nginx: POST /api/v1/orders {productId: "p-1001"}
         Nginx->>API: Proxy Request (with X-Request-ID)
         API->>RedisOps: SET Claim Token NX EX 60
-        API->>RedisOps: queue.add with ord-SHA256 Job ID
-        RedisOps-->>API: Job Enqueued (Job ID Generated)
-        API-->>Nginx: 202 Accepted (Job ID, Status: ACCEPTED)
-        Nginx-->>Client: 202 Accepted Response
+        alt Claim Won
+            API->>RedisOps: await queue.add with ord-SHA256 Job ID
+            RedisOps-->>API: queue.add resolved (Enqueue Confirmed)
+            Note over API,RedisOps: No queue.getJob on normal fast path
+            API-->>Nginx: 202 Accepted (Job ID, Status: ACCEPTED)
+            Nginx-->>Client: 202 Accepted Response
+        else Claim Failed
+            API->>RedisOps: queue.getJob deterministic Job ID
+            RedisOps-->>API: Existing Job or not-yet-visible
+            API-->>Nginx: Existing = same 202; absent after bounded recheck = 409
+            Nginx-->>Client: Idempotent 202 or Admission In Progress 409
+        end
     end
 
     rect rgb(255, 250, 240)
