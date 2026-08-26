@@ -1,0 +1,69 @@
+# แนวทางทำงานร่วมกัน — Flash Sale System
+
+ทีมถือว่าโค้ดทั้งหมดเป็นของสมาชิกทุกคน การแบ่งส่วนคือผู้ลงมือหลัก ไม่ใช่การปิดกั้นสิทธิ์แก้ไขหรือการเรียนรู้
+
+## ผู้ลงมือหลักและผู้ตรวจ
+
+| ส่วน | ผู้ลงมือหลัก | ผู้ตรวจหลัก |
+| --- | --- | --- |
+| API, Nginx, k6 ฝั่ง API | สมาชิก 1 | สมาชิก 2 |
+| Queue, Redis, Cache, Dashboard | สมาชิก 2 | สมาชิก 3 |
+| Worker, PostgreSQL, Migration | สมาชิก 3 | สมาชิก 1 |
+
+เปลี่ยนผู้ตรวจได้เมื่อจำเป็น แต่ Pull Request ต้องมีผู้ตรวจจากคนละส่วนอย่างน้อยหนึ่งคน เพื่อให้ทุกคนเข้าใจระบบนอกส่วนที่ตนเขียน
+
+## ขั้นตอนทำงานหนึ่งงาน
+
+1. สร้าง GitHub Issue และระบุ Contract, Allowed paths, Acceptance criteria และ Test
+2. ดึง `main` ล่าสุด แล้วสร้าง Branch ตามงาน เช่น `feat/worker-microbatch`
+3. Commit เป็นช่วงสั้น ๆ และ Push อย่างน้อยวันละสองครั้ง
+4. เปิด Draft PR ได้ตั้งแต่เริ่ม เพื่อให้คนอื่นเห็น Contract ที่กำลังใช้
+5. ก่อนขอ Review ต้องรัน lint, typecheck, test, build, migration และ integration test ที่เกี่ยวข้อง
+6. ผู้ตรวจอ่านทั้ง Happy path, Failure path, Retry และความถูกต้องเมื่อทำงานพร้อมกัน
+7. Merge แบบ Squash เมื่อ GitHub Actions ผ่านและมี Approval อย่างน้อยหนึ่งคน
+8. ผู้เขียนอธิบายสิ่งที่เปลี่ยนและ Failure case สำคัญให้ทีมภายในห้านาที
+
+ห้าม Push เข้า `main` โดยตรง และห้ามใช้ Branch ประจำตัวแบบ `member-1` เพราะทำให้งานค้างนานและรวมยาก
+
+## กติกาป้องกัน Conflict
+
+- หนึ่ง Issue มีผู้แก้หลักหนึ่งคน และควรเสร็จภายในครึ่งวันถึงหนึ่งวัน
+- ก่อนแก้ `packages/contracts`, Compose, Environment variables หรือ Database schema ต้องแจ้งทุกคน
+- Integration Captain เป็นผู้รวมการเปลี่ยนไฟล์ส่วนกลางในรอบนั้น
+- หาก PR ต้องแก้ไฟล์นอก Allowed paths ให้หยุดและปรับ Issue ก่อน
+- หาก Contract ยังไม่ลงตัว ให้ตกลงตัวอย่าง Request, Response และ Job payload ก่อนเขียน Implementation
+
+## รอบรวมงานประจำวัน
+
+| เวลา | กิจกรรม |
+| --- | --- |
+| 09:00 | Stand-up 10 นาที: งานวันนี้ สิ่งที่ต้องใช้จากเพื่อน และ Blocker |
+| 11:30 | เปิดหรืออัปเดต PR รอบเช้า |
+| 12:00 | Integration Captain รวม PR ที่ผ่านและรัน Smoke test |
+| 17:30 | เปิดหรืออัปเดต PR รอบเย็น |
+| 18:00 | รวมงาน ตรวจ Compose, log, metric และ test ระบบข้ามส่วน |
+| 18:30 | Teach-back คนละไม่เกิน 5 นาที |
+
+Integration Captain หมุนเวียนวันที่ 1–5 เป็น สมาชิก 1, 2, 3, 1 และ 2 ตามลำดับ
+
+## Definition of Done
+
+งานหนึ่งงานถือว่าเสร็จเมื่อ:
+
+- พฤติกรรมตรงตาม Contract และ Acceptance criteria
+- มี Test ครอบคลุมกรณีสำเร็จ ผิดพลาด ซ้ำ และทำพร้อมกันตามความเสี่ยงของงาน
+- ไม่ทำให้ `remainingStock` ติดลบหรือสร้าง Order ซ้ำ
+- มี log ที่ตามด้วย Request ID หรือ Job ID ได้
+- CI ผ่าน มีเพื่อน Review และไม่มีข้อความสนทนาที่ยังไม่ Resolve
+- ไม่มี Secret, password หรือไฟล์ `.env` จริงอยู่ใน Commit
+
+## การใช้ AI
+
+ส่ง Issue ทั้งก้อนให้ AI พร้อม Allowed paths, Contract, Test command และสิ่งที่ห้ามแก้เสมอ โค้ดจาก AI ต้องอยู่บน Feature Branch ผ่าน CI และผ่าน Human Review เหมือนโค้ดอื่น ห้ามให้ AI เปลี่ยน Contract, Schema หรือ Compose โดยไม่แจ้งทีม
+
+## การทดสอบโหลด
+
+- Pull Request ใช้เฉพาะ Unit, Integration และโหลดขนาดเล็กที่จบเร็ว
+- ใช้ Workflow `Manual k6 load test` สำหรับ Pre-test เท่านั้น
+- รอบวัดคะแนนจริงให้ยิง k6 จากเครื่องอื่นไปยัง VM เพื่อไม่ให้ตัวสร้างโหลดแย่ง CPU/RAM กับระบบที่ถูกทดสอบ
+- เก็บค่า throughput, p95/p99, error rate, duplicate order และ stock invariant ทุกครั้ง
