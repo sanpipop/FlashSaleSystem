@@ -5,7 +5,7 @@
 ## การทำงานร่วมกัน
 
 - อ่าน [CONTRIBUTING.md](CONTRIBUTING.md) ก่อนเริ่มงาน
-- เปิด GitHub Issue ก่อนเขียนโค้ด และใช้ Branch แยกตามงาน
+- ตกลงขอบเขตงานกับทีม แล้วใช้ Branch แยกตามงาน
 - ทุก Pull Request ต้องผ่าน GitHub Actions 
 - ห้าม Push เข้า `main` โดยตรง
 
