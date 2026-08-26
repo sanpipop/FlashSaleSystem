@@ -21,7 +21,6 @@ k6 performance testing is primarily owned by **Member 1 (Edge / API Lead)**. Loa
 - **Load Testing Specification:** [doc/testing/load-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/load-testing.md)
 - **Baseline Benchmark Specification:** [doc/performance/baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
 - **Final Performance Results:** [doc/performance/final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
-- **GitHub Workflow Load Test:** [.github/workflows/load-test.yml](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/workflows/load-test.yml)
 
 ## Preconditions
 1. Confirm backend VM is running cleanly via Docker Compose on target IP.

@@ -10,20 +10,20 @@
 | Queue, Redis, Cache, Dashboard | สมาชิก 2 | สมาชิก 3 |
 | Worker, PostgreSQL, Migration | สมาชิก 3 | สมาชิก 1 |
 
-เปลี่ยนผู้ตรวจได้เมื่อจำเป็น แต่ Pull Request ต้องมีผู้ตรวจจากคนละส่วนอย่างน้อยหนึ่งคน เพื่อให้ทุกคนเข้าใจระบบนอกส่วนที่ตนเขียน
+เปลี่ยนผู้ตรวจได้เมื่อจำเป็น งานเสี่ยงสูง เช่น Contract, Transaction, Stock และ Redis Atomic Operation ควรให้เพื่อนต่างส่วนช่วยตรวจ แม้ Repository จะไม่ได้บังคับ Approval
 
 ## ขั้นตอนทำงานหนึ่งงาน
 
 1. ตกลงเป้าหมาย Contract ขอบเขตไฟล์ และเงื่อนไขที่ถือว่าเสร็จในทีม แล้วใส่ข้อมูลสั้น ๆ ไว้ใน Draft PR
-2. ดึง `main` ล่าสุด แล้วสร้าง Branch ตามงาน เช่น `feat/worker-microbatch`
+2. ดึง `develop` ล่าสุด แล้วสร้าง Branch ตามงาน เช่น `feat/worker-microbatch`
 3. Commit เป็นช่วงสั้น ๆ และ Push อย่างน้อยวันละสองครั้ง
-4. เปิด Draft PR ได้ตั้งแต่เริ่ม เพื่อให้คนอื่นเห็น Contract ที่กำลังใช้
-5. ก่อนขอ Review ต้องรัน quick check ส่วนการทดสอบเต็มให้รันเมื่อรวม Feature สำคัญหรือก่อนขึ้น VM
-6. ผู้ตรวจอ่านทั้ง Happy path, Failure path, Retry และความถูกต้องเมื่อทำงานพร้อมกัน
-7. Merge แบบ Squash เมื่อ GitHub Actions ผ่านและมี Approval อย่างน้อยหนึ่งคน
+4. เปิด Draft PR เข้า `develop` ได้ตั้งแต่เริ่ม เพื่อให้คนอื่นเห็น Contract ที่กำลังใช้
+5. ก่อน Merge ต้องรัน Typecheck และ Test ที่เกี่ยวข้องในเครื่อง ส่วนการทดสอบเต็มให้รันเมื่อรวม Feature สำคัญหรือก่อนขึ้น VM
+6. ผู้เขียนตรวจ Diff ของตัวเองทั้ง Happy path, Failure path, Retry และความถูกต้องเมื่อทำงานพร้อมกัน
+7. Squash Merge Feature เข้า `develop`; เมื่อระบบรวมพร้อมจึงเปิด PR จาก `develop` เข้า `main` และใช้ Merge commit
 8. ผู้เขียนอธิบายสิ่งที่เปลี่ยนและ Failure case สำคัญให้ทีมภายในห้านาที
 
-ห้าม Push เข้า `main` โดยตรง และห้ามใช้ Branch ประจำตัวแบบ `member-1` เพราะทำให้งานค้างนานและรวมยาก
+ห้าม Push เข้า `develop` หรือ `main` โดยตรง และห้ามใช้ Branch ประจำตัวแบบ `member-1` เพราะทำให้งานค้างนานและรวมยาก
 
 ## กติกาป้องกัน Conflict
 
@@ -39,9 +39,9 @@
 | --- | --- |
 | 09:00 | Stand-up 10 นาที: งานวันนี้ สิ่งที่ต้องใช้จากเพื่อน และ Blocker |
 | 11:30 | เปิดหรืออัปเดต PR รอบเช้า |
-| 12:00 | Integration Captain รวม PR ที่ผ่านและรัน Smoke test |
+| 12:00 | Integration Captain รวม PR เข้า `develop` และทดสอบระบบรวมในเครื่อง |
 | 17:30 | เปิดหรืออัปเดต PR รอบเย็น |
-| 18:00 | รวมงาน ตรวจ Compose, log, metric และ test ระบบข้ามส่วน |
+| 18:00 | รวมงานเข้า `develop` แล้วตรวจ Compose, log, metric และ test ระบบข้ามส่วน |
 | 18:30 | Teach-back คนละไม่เกิน 5 นาที |
 
 Integration Captain หมุนเวียนวันที่ 1–5 เป็น สมาชิก 1, 2, 3, 1 และ 2 ตามลำดับ
@@ -54,16 +54,15 @@ Integration Captain หมุนเวียนวันที่ 1–5 เป�
 - มี Test ครอบคลุมกรณีสำเร็จ ผิดพลาด ซ้ำ และทำพร้อมกันตามความเสี่ยงของงาน
 - ไม่ทำให้ `remainingStock` ติดลบหรือสร้าง Order ซ้ำ
 - มี log ที่ตามด้วย Request ID หรือ Job ID ได้
-- CI ผ่าน มีเพื่อน Review และไม่มีข้อความสนทนาที่ยังไม่ Resolve
+- Typecheck และ Test ที่เกี่ยวข้องผ่าน ผู้เขียนตรวจ Diff แล้ว และไม่มีข้อความสนทนาที่ยังไม่ Resolve
 - ไม่มี Secret, password หรือไฟล์ `.env` จริงอยู่ใน Commit
 
 ## การใช้ AI
 
-ส่งรายละเอียดงานให้ AI พร้อมขอบเขตไฟล์ Contract คำสั่งทดสอบ และสิ่งที่ห้ามแก้เสมอ โค้ดจาก AI ต้องอยู่บน Feature Branch ผ่าน CI และผ่าน Human Review เหมือนโค้ดอื่น ห้ามให้ AI เปลี่ยน Contract, Schema หรือ Compose โดยไม่แจ้งทีม
+ส่งรายละเอียดงานให้ AI พร้อมขอบเขตไฟล์ Contract คำสั่งทดสอบ และสิ่งที่ห้ามแก้เสมอ โค้ดจาก AI ต้องอยู่บน Feature Branch ผ่านการทดสอบ และให้ผู้เขียนตรวจ Diff ก่อน Merge ห้ามให้ AI เปลี่ยน Contract, Schema หรือ Compose โดยไม่แจ้งทีม
 
 ## การทดสอบโหลด
 
-- Pull Request ใช้เฉพาะ Unit, Integration และโหลดขนาดเล็กที่จบเร็ว
-- ใช้ Workflow `Manual k6 load test` สำหรับ Pre-test เท่านั้น
+- สมาชิกทำ Unit และ Integration Test ที่เกี่ยวข้องในเครื่องก่อน Merge โดยไม่ยิงโหลดหนักใน Pull Request
 - รอบวัดคะแนนจริงให้ยิง k6 จากเครื่องอื่นไปยัง VM เพื่อไม่ให้ตัวสร้างโหลดแย่ง CPU/RAM กับระบบที่ถูกทดสอบ
 - เก็บค่า throughput, p95/p99, error rate, duplicate order และ stock invariant ทุกครั้ง

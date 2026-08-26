@@ -40,6 +40,6 @@
 เวลา 17:30 - 18:00 น. ตรวจสอบความสมบูรณ์ครั้งสุดท้ายก่อน Freeze โค้ด:
 - [ ] `docker compose up --build` สามารถสั่งเปิดระบบใหม่ทั้งหมดขึ้นมาทำงานได้ในคำสั่งเดียว
 - [ ] สคริปต์ `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration` ผ่าน 100%
-- [ ] GitHub Actions CI Workflow (`ci.yml`, `smoke.yml`) ผ่านสถานะสีเขียว
+- [ ] GitHub Actions Quick Check (`ci.yml`) ผ่านสถานะสีเขียว
 - [ ] มีหลักฐาน k6 Summary JSON, SQL Integrity Verification Output และ Screenshots ครบถ้วน
 - [ ] ไม่มีการ Commit Secret หรือไฟล์ `.env` จริงค้างอยู่ใน Git Repository
