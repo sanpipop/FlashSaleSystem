@@ -45,7 +45,7 @@ Reason: ระบบอยู่ในระหว่างการเตรี
 ## 4. โครงสร้างสถาปัตยกรรมและค่าคอนฟิกเริ่มต้น (Baseline Configuration)
 
 ### 4.1 Baseline Architecture Overview
-`Client (k6) → Nginx Reverse Proxy (Port 80) → NestJS API (3 Instances) → Redis (Cache & Queue) → BullMQ Worker → PostgreSQL 16`
+`Client → Nginx → NestJS API x3 → Redis Ops/BullMQ → Micro-batch Worker → PostgreSQL Results/Outbox` และ `GET → Redis Cache Version → PostgreSQL on miss`
 
 ### 4.2 ตารางค่าคอนฟิกเริ่มต้น (Baseline Parameters Table):
 
@@ -54,10 +54,11 @@ Reason: ระบบอยู่ในระหว่างการเตรี
 | **Edge / LB** | Nginx Proxy Strategy | `least_conn` หรือ `round_robin` | `infra/nginx/nginx.conf` |
 | **API Layer** | API Instance Count | `3 Containers` | `compose.yaml` |
 | **API Layer** | Node Runtime Heap | Default (`PENDING`) | Runtime Environment |
-| **Queue / Cache** | Redis Instances | Single Shared Instance (Port 6379/6380) | `compose.yaml` |
-| **Queue / Cache** | BullMQ Worker Concurrency | `10` (`PENDING`) | `apps/worker/src/config` |
-| **Cache Layer** | Product Cache TTL | `60s` (Jitter ±5s) | `packages/cache` |
-| **Database** | PostgreSQL Max Connections | `30` (`PENDING`) | `database/ormconfig` |
+| **Queue / Cache** | Redis Instances | `2`: Operations `noeviction+AOF`, Cache `allkeys-lru` | `compose.yaml` |
+| **Worker** | BullMQ Concurrency | `8` initial; tune 8/12/16 | `apps/worker/src/config` |
+| **Worker** | Micro-batch | `16 jobs`, max wait `1 ms`; tune 16/32 | `apps/worker/src/config` |
+| **Cache Layer** | Strategy | Versioned key + Single-Flight, TTL `60s ±5s` | `packages/cache` |
+| **Database** | Connections | `max_connections 35–40`, application pools total about `28` | `database/ormconfig` |
 
 ---
 
@@ -78,7 +79,7 @@ Reason: ระบบอยู่ในระหว่างการเตรี
 การทดสอบต้องแยกรายงานระหว่าง 2 สภาวะอย่างชัดเจน:
 
 1. **Cold Cache Scenario (แคชเย็น):**
-   - ดำเนินการล้างแคชใน Redis (`DEL fs:cache:products:*`) ก่อนรันคำสั่ง
+   - ล้างเฉพาะ Redis Cache Instance หรือเปลี่ยน Epoch ก่อนรัน ห้ามใช้ Wildcard `DEL`
    - วัดผลการเกิด Cache Miss ในครั้งแรก และการ Fallback ไปอ่าน PostgreSQL เพื่อสร้างแคชใหม่
 2. **Warm Cache Scenario (แคชอุ่น / Steady State):**
    - ทำการยิงคำขอ `GET /products` ก่อน 1 รอบเพื่อเติมแคช
@@ -91,8 +92,8 @@ Reason: ระบบอยู่ในระหว่างการเตรี
 ก่อนเริ่มยิง Write Benchmark ทุกรอบ ต้องรันสคริปต์ `scripts/reset-db.sh` เพื่อคืนค่าระบบสู่สถานะ Deterministic:
 1. ล้างตาราง `orders` ใน PostgreSQL (`TRUNCATE TABLE orders;`)
 2. คืนค่าสต็อกสินค้า `p-1001` ในตาราง `products` (`UPDATE products SET remaining_stock = 50 WHERE product_id = 'p-1001';`)
-3. ลบ Redis Atomic Claim Keys (`DEL fs:claim:order:*`) และลบ Queue Job ตกค้างใน BullMQ
-4. ลบแคชสินค้า `DEL fs:cache:products:*`
+3. ลบ Claim Keys ด้วย `SCAN` + `UNLINK` แบบจำกัด Prefix และลบ Queue Jobsผ่าน BullMQ API เท่านั้น
+4. Reset Redis Cache Instance/Epoch โดยไม่แตะ Redis Operations
 
 ---
 
@@ -123,13 +124,16 @@ Reason: ระบบอยู่ในระหว่างการเตรี
 
 > [!CAUTION]
 > **Hard Correctness Rule**  
-> ผล Benchmark ใดๆ จะถูกระบุเป็น `INVALID RESULT` ทันทีหากไม่ผ่านเกณฑ์ Data Integrity 5 ข้อหลังรัน Scenario C:
+> ผล Benchmark ใดๆ จะถูกระบุเป็น `INVALID RESULT` ทันทีหากไม่ผ่านเกณฑ์ SQL/Retry 8 ข้อหลังรัน Scenario C:
 
 1. **Non-Negative Stock:** `remainingStock >= 0` (สำหรับ `p-1001` ขายหมดต้องเท่ากับ `0`)
 2. **Total Successful Orders Cap:** `successful orders == 50`พอดี
 3. **Distinct Successful Users:** `distinct successful users == 50`พอดี
 4. **Zero Duplicate Successful Orders:** `duplicate successful orders == 0`
 5. **No Database Integrity Error:** ไม่เกิด Deadlock หรือ Database Corruption
+6. **Result Referential Integrity:** Successful Result ที่ไม่มี Order อ้างอิงต้องเท่ากับ 0
+7. **Accepted-to-Durable Completion:** หลัง Queue Drain ทุก Accepted Job ต้องมี `order_results` หนึ่งผล
+8. **Retry Idempotency:** ส่ง Job เดิมซ้ำแล้ว Stock/Order count ต้องไม่เปลี่ยน
 
 ---
 

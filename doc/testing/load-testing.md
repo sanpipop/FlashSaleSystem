@@ -30,7 +30,7 @@
 1. ล้างตารางคำสั่งซื้อ `TRUNCATE TABLE orders;`
 2. คืนค่าสต็อกสินค้า `p-1001` ให้เท่ากับ 50 ชิ้น (`UPDATE products SET remaining_stock = 50 WHERE product_id = 'p-1001';`)
 3. ลบ Redis Atomic Claim Keys (`DEL fs:claim:order:*`) และล้าง Queue Job ตกค้างใน BullMQ
-4. ลบแคชสินค้า `DEL fs:cache:products:*`
+4. Reset Redis Cache Instance/Epoch โดยไม่ใช้ Wildcard `DEL` และไม่แตะ BullMQ keys
 
 ---
 

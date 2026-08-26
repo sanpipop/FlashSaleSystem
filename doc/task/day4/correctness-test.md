@@ -29,13 +29,16 @@ No (รันหลัง k6 Load Test จบสิ้นในแต่ละ�
 - [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Scope
-- เขียนและรันสคริปต์ `scripts/verify-integrity.sh` ตรวจสอบ 5 เงื่อนไขบังคับ:
+- เขียนและรันสคริปต์ `scripts/verify-integrity.sh` ตรวจสอบ 8 เงื่อนไขบังคับ:
   1. `remainingStock = 0` (กรณีขายหมด)
   2. `successful orders = 50`
   3. `distinct successful users = 50`
   4. `duplicate successful orders = 0`
   5. `negative stock = 0`
-- เขียนสคริปต์ `scripts/reset-db.sh` ล้างข้อมูล `orders`, รีเซ็ตสต็อก `products` กลับเป็น 50 และล้าง Redis Cache/Queue เพื่อเตรียมพร้อมก่อนยิงรอบถัดไป
+  6. Successful `order_results` ที่ไม่มี Order อ้างอิง = 0
+  7. Accepted Jobs ที่ไม่มี Durable Result หลัง Queue Drain = 0
+  8. Retry Job เดิมไม่เพิ่ม Order และไม่ลด Stock ซ้ำ
+- เขียน `scripts/reset-db.sh` ล้าง `orders`, `order_results`, `transactional_outbox`, รีเซ็ต Stock และ Reset Redis ผ่าน Cache Instance/BullMQ API โดยไม่ใช้ Wildcard `DEL`
 
 ## Out of Scope
 - การแก้ไข Code ของระบบ (หากพบความผิดพลาด ให้เปิด Issue รายงานทันที)
@@ -44,7 +47,7 @@ No (รันหลัง k6 Load Test จบสิ้นในแต่ละ�
 - สคริปต์ต้องพิมพ์รายงานสรุปผลลัพธ์เป็น PASS/FAIL ชัดเจน
 
 ## Acceptance Criteria
-1. ผลการรัน SQL Verification สำหรับสินค้า `p-1001` ผ่านเกณฑ์ครบทั้ง 5 ข้อ (100% Correctness)
+1. ผลการรัน SQL Verification สำหรับสินค้า `p-1001` ผ่านเกณฑ์ครบทั้ง 8 ข้อ (100% Correctness)
 2. สคริปต์ `reset-db.sh` สามารถคืนค่าระบบกลับสู่สถานะเริ่มต้นพร้อมทดสอบรอบใหม่ได้ในคำสั่งเดียว
 
 ## Test / Verification

@@ -29,7 +29,9 @@ Database operations and worker transaction execution are owned by **Member 3 (Wo
 ## Responsibilities
 - **Inviolable Data Integrity Constraints:** Enforce `CHECK(remaining_stock >= 0)` and `UNIQUE(user_id, product_id)` at the database DDL level.
 - **Stock Semantics:** Maintain distinction between `available_stock` (initial allocated stock) and `remaining_stock` (mutable current stock). Decrement ONLY `remaining_stock`.
-- **Pessimistic Row Locking:** Use TypeORM `PESSIMISTIC_WRITE` (`SELECT FOR UPDATE`) inside transactions to serialize competing worker threads for hot products.
+- **Micro-batched Pessimistic Locking:** Use `place_order_batch(jsonb)` and `SELECT FOR UPDATE` once per Product batch.
+- **Durable Idempotency:** Persist one `order_results` row per Job and return it on retries.
+- **Recovery:** Persist Transactional Outbox events in the same transaction as Stock/Orders/Results.
 - **ACID Transaction Boundaries:** Execute product lock, sale active check, stock check, order creation, and stock decrement within a single atomic database transaction.
 - **Post-Commit Invalidation Trigger:** Trigger Redis cache invalidation ONLY after the database transaction successfully commits.
 
@@ -56,43 +58,23 @@ Constraint 3: is_flash_sale_active = true
 
 - **Uniqueness Boundary:** `UNIQUE(user_id, product_id)` allows the same user to buy different products (`user-001 + p-1001` AND `user-001 + p-1002`). It strictly blocks duplicate purchases of the same product by the same user.
 
-### 2. Pessimistic Lock Transaction Workflow (`SELECT FOR UPDATE`)
+### 2. Winning Micro-batch Transaction Workflow
 
 ```typescript
-// Conceptual Concurrency-Safe Worker Processing Flow
-await dataSource.transaction(async (transactionalEntityManager) => {
-  // 1. Lock Target Product Row
-  const product = await transactionalEntityManager
-    .createQueryBuilder(Product, 'product')
-    .setLock('pessimistic_write')
-    .where('product.id = :productId', { productId })
-    .getOne();
+// Conceptual call; implement the exact SQL semantics in database-contract.md.
+const results = await dataSource.query(
+  'SELECT * FROM place_order_batch($1::jsonb)',
+  [JSON.stringify(batch)],
+);
 
-  // 2. Validate Flash Sale Active State
-  if (!product.isFlashSaleActive) {
-    return { status: 'REJECTED_INACTIVE' };
-  }
-
-  // 3. Validate Stock Availability
-  if (product.remainingStock <= 0) {
-    return { status: 'REJECTED_SOLD_OUT' };
-  }
-
-  // 4. Create Order Entry (UNIQUE constraint will catch duplicate user/product)
-  const order = transactionalEntityManager.create(Order, {
-    userId,
-    productId,
-    jobId,
-    status: 'CONFIRMED',
-  });
-  await transactionalEntityManager.save(order);
-
-  // 5. Decrement Stock
-  product.remainingStock -= 1;
-  await transactionalEntityManager.save(product);
-
-  return { status: 'SUCCESS', orderId: order.id };
-});
+// The DB function must, in one transaction:
+// 1. return existing order_results for retried jobId values;
+// 2. deduplicate jobId and (userId, productId);
+// 3. lock products by sorted product_id using FOR UPDATE;
+// 4. bulk-insert at most remaining_stock winners with status SUCCESS;
+// 5. decrement by the actual INSERT ... RETURNING count;
+// 6. persist one order_results row for every distinct logical job;
+// 7. insert PRODUCT_STOCK_CHANGED outbox events.
 ```
 
 ### 3. Migration & Seed Discipline
@@ -130,8 +112,9 @@ await dataSource.transaction(async (transactionalEntityManager) => {
 
 1. **Step 1 — Entity & Schema Audit:** Check `database-contract.md` for exact column names (`snake_case` in SQL, `camelCase` in TypeORM).
 2. **Step 2 — Migration Creation:** Create DDL migrations using TypeORM CLI.
-3. **Step 3 — Transaction Processor:** Implement pessimistic row lock logic inside `OrderProcessorService` in `apps/worker/`.
-4. **Step 4 — Post-Commit Trigger:** Register post-commit hook or service call to issue Redis cache invalidation (`DEL fs:cache:products:*`).
+3. **Step 3 — Batch Function:** Implement and integration-test `place_order_batch(jsonb)`.
+4. **Step 4 — Worker Coordinator:** Group 10–32 Jobs (start 16, max wait 1 ms) and map all results.
+5. **Step 5 — Post-Commit Recovery:** Immediately increment Cache Epoch and run the Outbox Relay for retry.
 
 ## Verification
 - Run real PostgreSQL integration tests (`pnpm test:integration`). Do NOT mock PostgreSQL for concurrency tests.
@@ -142,7 +125,7 @@ await dataSource.transaction(async (transactionalEntityManager) => {
 
 ## Performance Considerations
 - **Keep Lock Window Short:** Do not perform external network calls or heavy CPU work inside the transaction lock.
-- **Connection Pool Sizing:** Balance PostgreSQL connection pool (`max: 20-30`) across API instances and Workers to prevent DB connection exhaustion on 4 vCPU VM.
+- **Connection Pool Sizing:** Count pools across all processes. Start with API `3×4`, Worker `12`, total target about `28`, and PostgreSQL `max_connections=35–40`.
 
 ## Common Anti-Patterns to Avoid
 - **Anti-Pattern 1:** Updating stock without row locking (`UPDATE products SET remaining_stock = remaining_stock - 1`).

@@ -2,7 +2,7 @@
 
 ระบบ Backend สำหรับการแข่งขัน Flash Sale ที่ออกแบบให้รับคำขอพร้อมกันจำนวนมากบน VM เครื่องเดียว โดยให้ความสำคัญตามลำดับคือ **ข้อมูลถูกต้อง → ตรงตาม Requirement → ตอบกลับเร็ว → วัดผลได้ → ปรับแต่งจาก Benchmark**
 
-> **สถานะปัจจุบัน:** Architecture, Shared Contracts และแผนพัฒนาเสร็จแล้ว อยู่ระหว่างเริ่ม Implementation
+> **สถานะปัจจุบัน:** Winning Fastest-Safe Architecture และ Shared Contracts ถูก Freeze แล้ว อยู่ระหว่างเริ่ม Implementation; ตัวเลขประสิทธิภาพยังต้องยืนยันบน VM จริง
 
 ## เป้าหมายหลัก
 
@@ -51,16 +51,18 @@ Client → Nginx → API → Redis Cache
 ```text
 Client → Nginx → API
 → ตรวจ JWT และ Request
-→ Atomic duplicate claim ใน Redis
+→ Atomic `SET NX EX` claim ด้วย request token
+→ สร้าง `ord-<SHA256(userId|productId)>` ซึ่งไม่มี `:`
 → เพิ่ม Job เข้า BullMQ
 → ตอบ 202 Accepted
 
 BullMQ → Worker
-→ PostgreSQL Transaction
-→ ตรวจ Duplicate และล็อก/ลด Stock แบบ Atomic
-→ บันทึก Order
+→ รวม Micro-batch 10–32 Jobs (เริ่ม 16 / รอสูงสุด 1 ms)
+→ PostgreSQL `place_order_batch(jsonb)` Transaction
+→ ตรวจ Durable Result, ล็อก Product Row, เลือกผู้ชนะไม่เกิน Stock
+→ Bulk Insert Order + Result Ledger + Transactional Outbox
 → Commit
-→ Invalidate Product Cache
+→ `INCR` Versioned Product Cache Epoch; Outbox Retry หาก Redis ล่ม
 ```
 
 `202 Accepted` หมายถึงระบบรับงานเข้าคิวสำเร็จเท่านั้น ไม่ได้หมายความว่าผู้ใช้ได้สินค้าแล้ว ผลถาวรต้องตัดสินจาก Transaction ใน PostgreSQL
@@ -73,7 +75,8 @@ BullMQ → Worker
 2. **Queue idempotency:** ใช้ Deterministic Job ID จาก `userId` และ `productId` เพื่อลดโอกาสสร้าง Job ซ้ำ
 3. **Database transaction:** Worker ตรวจและลด Stock ภายใน Transaction พร้อม Row Lock หรือ Atomic Conditional Update
 4. **Unique constraint:** PostgreSQL บังคับ `UNIQUE(user_id, product_id)` เป็นด่านสุดท้ายของกฎหนึ่งคนต่อหนึ่งสินค้า
-5. **Cache invalidation:** ล้างหรือเปลี่ยนรุ่น Cache หลัง Database Commit สำเร็จเท่านั้น
+5. **Durable idempotency:** ใช้ `order_results(job_id PRIMARY KEY)` ทำให้ Worker Retry โดยไม่ลด Stock ซ้ำ
+6. **Cache invalidation:** เปลี่ยน Cache Epoch หลัง Database Commit เท่านั้น และมี Transactional Outbox ซ่อม Invalidation
 
 Redis ช่วยให้ตัดสินใจเร็วในเส้นทางรับคำขอ แต่ไม่ใช่ Source of Truth หากข้อมูล Redis กับ PostgreSQL ไม่ตรงกัน ต้องยึด PostgreSQL เสมอ
 
@@ -101,14 +104,13 @@ Redis ช่วยให้ตัดสินใจเร็วในเส้�
 | Observability | Structured Logs, Prometheus, Grafana, Bull Board |
 | Performance Testing | k6 จากเครื่องภายนอก VM |
 
-## Benchmark-Gated Optimizations
+## Winning Fastest-Safe Defaults
 
-เทคนิคต่อไปนี้เป็น Candidate Optimization ต้องเปิดใช้ต่อเมื่อผล k6 แสดงว่าดีกว่า Baseline และยังรักษาความถูกต้องของข้อมูล:
-
-- Queue lane sharding ตาม Product ID
-- Worker micro-batching และ PostgreSQL batch function
-- Redis sold-out marker ที่เขียนหลัง Database Commit
-- แยก Redis Queue และ Redis Cache เป็นคนละ Instance
+- แยก Redis Operations (`noeviction`, AOF) ออกจาก Redis Cache (`allkeys-lru`)
+- ใช้ Versioned Cache + Single-Flight ป้องกัน Cache Stampede
+- ใช้ Worker Micro-batching และ PostgreSQL batch function เพื่อลด DB Round-trip
+- ใช้ Durable Result Ledger และ Transactional Outbox ป้องกัน Retry/Cache failure
+- ปรับ batch size, worker concurrency และ DB pool ด้วย k6 ทีละตัวแปร; ห้ามอ้างว่าเร็วที่สุดจนกว่าจะมีผลจริง 3 รอบและผ่าน SQL Correctness Gate
 
 ## Branch Flow
 

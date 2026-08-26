@@ -36,6 +36,9 @@ No (เริ่มช่วงบ่ายหลัง Feature หลักใ�
   2. Products Cache Flow: เรียกครั้งแรก Miss ครั้งถัดไป Hit
   3. Stock Concurrency Test: ยิงซื้อสินค้า `p-1001` (สต็อก 50) พร้อมกัน 100 คำขอ ต้องได้ Order สำเร็จ 50 รายการ สต็อกเหลือ 0
   4. Duplicate Protection Test: ยิงซื้อสินค้าเดียวกันด้วย User เดียวกันพร้อมกัน ปฏิเสธคำขอซ้ำ
+  5. Durable Retry Test: ส่ง Job เดิมซ้ำหลัง Commit ต้องได้ Result เดิมและ Stock/Order ไม่เปลี่ยน
+  6. Micro-batch Mapping Test: ทุก Job มี `order_results` หนึ่งแถวและ DB batch calls น้อยกว่า Job count ใน Burst
+  7. Cache Recovery Test: Redis Cache ล่มหลัง Commit แล้ว Outbox Relay ต้องเปลี่ยน Epoch เมื่อ Redis กลับมา
 - จัดทำสคริปต์ `scripts/smoke-test.sh` เพื่อใช้รันใน CI Smoke Workflow
 
 ## Out of Scope
@@ -47,6 +50,7 @@ No (เริ่มช่วงบ่ายหลัง Feature หลักใ�
 ## Acceptance Criteria
 1. รัน `pnpm test:integration` ผ่าน 100% (Green)
 2. สคริปต์ `bash scripts/smoke-test.sh` รันผ่านโดยไม่มี Error exit code
+3. Stock=1, Stock=50, Retry และ Outbox Recovery Gates ผ่านทั้งหมด
 
 ## Test / Verification
 ```bash

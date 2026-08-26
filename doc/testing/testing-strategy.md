@@ -111,7 +111,7 @@
 - [ ] คำสั่ง `pnpm test:integration` ผ่าน 100% (Green)
 - [ ] สคริปต์ `bash scripts/smoke-test.sh` รันผ่านครบทุก Endpoint
 - [ ] ชุดการทดสอบ Concurrency (`TEST-010`, `TEST-011`) ผ่านการพิสูจน์ว่าไม่มีสต็อกติดลบและซื้อซ้ำ
-- [ ] ผลการรัน SQL Verification ใน PostgreSQL แสดงความถูกต้องตามเงื่อนไข 5 ข้อ
+- [ ] ผลการรัน SQL/Retry Verification แสดงความถูกต้องตามเงื่อนไข 8 ข้อ รวม Result Ledger และ Retry Idempotency
 
 ---
 

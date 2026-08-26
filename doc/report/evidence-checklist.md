@@ -41,10 +41,10 @@
 | **EVD-005** | Products Read API & Pagination | curl / HTTP Client | 200 JSON response with page & limit | Section 4 | Member 1 | `PENDING` |
 | **EVD-006** | Orders Async Admission API | curl / HTTP Client | 202 Accepted response with `orderJobId` | Section 4, 6 | Member 1 | `PENDING` |
 | **EVD-007** | Redis Product Cache-Aside (Hit/Miss)| API Metrics / Log | First GET = Miss, Second GET = Hit | Section 5 | Member 2 | `PENDING` |
-| **EVD-008** | Post-Commit Cache Invalidation | Redis / API | Updated remainingStock visible after DB Commit | Section 5, 8 | Member 2 | `PENDING` |
-| **EVD-009** | Duplicate Order Prevention | Integration Test | Single user multi-request results in 1 order | Section 7 | Member 3 | `PENDING` |
+| **EVD-008** | Versioned Cache + Outbox Recovery | Redis / API / DB | Epoch changes after Commit and Outbox repairs Redis outage | Section 5, 8 | Member 2, 3 | `PENDING` |
+| **EVD-009** | Duplicate/Retry Prevention | Integration Test | Concurrent duplicates create 1 logical Job; retry returns durable result without extra stock cut | Section 7 | Member 3 | `PENDING` |
 | **EVD-010** | Bull Board Queue Dashboard UI | Browser Screenshot | Real-time Waiting/Active/Completed/Failed counts | Section 6, 9 | Member 2 | `PENDING` |
-| **EVD-011** | BullMQ Worker Consumer Execution | Worker Log | JSON Log showing `jobId`, `requestId`, `outcome` | Section 6, 9 | Member 3 | `PENDING` |
+| **EVD-011** | BullMQ Micro-batch Worker | Worker/DB Metrics | Job count, batch-call count, mapping and JSON correlation logs | Section 6, 9 | Member 3 | `PENDING` |
 | **EVD-012** | Database Non-Negative Stock Proof | SQL Query Output | `SELECT remaining_stock FROM products WHERE product_id='p-1001'` (>=0) | Section 8, 15 | Member 3 | `PENDING` |
 | **EVD-013** | Database Total Successful Orders Proof | SQL Query Output | `SELECT COUNT(*) FROM orders WHERE product_id='p-1001'` (==50) | Section 8, 15 | Member 3 | `PENDING` |
 | **EVD-014** | Database Distinct Users Proof | SQL Query Output | `SELECT COUNT(DISTINCT user_id) FROM orders` (==50) | Section 8, 15 | Member 3 | `PENDING` |

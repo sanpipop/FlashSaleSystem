@@ -38,7 +38,9 @@ Yes
 
 ## Scope
 - สร้าง Shared Package `packages/queue` บรรจุ BullMQ Producer Module
-- สร้างคำสั่งช่วยสร้าง Deterministic `jobId` (`job:userId:productId`) ตาม [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
+- สร้าง helper `jobId = ord-<SHA256(userId|productId)>` ซึ่งไม่มี `:` ตาม `queue-contract.md`
+- แยก Redis Operations (`noeviction`, AOF everysec) และ Redis Cache (`allkeys-lru`) เป็นคนละ Instance/Connection
+- ตั้ง Job retention, attempts และ exponential backoff ตาม Queue Contract
 - สร้าง Shared Package `packages/cache` สำหรับจัดการ Redis Client Connection
 - เขียน Unit Test ทดสอบการเชื่อมต่อและสั่ง Enqueue Test Job
 

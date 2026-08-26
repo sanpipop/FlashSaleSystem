@@ -39,8 +39,9 @@ Reason: ระบบอยู่ในระหว่างขั้นตอน
 | **Nginx Proxy** | Upstream Balancing Strategy | `PENDING` | `PENDING BENCHMARK` |
 | **NestJS API** | Container Instance Count | `PENDING` | `PENDING BENCHMARK` |
 | **BullMQ Worker** | Concurrency Level | `PENDING` | `PENDING BENCHMARK` |
-| **Redis Cache** | Cache Strategy & TTL | `PENDING` | `PENDING BENCHMARK` |
-| **PostgreSQL** | Connection Pool Size | `PENDING` | `PENDING BENCHMARK` |
+| **Worker Batch** | Batch Size / Max Wait | `PENDING` | `PENDING BENCHMARK` |
+| **Redis Cache** | Versioned Cache / TTL | `PENDING` | `PENDING BENCHMARK` |
+| **PostgreSQL** | Total Application Pool | `PENDING` | `PENDING BENCHMARK` |
 | **Node.js Runtime**| Max Old Space Size (Heap) | `PENDING` | `PENDING BENCHMARK` |
 
 ---

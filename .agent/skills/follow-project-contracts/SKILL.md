@@ -32,7 +32,7 @@ An implementation agent MUST NOT independently modify or change:
 - Request/Response JSON field casing (`camelCase` for external API and Queue; `snake_case` for DB columns).
 - Queue names (e.g., BullMQ Queue name `orders`).
 - Queue job payload schema (`userId`, `productId`, `requestId`, `jobId`).
-- Deterministic Redis key formats (e.g., `fs:claim:order:{userId}:{productId}` and `fs:cache:products:page={page}:limit={limit}`).
+- Deterministic Redis claim keys, Cache Epoch, and versioned Product Cache keys from `redis-contract.md`.
 - PostgreSQL uniqueness constraints (`UNIQUE(user_id, product_id)`) or check constraints (`CHECK(remaining_stock >= 0)`).
 
 ### 2. Producer-Consumer Compatibility Matrix
@@ -41,9 +41,9 @@ An implementation agent MUST NOT independently modify or change:
 | --- | --- | --- | --- | --- |
 | **API ↔ Queue** | NestJS API Order Controller | BullMQ Queue Producer | `queue-contract.md` | API enqueues job with exact `camelCase` payload. |
 | **Queue ↔ Worker** | BullMQ Queue | Worker Order Consumer | `queue-contract.md` | Worker reads job payload without expecting extra fields. |
-| **Worker ↔ Database**| Worker Order Processor | PostgreSQL Database Engine | `database-contract.md` | Worker executes transaction with `SELECT FOR UPDATE`. |
+| **Worker ↔ Database**| Worker Batch Processor | PostgreSQL Database Engine | `database-contract.md` | Worker calls `place_order_batch`; DB persists Results and Outbox. |
 | **API ↔ Redis Cache** | NestJS Products Controller | Redis Cache Store | `redis-contract.md` | API reads/writes Product Cache using exact TTL key. |
-| **Worker ↔ Invalidation**| Worker Post-Commit Handler | Redis Cache Store | `redis-contract.md` | Worker issues `DEL fs:cache:products:*` after DB Commit. |
+| **Worker ↔ Invalidation**| Worker + Outbox Relay | Redis Cache Store | `redis-contract.md` | Increment Cache Epoch after Commit and retry from Outbox. |
 
 ## Workflow
 

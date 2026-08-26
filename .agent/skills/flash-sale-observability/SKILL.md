@@ -57,7 +57,7 @@ Observability is primarily owned by **Member 2 (Queue / Cache / Observability Le
 > **Prometheus Metric Label Guardrail**  
 > NEVER include high-cardinality identifiers as Prometheus metric labels.
 > - **FORBIDDEN Labels:** `userId`, `requestId`, `jobId`, `jwtToken`, or raw URLs containing dynamic IDs (`/api/v1/orders/12345`).
-> - **ALLOWED Labels:** `method="POST"`, `route="/api/v1/orders"`, `status="202"`, `service="api"`, `outcome="CONFIRMED"`.
+> - **ALLOWED Labels:** `method="POST"`, `route="/api/v1/orders"`, `status="202"`, `service="api"`, `outcome="SUCCESS"`.
 > 
 > High-cardinality labels create millions of time series, causing Prometheus to exhaust host RAM and crash the VM.
 

@@ -1,7 +1,7 @@
 # สัญญาข้อกำหนดการใช้งาน Redis (Redis Key Schema & Operation Contract)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** FROZEN BASELINE (Phase 2)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE (Phase 2)
 **ขอบเขตโปรเจกต์:** ข้อตกลงรูปแบบ Keys, TTL, Cache Invalidation และ Atomic Protection ใน Redis (ขอบเขต Member 1 & Member 2)
 
 ---
@@ -29,9 +29,11 @@
 - **Format Pattern:** `fs:<domain>:<resource>:<identifier>`
 
 ```text
-fs:cache:products:page=1:limit=10    -> Product Listing Read Cache
-fs:claim:order:user-999:p-1001      -> Atomic Admission Duplicate Claim
-bull:orders:...                      -> BullMQ Internal Queue Namespace
+fs:cache:products:epoch                     -> Current confirmed cache generation
+fs:cache:products:v=15:page=1:limit=10      -> Versioned Product Listing Cache
+fs:cache:fill:v=15:page=1:limit=10          -> Short single-flight fill guard
+fs:claim:order:user-999:p-1001              -> Atomic Admission Duplicate Claim
+bull:orders:...                              -> BullMQ Internal Queue Namespace
 ```
 
 ---
@@ -39,8 +41,9 @@ bull:orders:...                      -> BullMQ Internal Queue Namespace
 ## 4. สัญญาข้อกำหนดสำหรับ Product Read Cache (Product Cache Contract)
 
 ### 4.1 Key Format Design:
-- **Pattern:** `fs:cache:products:page={page}:limit={limit}`
-- **ตัวอย่าง:** `fs:cache:products:page=1:limit=10`
+- **Epoch Key:** `fs:cache:products:epoch`
+- **Data Key Pattern:** `fs:cache:products:v={epoch}:page={page}:limit={limit}`
+- **ตัวอย่าง:** `fs:cache:products:v=15:page=1:limit=10`
 
 ### 4.2 Data Type & Value Structure:
 - **Data Type:** Redis `String` (JSON Serialized)
@@ -68,14 +71,19 @@ bull:orders:...                      -> BullMQ Internal Queue Namespace
   }
   ```
 
+### 4.3 One-Round-Trip Read (`FROZEN WINNING`)
+
+API ใช้ Redis Lua Script ที่โหลดไว้ล่วงหน้าและเรียกด้วย `EVALSHA` เพื่ออ่าน Epoch, สร้าง Versioned Key และอ่าน Cache Value ใน Redis round-trip เดียว ห้ามใช้ `KEYS` บน Request Path หาก Script Cache หายให้รับ `NOSCRIPT` แล้วโหลด Script ใหม่หนึ่งครั้ง
+
 ---
 
 ## 5. สัญญาการล้างแคช (Cache Invalidation Trigger Contract)
 
-1. **Trigger Condition:** เกิดขึ้นเมื่อ BullMQ Worker ทำการตัดสต็อกลง PostgreSQL และ **`COMMIT` Transaction เรียบร้อยแล้วเท่านั้น**
-2. **Invalidation Action:** Worker (หรือ Service ล้างแคช) จะส่งคำสั่งลบแคชออกด้วย Pattern:
-   - **Command:** `DEL fs:cache:products:*` หรือลบ Key เฉพาะหน้าที่เกี่ยวข้อง
-3. **Failure Recovery:** หากการส่งคำสั่ง Invalidation ไปยัง Redis ล้มเหลว ข้อมูลแคชจะหมดอายุตามค่า TTL (60s) โดยไม่ส่งผลกระทบต่อ Data Integrity ใน PostgreSQL
+1. **Trigger Condition:** เกิดขึ้นเมื่อ BullMQ Worker ตัดสต็อกใน PostgreSQL และ **`COMMIT` สำเร็จแล้วเท่านั้น**
+2. **Invalidation Action (`FROZEN`):** สั่ง `INCR fs:cache:products:epoch` เพื่อเปลี่ยน Cache Generation แบบ O(1) ห้ามใช้ `DEL fs:cache:products:*` เพราะ `DEL` ไม่รองรับ Wildcard
+3. **Old-Key Cleanup:** ไม่ต้องไล่ลบ Key บน Request Path ให้ Key รุ่นเก่าหมดอายุเองตาม TTL; งานเบื้องหลังอาจใช้ `SCAN` + `UNLINK` ได้เท่านั้น
+4. **Failure Recovery:** Transaction ต้องเขียน `transactional_outbox` ใน PostgreSQL พร้อม Order จากนั้น Outbox Relay จะ Retry การ `INCR epoch` จนสำเร็จ การเพิ่ม Epoch ซ้ำยอมรับได้เพราะเป็น Cache Invalidation แบบ Idempotent Effect
+5. **Cache Miss Stampede Protection:** ใช้ Single-Flight ต่อ Cache Key (`SET fill-key token NX PX 1000`) ผู้ชนะอ่าน DB และเติม Cache ผู้แพ้รอแบบสั้นมากแล้วอ่าน Cache ซ้ำ; ก่อนเติม Cache ต้องยืนยันว่า Epoch ยังเท่ากับค่าที่อ่านมา หาก Redis ล่มให้ Fallback DB
 
 ---
 
@@ -91,7 +99,7 @@ bull:orders:...                      -> BullMQ Internal Queue Namespace
 API จะส่งคำสั่ง Redis Atomic Operation ก่อนทำการ Enqueue งานเข้า BullMQ:
 
 ```text
-SET fs:claim:order:user-999:p-1001 "1" EX 60 NX
+SET fs:claim:order:user-999:p-1001 "<random-request-token>" EX 60 NX
 ```
 
 - **พฤติกรรมกรณีคำขอใหม่ (First Request):**  
@@ -102,11 +110,15 @@ SET fs:claim:order:user-999:p-1001 "1" EX 60 NX
 ### 6.3 Claim Key TTL Policy:
 - **TTL Duration:** `60` วินาที
 - **เหตุผล:** ป้องกันปัญหา Deadlock Claim ในกรณีที่ API หรือ Queue เกิด Crash กลางคันหลังจากตั้งค่า Key ไปแล้ว
+- **Safe Release:** หาก `queue.add()` ล้มเหลว ให้ลบ Claim ด้วย Lua compare-and-delete เฉพาะเมื่อค่าใน Key เท่ากับ Token ของ Request นี้ ห้ามใช้ `DEL` โดยไม่ตรวจ Token
+- **Success Lifecycle:** เมื่อ Enqueue สำเร็จไม่ต้องปลด Claim ทันที ให้ TTL ป้องกัน HTTP retry burst; ความถูกต้องถาวรอยู่ที่ BullMQ Job ID และ PostgreSQL
 
 ---
 
 ## 7. ขอบเขตการทำงานร่วมกับ BullMQ (BullMQ Namespace Boundary)
 
+- **Queue Redis:** ใช้ Redis Operations Instance ที่ `maxmemory-policy=noeviction` และ AOF `appendfsync everysec`
+- **Cache Redis:** ใช้ Redis Cache Instance แยกต่างหากและตั้ง `allkeys-lru`; Cache สูญหายได้เพราะสร้างใหม่จาก PostgreSQL
 - **Queue Name:** `orders`
 - **Internal Redis Keys:** BullMQ จะสร้าง Keys ขึ้นต้นด้วย `bull:orders:*` (เช่น `bull:orders:id`, `bull:orders:waiting`)
 - **ทีมพัฒนาห้ามทำการแก้ไข หรือลบ Keys ใน Namespace `bull:orders:*` ด้วยตนเองผ่านสคริปต์ภายนอก** ให้สั่งงานผ่าน BullMQ Library API เท่านั้น

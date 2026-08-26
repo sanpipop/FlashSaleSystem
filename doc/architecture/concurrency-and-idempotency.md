@@ -1,7 +1,7 @@
 # การจัดการคำขอพร้อมกันและการป้องกันคำสั่งซื้อซ้ำ (Concurrency Control & Idempotency Architecture)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** Draft Baseline Architecture (Phase 1)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE Architecture (Phase 1)
 **ขอบเขตโปรเจกต์:** การรักษา Data Integrity และความถูกต้องของสต็อก (ขอบเขต Member 3 ร่วมกับ Member 1 และ 2)
 
 ---
@@ -39,21 +39,21 @@ flowchart TD
 
 #### Layer 1: API / Redis Admission Level
 - **กลไก:** เมื่อ API รับคำขอ จะคำนวณ Deterministic Identifier จากคู่ `userId + productId`
-- **วิธีการ:** ใช้ Atomic Redis Operations เช่น `SETNX dedup:{userId}:{productId} 1 EX 60` หรือการใช้ deterministic BullMQ Job ID
+- **วิธีการ:** ใช้ `SET claim-key randomToken NX EX 60` ตาม Requirement อาจารย์ แล้วใช้ `ord-<SHA256(userId|productId)>` เป็น BullMQ Job ID ชั้นที่สอง; หาก Enqueue ล้มเหลวให้ Lua compare-and-delete Claim ตาม Token
 - **ผลลัพธ์:** กันคำขอซ้ำจากผู้ใช้เดียวกันตั้งแต่ระดับ API ก่อนจะสร้าง Overhead ให้ระบบลึกเข้าไป
 
 #### Layer 2: Queue Deduplication Level
-- **กลไก:** กำหนด `jobId` ของ BullMQ เป็นค่าคงที่ตามคู่ `userId` และ `productId` (เช่น `jobId = sha256(userId + ":" + productId)`)
+- **กลไก:** กำหนด `jobId = "ord-" + sha256(userId + "|" + productId)` ซึ่งไม่มี `:` และเก็บ Completed Jobs แบบจำกัด
 - **ผลลัพธ์:** หากมีคำขอซ้ำหลุดมายัง BullMQ ด้วย Job ID เดิม BullMQ จะไม่สร้าง Job ใหม่ใน Queue
 
-#### Layer 3: Worker Transaction & Pessimistic Row Lock Level
-- **กลไก:** เมื่อ Worker ดึงงานมา จะเปิด PostgreSQL Transaction และรันคำสั่ง:
+#### Layer 3: Worker Micro-batch Transaction & Pessimistic Row Lock Level
+- **กลไก:** Worker รวม 10–32 Jobs หรือรอสูงสุด 1 ms แล้วเรียก `place_order_batch(jsonb)` จากนั้นตรวจ `order_results.job_id` และล็อกสินค้าเพียงครั้งเดียว:
   ```sql
   SELECT remaining_stock, is_flash_sale_active 
   FROM products 
-  WHERE id = $1 FOR UPDATE;
+  WHERE product_id = $1 FOR UPDATE;
   ```
-- **ผลลัพธ์:** PostgreSQL จะทำการล็อกแถวสินค้านั้นไว้ Worker ตัวอื่นที่ดึง Job สินค้าเดียวกันจะถูกสั่งให้รอ (Block) จนกว่า Transaction แรกจะ COMMIT หรือ ROLLBACK ทำให้การอ่านและตัดสต็อกเกิดขึ้นแบบ Serialized (ทีละรายการ)
+- **ผลลัพธ์:** PostgreSQL Serialize การแก้ Stock ของ Product เดียวกัน แต่หนึ่ง Lock สามารถตัดสินหลาย Jobs จึงลด Lock/Network Round-trip เมื่อเทียบกับ Transaction ทีละ Job
 
 #### Layer 4: PostgreSQL Database Final Guard Level
 - **ตาราง `orders`:** สร้าง Unique Constraint สัมบูรณ์:
@@ -65,6 +65,8 @@ flowchart TD
   ALTER TABLE products ADD CONSTRAINT check_stock_non_negative CHECK (remaining_stock >= 0);
   ```
 - **ผลลัพธ์:** หากกลไกใน Layer 1-3 ล้มเหลวทั้งหมด PostgreSQL Database Engine จะทำการปฏิเสธคำสั่ง SQL และสั่ง Rollback ทันทีด้วย ACID Guarantee
+- **Idempotency Ledger:** `order_results(job_id PRIMARY KEY)` บันทึกทั้ง SUCCESS และ Business Rejection ทำให้ Retry คืนผลเดิมโดยไม่ทำธุรกรรมซ้ำ
+- **Recovery:** `transactional_outbox` อยู่ Transaction เดียวกับ Stock/Order เพื่อ Retry Cache Epoch หลัง Commit
 
 ---
 
@@ -97,8 +99,8 @@ t5      -                               Stock is 0 -> ROLLBACK & FAIL   0 (SAFE!
 | --- | --- | --- | --- |
 | **Naive Update** (ไม่มี lock) | รวดเร็วที่สุด | เกิด Overselling สต็อกติดลบแน่นอน | **ห้ามใช้โดยเด็ดขาด** |
 | **Optimistic Locking** (`WHERE version = v`) | ไม่มี DB Row Lock Waiting Overhead | หากมี High Contention (500 คนยิงชิ้นเดียว) จะเกิด Retry Storm มหาศาล | ไม่เหมาะกับ Hot Product ชิ้นเดียว |
-| **Pessimistic Locking** (`FOR UPDATE`) | **การันตี Data Correctness 100%** เข้าใจง่าย ปลอดภัย | เกิด Lock Contention ทำให้ Throughput ชะลอตามความเร็ว DB | ** Baseline Recommendation** |
-| **Batch Stored Procedure** (`place_order_batch`) | เร็วมาก ตัด 32 jobs ใน 1 DB Call | เพิ่ม Complexity ของ Code และ Migration | Candidate Optimization |
+| **Pessimistic Locking** (`FOR UPDATE`) | การันตี Correctness และเหมาะกับ Hot Product | Transaction ทีละ Job มี DB Round-trip สูง | Required Safety Primitive |
+| **Batch Stored Procedure** (`place_order_batch`) | ตัดสิน 10–32 Jobs ด้วย Lock/DB Call เดียว | ต้อง Mapping ผลกลับแต่ละ BullMQ Job ให้ครบ | **Winning Default** |
 
 ---
 

@@ -1,7 +1,7 @@
 # สัญญาเชื่อมต่อ HTTP API สาธารณะ (Public HTTP API Contract)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** FROZEN BASELINE (Phase 2)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE (Phase 2)
 **ขอบเขตโปรเจกต์:** ข้อตกลงการเชื่อมต่อระหว่าง External Client / Mobile App / k6 กับ NestJS API (ขอบเขต Member 1)
 
 ---
@@ -35,7 +35,7 @@
 | JSON Naming Style (`camelCase`) | `FROZEN BASELINE` | JSON Payload ทั้งหมดใช้ camelCase |
 | Response Envelope (`status`, `data`, `meta`) | `FROZEN BASELINE` | รูปแบบมาตรฐานของ Response |
 | Exact Expiration Duration of JWT | `IMPLEMENTATION DETAIL` | เช่น 1 ชม. หรือ 24 ชม. สามารถปรับเปลี่ยนได้ |
-| Duplicate Order HTTP Response Code | `PENDING DECISION` | 202 (Idempotent Job ID) หรือ 409 Conflict |
+| Duplicate Order HTTP Response Code | `FROZEN WINNING` | 202 พร้อม Job ID เดิมเมื่อยืนยันว่า Job มีอยู่; 409 เฉพาะ Claim ค้างแต่ยังหา Job ไม่พบ |
 
 ---
 
@@ -147,7 +147,7 @@
   ```json
   {
     "status": "processing",
-    "orderJobId": "job-sha256-user999-p1001",
+    "orderJobId": "ord-6f4d8f0f-example-sha256",
     "message": "Your order has been accepted and is processing in the queue."
   }
   ```
@@ -178,7 +178,7 @@
 | `400 Bad Request` | Validation Failed | `INVALID_PAYLOAD` | Body สภาพไม่ถูกต้อง หรือ missing `productId` |
 | `401 Unauthorized` | Authentication Failed | `INVALID_JWT_TOKEN` | Token ไม่ถูกต้อง, สัญญาณเตือนล้มเหลว หรือ Missing Header |
 | `404 Not Found` | Resource Not Found | `PRODUCT_NOT_FOUND` | ไม่พบ `productId` ที่ระบุ |
-| `409 Conflict` | Duplicate In-Flight | `DUPLICATE_ORDER_REQUEST` | ผู้ใช้ส่งคำขอซ้ำในจังหวะที่คำขอเดิมอยู่ในคิว (หากเลือก policy 409) |
+| `409 Conflict` | Admission In-Flight | `ORDER_ADMISSION_IN_PROGRESS` | Redis Claim มีอยู่แต่ยังยืนยันว่า BullMQ Job ถูกสร้างแล้วไม่ได้ ให้ Client Retry |
 | `422 Unprocessable` | Business Validation Fail| `FLASH_SALE_INACTIVE` | สินค้าไม่อยู่ในโปรโมชัน Flash Sale (`isFlashSaleActive = false`) |
 | `503 Unavailable` | Dependency Down | `QUEUE_UNAVAILABLE` | Redis Operations ล่ม ไม่สามารถ Enqueue งานได้ |
 | `500 Server Error` | Internal Error | `INTERNAL_SERVER_ERROR` | Unhandled Error ในระบบ API |
@@ -197,11 +197,12 @@
 
 ---
 
-## 9. รายการตัดสินใจที่รอสรุป (Pending Decisions)
+## 9. พฤติกรรมคำขอซ้ำที่ Freeze แล้ว
 
-- **Duplicate Admission Response Behavior:**
-  - *Option A (Idempotent Accept):* ตอบ `202 Accepted` พร้อมคืน `orderJobId` เดิม
-  - *Option B (Conflict Error):* ตอบ `409 Conflict` พร้อม Error Code `DUPLICATE_ORDER_REQUEST`
+- API คำนวณ deterministic `orderJobId` เดิมจาก `(userId, productId)` ทุกครั้ง
+- หาก `SET NX` ไม่สำเร็จและ `queue.getJob(orderJobId)` พบ Job เดิม ให้ตอบ `202 Accepted` พร้อม Job ID เดิมแบบ Idempotent
+- หาก Claim มีอยู่แต่ยังหา Job ไม่พบ ให้รอแบบสั้นและตรวจซ้ำหนึ่งครั้ง; หากยังไม่พบให้ตอบ `409 ORDER_ADMISSION_IN_PROGRESS` ห้ามตอบ 202 เท็จ
+- ผลซื้อจริงยังยึด `order_results`/`orders` ใน PostgreSQL เท่านั้น
 
 ---
 

@@ -83,7 +83,7 @@ gantt
 - **Day 1 Gate:** `docker compose up` รันได้ทุก Container, Nginx กระจายเข้า API 3 ตัวได้, PostgreSQL มีข้อมูล Seed `p-1001` (สต็อก 50)
 - **Day 2 Gate:** สั่งซื้อ End-to-End สำเร็จ (Auth -> Products -> Orders API 202 -> BullMQ -> Worker ตัดสต็อกลง DB -> สต็อกไม่ติดลบ)
 - **Day 3 Gate:** Cache Hit/Miss ทำงานถูกต้อง, Cache Invalidation ล้างแคชหลัง DB Commit, Bull Board แสดงสถานะคิว, Integration Tests ผ่าน 100%
-- **Day 4 Gate:** ยิง k6 ภายนอก ได้รับ Baseline Metrics (RPS, p95), SQL Proof ผ่าน 5 Invariants, มีตาราง Candidate Optimizations
+- **Day 4 Gate:** ยิง k6 ภายนอก ได้รับ Baseline Metrics (RPS, p95), SQL/Retry Proof ผ่าน 8 Invariants, มีตาราง Candidate Optimizations
 - **Day 5 Gate:** Final Benchmark ได้ Optimal Config, Final Validation Checklist ผ่าน 100%, เอกสารหลักฐานพร้อมส่งมอบ
 
 ---
@@ -145,7 +145,7 @@ gantt
 
 ## 12. นโยบายการควบคุมขอบเขตงาน (Scope Control & Feature Freeze)
 
-- **Must Have:** Required APIs 3 ตัว, JWT, Redis Cache, BullMQ Worker, PostgreSQL, Nginx Load Balancer, Correctness Verification, k6 Load Test
+- **Must Have:** Required APIs 3 ตัว, JWT, Nginx, Redis Ops/Cache แยก, explicit SET NX, BullMQ deterministic Job ID, Worker Micro-batch, `place_order_batch`, Result Ledger, Transactional Outbox, Versioned Cache, Correctness Verification และ k6
 - **Explicitly Out of Scope:** Kubernetes, Kafka, Service Mesh, Database Clustering, Microservices จำนวนมาก
 - **Feature Freeze Policy:** 
   - สิ้นสุด Day 3: **ห้ามเพิ่ม Feature ใหม่ทุกกรณี**

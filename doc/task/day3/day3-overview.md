@@ -15,7 +15,7 @@
 ## 2. สถานะเป้าหมายปลายวัน (Expected End State)
 
 - Endpoint `GET /api/v1/products` ใช้งาน Redis Cache (Cache-Aside Pattern) โดยคำขอครั้งถัดไปจะดึงข้อมูลจาก Redis โดยตรงโดยไม่แตะ Database (Cache Hit)
-- เมื่อ Worker ตัดสต็อกสินค้าใน PostgreSQL สั่ง Commit สำเร็จ จะส่งสัญญาณลบแคช (`DEL fs:cache:products:*`) ทำให้คำขออ่านถัดไปได้ข้อมูลสต็อกอัปเดตล่าสุด
+- เมื่อ Worker Commit สำเร็จจะ `INCR` Versioned Cache Epoch ทันที และ Outbox Relay จะ Retry หาก Redis ล่ม
 - ติดตั้ง Bull Board Dashboard เพื่อให้สามารถดูสถานะ Queue (`waiting`, `active`, `completed`, `failed`) ผ่านเบราว์เซอร์ได้
 - มีการบันทึก Log ในรูปแบบ JSON พร้อม `requestId` และ `jobId` ข้ามส่วนประกอบ
 - Metrics หลัก (RPS, Latency, Cache Hit Ratio, Queue Backlog, CPU/RAM) พร้อมแสดงผล
@@ -37,6 +37,6 @@
 
 เวลา 17:30 - 18:00 น. ตรวจสอบระบบก่อนขึ้น Day 4:
 1. ยิง `GET /api/v1/products` สองครั้งติดต่อกัน ครั้งแรกต้องได้ Cache Miss ครั้งที่สองต้องได้ Cache Hit
-2. ยิงสั่งซื้อสินค้าสำเร็จ ตรวจสอบพบว่า Redis Product Cache ถูกลบทันทีหลัง DB Commit
+2. ยิงสั่งซื้อสำเร็จ ตรวจว่า Cache Epoch เพิ่มหลัง Commit และ GET ใช้ Generation ใหม่
 3. เปิด Bull Board UI บนเบราว์เซอร์ สามารถมองเห็นสถานะ คิวได้ถูกต้อง
 4. รัน `pnpm test:integration` ผลการทดสอบทุกข้อต้องเป็นสีเขียว (Pass 100%)

@@ -57,9 +57,9 @@ graph TD
 - `nestjs-api-development`: ควบคุม NestJS API, JWT Auth, Products Cache-Aside และ Async Orders Admission (`202 Accepted`)
 - `nginx-load-balancing`: ควบคุม Nginx Reverse Proxy, Load Balancing (3+ API instances) และ `X-Request-ID` forwarding
 - `docker-compose-integration`: ควบคุม Docker Compose topology (4 vCPU/6GB RAM), readiness healthchecks และ migration race prevention
-- `redis-cache-and-dedup`: ควบคุม Redis Product Cache-Aside, Invalidation, Atomic `SET NX` Claim Guard และ key namespaces
+- `redis-cache-and-dedup`: ควบคุม Versioned Cache-Aside, Single-Flight, Cache Epoch/Outbox Recovery และ Atomic `SET NX` Claim Guard
 - `bullmq-queue-processing`: ควบคุม BullMQ Queue `orders`, Job Payload schema, Producer/Consumer separation และ retry idempotency
-- `postgres-typeorm-concurrency`: ควบคุม PostgreSQL Source of Truth, `SELECT FOR UPDATE` locking, ACID transactions และ DB constraints
+- `postgres-typeorm-concurrency`: ควบคุม `place_order_batch`, `SELECT FOR UPDATE`, Result Ledger, Transactional Outbox และ DB constraints
 
 ### หมวดที่ 3: Quality, Performance & Workflow (6 Skills)
 - `flash-sale-observability`: ควบคุม Structured Logging (`requestId`/`jobId`), Low-Cardinality Prometheus Metrics และ Bull Board UI
@@ -129,7 +129,7 @@ graph TD
 
 #### `redis-cache-and-dedup`
 - **ใช้เมื่อ:** พัฒนา Product Cache-Aside, Invalidation หรือ Atomic Claim Guard (`SET NX`)
-- **หน้าที่หลัก:** แยก Key namespaces (`fs:cache:products:*` vs `fs:claim:order:*`) และทำ Post-Commit Invalidation
+- **หน้าที่หลัก:** แยก Redis Ops/Cache, ใช้ Versioned Key + Single-Flight และทำ Post-Commit Epoch Invalidation พร้อม Outbox Retry
 - **มักใช้ร่วมกับ:** `nestjs-api-development`, `postgres-typeorm-concurrency`
 - **ตัวอย่าง Prompt:** `Use redis-cache-and-dedup. Implement atomic SET NX claim guard for order admission.`
 
@@ -141,7 +141,7 @@ graph TD
 
 #### `postgres-typeorm-concurrency`
 - **ใช้เมื่อ:** พัฒนา DB Entities, Migrations, Repositories, หรือ Worker Transaction (`SELECT FOR UPDATE`)
-- **หน้าที่หลัก:** ปกป้อง PostgreSQL Source of Truth, บังคับใช้ DB Constraints (`CHECK`, `UNIQUE`) และทดสอบ Concurrency Gates
+- **หน้าที่หลัก:** ปกป้อง PostgreSQL Source of Truth ด้วย Batch Transaction, Durable Results, Outbox, `CHECK`/`UNIQUE` และ Concurrency Gates
 - **มักใช้ร่วมกับ:** `bullmq-queue-processing`, `flash-sale-testing`
 - **ตัวอย่าง Prompt:** `Use postgres-typeorm-concurrency. Implement pessimistic row lock stock reduction transaction.`
 

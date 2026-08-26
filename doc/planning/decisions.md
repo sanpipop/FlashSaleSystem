@@ -55,17 +55,17 @@
 - **Decision:** เพิ่ม `UNIQUE(user_id, product_id)` ในตาราง `orders` และ `CHECK(remaining_stock >= 0)` ในตาราง `products`
 - **Consequences:** PostgreSQL Engine จะปฏิเสธ Transaction ที่ผิดเงื่อนไขโดยอัตโนมัติ การันตี Zero Overselling
 
-#### `DEC-006` — Pessimistic Row Locking (`SELECT FOR UPDATE`)
+#### `DEC-006` — Micro-batched Pessimistic Row Locking (`place_order_batch`)
 - **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Team
 - **Context:** ป้องกัน Race Condition เมื่อ Worker หลายตัวดึงงานสินค้าเดียวกันมาประมวลผลพร้อมกัน
-- **Decision:** ใช้ Pessimistic Row Lock (`SELECT ... FOR UPDATE`) บนแถวสินค้าที่กำลังตัดสต็อกภายใต้ DB Transaction
-- **Consequences:** การประมวลผลตัดสต็อกสินค้าเดียวกันจะถูกเรียงคิวทำทีละรายการ การันตี Data Correctness 100%
+- **Decision:** ใช้ `place_order_batch(jsonb)` รวม 10–32 Jobs, ตรวจ Durable Result และล็อก Product Row ด้วย `SELECT ... FOR UPDATE` หนึ่งครั้งต่อ Batch
+- **Consequences:** ยัง Serialize Stock อย่างถูกต้องแต่ลด DB Round-trip; ค่า Batch เริ่ม 16 และต้อง Benchmark เทียบ 32
 
 #### `DEC-007` — Redis Cache-Aside & Post-Commit Invalidation
 - **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Team
 - **Context:** ต้องรองรับ Read Traffic ปริมาณสูง (`GET /products`) โดยไม่ทำให้ DB โหลดเกินไป
-- **Decision:** ใช้ Redis Cache-Aside Pattern สำหรับหน้าสินค้า และล้างแคช (`DEL fs:cache:products:*`) เฉพาะหลัง DB Commit สำเร็จ
-- **Consequences:** ลดภาระ DB อ่าน และป้องกันปัญหา Race Condition จากการล้างแคชก่อน DB Commit
+- **Decision:** ใช้ Versioned Cache-Aside + Single-Flight และ `INCR fs:cache:products:epoch` หลัง Commit พร้อม Transactional Outbox Retry
+- **Consequences:** Invalidation O(1), ไม่ใช้ Wildcard DEL, ลด Cache Stampede และซ่อมตัวเองได้เมื่อ Redis ล่ม
 
 #### `DEC-008` — Correctness Before Performance Optimization Policy
 - **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Team
@@ -74,6 +74,16 @@
 - **Consequences:** ทีมต้องทดสอบ Correctness ให้ผ่านก่อนนำผล Benchmark ไปอ้างอิง
 
 ---
+
+#### `DEC-009` — Durable Result Ledger and Transactional Outbox
+- **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Member 3
+- **Decision:** เพิ่ม `order_results(job_id PRIMARY KEY)` และ `transactional_outbox` ใน Transaction เดียวกับ Order/Stock
+- **Consequences:** Worker Retry ปลอดภัยและ Cache Invalidation ไม่สูญหายหลัง DB Commit
+
+#### `DEC-010` — Physical Redis Separation
+- **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Member 2
+- **Decision:** แยก Redis Operations (`noeviction`, AOF) และ Redis Cache (`allkeys-lru`) เป็นคนละ Container
+- **Consequences:** Cache Eviction/Traffic ไม่กระทบ BullMQ และใช้งบ RAM รวมตาม Architecture
 
 ### 3.2 กลุ่มข้อตกลงที่ต้องตัดสินด้วยผลการรัน Benchmark (BENCHMARK-DRIVEN DECISIONS)
 
@@ -84,27 +94,22 @@
 
 #### `DEC-012` — BullMQ Worker Concurrency Level Tuning
 - **Status:** `BENCHMARK-DRIVEN` | **Date:** 2026-08-26 | **Owners:** Member 2
-- **Options:** Concurrency 10 vs 20 vs 30
+- **Options:** Concurrency 8 vs 12 vs 16 และ Batch Size 16 vs 32
 - **Decision Rule:** เลือกค่าที่ลด Queue Drain Time ได้มากที่สุด โดยไม่ทำให้เกิด DB Lock Wait Timeout
 
 #### `DEC-013` — PostgreSQL Connection Pool Size Adjustment
 - **Status:** `BENCHMARK-DRIVEN` | **Date:** 2026-08-26 | **Owners:** Member 3
-- **Options:** Pool Size 15 vs 30 vs 45
+- **Options:** Pool รวม 24 vs 28 vs 32 ภายใต้ PostgreSQL `max_connections` 35–40
 - **Decision Rule:** เลือกค่าที่สัมพันธ์กับจำนวน API + Worker โดยไม่เกิด DB Connection Exhaustion
 
 ---
 
-### 3.3 กลุ่มข้อตกลงที่รอการพิจารณา (PENDING DECISIONS)
+### 3.3 ข้อตกลงพฤติกรรม HTTP ที่ Freeze แล้ว
 
 #### `DEC-015` — Duplicate Admission HTTP Response Policy
-- **Status:** `PENDING` | **Date:** 2026-08-26 | **Owners:** Member 1, 2
-- **Options:** Option A (ตอบ `202 Accepted` คืน Job ID เดิม) vs Option B (ตอบ `409 Conflict`)
-- **Revisit When:** สรุปใน Day 2 ก่อนรวมระบบ
-
-#### `DEC-016` — Physical Redis Separation (Shared vs Separate Ports 6379/6380)
-- **Status:** `PENDING` | **Date:** 2026-08-26 | **Owners:** Member 2
-- **Options:** Single Redis Container vs 2 Separate Containers (Port 6379 สำหรับ Queue, Port 6380 สำหรับ Cache)
-- **Revisit When:** ทดลองใน Day 5 หากพบ Redis Memory/IO Bottleneck
+- **Status:** `ACCEPTED` | **Date:** 2026-08-26 | **Owners:** Member 1, 2
+- **Decision:** คำขอซ้ำที่อ้าง Logical Order เดิมให้ตอบ `202 Accepted` และคืน deterministic `orderJobId` เดิมแบบ Idempotent; ห้ามสื่อว่าซื้อสำเร็จแล้ว
+- **Consequences:** Load script ได้ Contract คงที่และ Client Retry ไม่ถูกนับเป็น HTTP error ขณะที่ PostgreSQL ยังเป็นผู้ตัดสินผลจริง
 
 ---
 
@@ -117,11 +122,12 @@
 | `DEC-003` | PostgreSQL as Persistent Source of Truth | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
 | `DEC-004` | Async Order Admission with `202 Accepted` | `ACCEPTED` | Member 1 | [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md) |
 | `DEC-005` | Database Final Protection Constraints | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
-| `DEC-006` | Pessimistic Row Locking (`SELECT FOR UPDATE`) | `ACCEPTED` | Member 3 | [concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md) |
+| `DEC-006` | Micro-batched Pessimistic Locking | `ACCEPTED` | Member 3 | [concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md) |
 | `DEC-007` | Redis Product Cache-Aside & Invalidation | `ACCEPTED` | Member 2 | [cache-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/cache-strategy.md) |
 | `DEC-008` | Correctness Before Performance Policy | `ACCEPTED` | Team | [baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md) |
+| `DEC-009` | Durable Result Ledger + Transactional Outbox | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
+| `DEC-010` | Physical Redis Separation | `ACCEPTED` | Member 2 | [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md) |
 | `DEC-011` | Optimal API Container Instance Count | `BENCHMARK-DRIVEN` | Member 1 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
 | `DEC-012` | BullMQ Worker Concurrency Level | `BENCHMARK-DRIVEN` | Member 2 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
 | `DEC-013` | PostgreSQL Connection Pool Size | `BENCHMARK-DRIVEN` | Member 3 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
-| `DEC-015` | Duplicate Admission Response Policy | `PENDING` | Member 1 | [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md) |
-| `DEC-016` | Physical Redis Separation (Port 6379/6380) | `PENDING` | Member 2 | [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md) |
+| `DEC-015` | Duplicate Admission Response Policy | `ACCEPTED` | Member 1 | [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md) |

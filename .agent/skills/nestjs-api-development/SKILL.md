@@ -50,7 +50,7 @@ POST /api/v1/orders           → Flash Sale Order Admission (Async 202 Accepted
 
 - **Casing:** API requests and responses MUST use `camelCase` for all JSON properties.
 - **Response Envelopes:** Error responses MUST follow the standard envelope specified in `api-contract.md`:
-  `{ "statusCode": 400, "message": "...", "error": "...", "timestamp": "...", "path": "..." }`
+  `{ "status": "error", "code": "INVALID_PAYLOAD", "message": "...", "requestId": "req-..." }`
 
 ### 2. Stateless JWT Authentication Rules
 - `POST /auth/token` accepts valid user authentication requests and issues a signed JWT containing `userId`.
@@ -60,9 +60,11 @@ POST /api/v1/orders           → Flash Sale Order Admission (Async 202 Accepted
 
 ### 3. Asynchronous Order Admission Rules (`POST /orders`)
 - `POST /orders` is an **Admission Endpoint**. Its flow is:
-  `Validate DTO → Verify JWT → Atomic Claim Guard (Redis SET NX) → Enqueue BullMQ Job → Return 202 Accepted`
+  `Validate DTO → Verify JWT → SET NX Token → ord-SHA256 Job ID → queue.add → Return 202`
 - HTTP `202 Accepted` means **"Order request accepted for queue processing"**. It does NOT mean purchase is confirmed.
 - The API controller MUST NOT wait for the BullMQ Worker to finish DB stock processing before returning 202.
+- On a duplicate Claim, return 202 with the same ID only after `queue.getJob(jobId)` confirms the Job exists; otherwise return the frozen in-progress error. Never emit a false 202.
+- If enqueue fails after winning the Claim, release only the matching token through Lua compare-and-delete.
 
 ### 4. Clean Architecture & Separation
 Do NOT create "God Controllers". Keep responsibilities cleanly separated:
@@ -87,13 +89,13 @@ graph TD
     D -- GET /products --> E[Products Service]
     E --> F{Redis Cache Hit?}
     F -- Yes --> G[Return Cached JSON]
-    F -- No --> H[Query PostgreSQL & Populate Redis]
+    F -- No --> H[Single-Flight DB Fill into Versioned Key]
     D -- POST /orders --> I[Orders Guard & Controller]
     I --> J[Verify JWT userId]
     J --> K[Redis SET NX Claim Guard]
-    K -- Claim Won --> L[Enqueue BullMQ Job with requestId]
+    K -- Claim Won --> L[Enqueue BullMQ Job with ord-SHA256 ID]
     L --> M[Return 202 Accepted + orderJobId]
-    K -- Claim Failed --> N[Return Fast Duplicate Response]
+    K -- Claim Failed --> N[Verify Existing Job then Idempotent Response]
 ```
 
 1. **Step 1 — DTO & Pipe Definition:** Create DTOs using `class-validator` and `class-transformer`.

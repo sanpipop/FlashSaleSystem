@@ -49,7 +49,7 @@ No (รันหลังกระบวนการ Tuning เสร็จส�
 
 ## Acceptance Criteria
 1. ผลการยิงทดสอบรอบสุดท้ายแสดง Throughput, Latency p95 และ Error Rate ที่สม่ำเสมอทุกรอบ
-2. ผ่านการตรวจสอบ Data Integrity 100% ครบทั้ง 5 ข้อหลังจบการทดสอบทุกรอบ
+2. ผ่านการตรวจสอบ SQL/Retry Invariants 100% ครบทั้ง 8 ข้อหลังจบการทดสอบทุกรอบ
 
 ## Test / Verification
 ```bash

@@ -14,7 +14,7 @@
 
 ## 2. กฎการทดลองปรับแต่งประสิทธิภาพ (Tuning Rules)
 
-1. **Single Primary Variable Rule:** แต่ละการทดลองต้อง **เปลี่ยนตัวแปรหลักเพียงอย่างเดียว** ในแต่ละรอบ (เช่น เปลี่ยนเฉพาะ DB Pool Size จาก 15 เป็น 30 โดยคงค่าอื่นไว้เท่าเดิม)
+1. **Single Primary Variable Rule:** แต่ละการทดลองต้อง **เปลี่ยนตัวแปรหลักเพียงอย่างเดียว** ในแต่ละรอบ (เช่น เปลี่ยน Total DB Pool จาก 24 เป็น 28 โดยคงค่าอื่นไว้เท่าเดิม)
 2. **Three Runs & Median Policy:** การวัดผลแต่ละรอบต้องรันอย่างน้อย 3 ครั้ง และใช้ค่ากลาง (Median) เป็นตัวแทนข้อมูล ห้ามใช้ผลการรันครั้งเดียว
 3. **Automatic Revert on Correctness Failure:** หากการปรับแต่งทำให้ Data Integrity Fail (สต็อกติดลบ, สั่งซื้อเกิน 50 รายการ, ซื้อซ้ำได้) ให้ปรับคำตัดสินใจเป็น **`REVERT`** ทันที ไม่ว่าตัวเลข Throughput หรือ Latency จะดีขึ้นเพียงใดก็ตาม
 4. **No Cherry-Picking:** ห้ามลบประวัติการทดลองที่ล้มเหลว เพื่อเป็นบทเรียนไม่ให้ทีมวนกลับไปทดลองสิ่งเดิมที่เคยแย่ลง
@@ -77,10 +77,10 @@
 
 ### 4.2 Member 2 — Queue & Redis Cache Layer Experiments
 
-#### `PERF-003`: BullMQ Worker Concurrency Level Tuning (10 vs 20 vs 30)
+#### `PERF-003`: BullMQ Worker Concurrency Level Tuning (8 vs 12 vs 16)
 - **Status:** `CANDIDATE / PENDING BENCHMARK`
 - **Owner:** Member 2
-- **Hypothesis:** การเพิ่ม Concurrency ของ BullMQ Worker จาก 10 เป็น 20 จะช่วยลด Queue Drain Time แต่ต้องไม่ทำให้ PostgreSQL เกิด Transaction Lock Wait Timeout
+- **Hypothesis:** Concurrency ที่พอดีกับ Micro-batch จะลด Queue Drain โดยไม่สร้าง Product Row Lock wait และ DB connection queue เกินจำเป็น
 - **Primary Variable:** `BullMQ Worker Concurrency`
 - **Results:** `PENDING BENCHMARK`
 
@@ -95,11 +95,11 @@
 
 ### 4.3 Member 3 — Worker & Database Layer Experiments
 
-#### `PERF-005`: PostgreSQL Max Connection Pool Size (15 vs 30 vs 45)
+#### `PERF-005`: PostgreSQL Total Application Pool Size (24 vs 28 vs 32)
 - **Status:** `CANDIDATE / PENDING BENCHMARK`
 - **Owner:** Member 3
-- **Hypothesis:** การขยาย Connection Pool ให้สัมพันธ์กับจำนวน API + Worker จะช่วยลด Connection Wait Time ในฝั่ง TypeORM
-- **Primary Variable:** `PostgreSQL Connection Pool Size`
+- **Hypothesis:** Pool รวมที่พอดีจะลด Connection Wait โดยไม่แย่ง CPU/RAM บน 4 vCPU และต้องอยู่ใต้ `max_connections=35–40`
+- **Primary Variable:** Total application pool across API + Worker
 - **Results:** `PENDING BENCHMARK`
 
 #### `PERF-006`: Database Index Optimization on `orders(user_id, product_id)`
@@ -111,16 +111,16 @@
 
 ---
 
-### 4.4 Advanced Candidate Optimizations (การทดลองขั้นสูง - Optional)
+### 4.4 Winning Mechanisms และสิ่งที่ยังเป็น Optional
 
 > [!NOTE]
 > รายการต่อไปนี้เป็นข้อเสนอแนะเทคนิคขั้นสูง (เช่น ในไฟล์ `Flash_Sale_Competition_Fastest_Safe_TH.docx`) จะดำเนินการทดลอง **เฉพาะเมื่อผล Baseline Metrics ชี้ว่ามีความจำเป็น และมีเวลาเหลือพอใน Day 5 เท่านั้น**:
 
 | Optimization Candidate | Expected Benefit | Complexity | Correctness Risk | Status |
 | --- | --- | --- | --- | --- |
-| **Micro-batching Worker (`place_order_batch`)** | ลด DB Round-trips (ตัด 32 jobs ใน 1 DB Call) | High | Medium | `CANDIDATE / PENDING BENCHMARK` |
-| **Redis Physical Separation (Port 6379 vs 6380)** | แยก I/O & Memory ระหว่าง Queue และ Cache | Medium | Low | `CANDIDATE / PENDING BENCHMARK` |
-| **Confirmed Sold-Out Marker in Redis** | ป้องกันการ Enqueue คำสั่งซื้อเมื่อสต็อกหมดแล้ว | Medium | Low | `CANDIDATE / PENDING BENCHMARK` |
+| **Micro-batch Size 16 vs 32** | หา Batch ที่ Drain เร็วสุด | Medium | Low เมื่อ Contract เดิม | `FROZEN MECHANISM / VALUE PENDING` |
+| **Redis Physical Separation** | แยก I/O & Memory ระหว่าง Queue และ Cache | Medium | Low | `FROZEN WINNING` |
+| **Versioned Cache + Single-Flight** | Invalidation O(1) และลด DB stampede | Medium | Low | `FROZEN WINNING` |
 | **L1 In-Memory API Product Cache** | ดึงข้อมูลสินค้า static จาก API Memory ตรง ไม่แตะ Redis | Medium | Medium | `CANDIDATE / PENDING BENCHMARK` |
 
 ---
@@ -131,9 +131,10 @@
 | --- | --- | --- | --- | --- | --- |
 | **Nginx** | Upstream Strategy | `round_robin` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
 | **API Containers**| Instance Count | `3` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
-| **BullMQ Worker** | Concurrency Level | `10` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
-| **Redis Cache** | TTL Duration | `60s` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
-| **PostgreSQL** | Connection Pool Size| `30` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
+| **BullMQ Worker** | Concurrency Level | `8` | `PENDING (8/12/16)` | `PENDING` | `PENDING BENCHMARK` |
+| **Worker Batch** | Batch Size / Wait | `16 / 1ms` | `PENDING (16/32)` | `PENDING` | `PENDING BENCHMARK` |
+| **Redis Cache** | TTL Duration | `60s ±5s` | `PENDING` | `PENDING` | `PENDING BENCHMARK` |
+| **PostgreSQL** | Total App Pool | `28` | `PENDING (24/28/32)` | `PENDING` | `PENDING BENCHMARK` |
 
 ---
 

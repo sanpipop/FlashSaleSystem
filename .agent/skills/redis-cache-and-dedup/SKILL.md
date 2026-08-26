@@ -31,9 +31,10 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
 
 ## Responsibilities
 - **Logical Domain Separation:** Keep Cache keys (`fs:cache:products:*`), Claim keys (`fs:claim:order:*`), and BullMQ keys in separate namespaces.
-- **Product Cache-Aside:** Read from Redis on `GET /products`; fallback to PostgreSQL on miss and populate Redis with TTL (default 60s ± 5s jitter).
-- **Post-Commit Cache Invalidation:** Issue `DEL fs:cache:products:*` after PostgreSQL worker transaction successfully commits.
-- **Atomic Claim Guard:** Execute atomic `SET fs:claim:order:{userId}:{productId} 1 EX 60 NX` during order admission.
+- **Versioned Product Cache-Aside:** Use preloaded Lua `EVALSHA` to read Epoch + versioned value in one Redis round-trip; fallback to PostgreSQL on miss.
+- **Single-Flight Fill:** Allow one DB fill per missing versioned key and keep followers off PostgreSQL.
+- **Post-Commit Invalidation:** Issue `INCR fs:cache:products:epoch` only after commit; repair failures through Transactional Outbox.
+- **Atomic Claim Guard:** Execute `SET claim-key randomToken EX 60 NX` during admission.
 
 ## Non-Responsibilities
 - **DO NOT** use Redis to store permanent order history or authoritative stock counts.
@@ -48,7 +49,8 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
 
 | Domain / Role | Key Pattern | TTL Policy | Atomic Operation |
 | --- | --- | --- | --- |
-| **Product Cache** | `fs:cache:products:page={page}:limit={limit}` | `60s` (±5s Jitter) | `GET` / `SETEX` / `DEL` |
+| **Cache Epoch** | `fs:cache:products:epoch` | Persistent | `GET` / `INCR` |
+| **Product Cache** | `fs:cache:products:v={epoch}:page={page}:limit={limit}` | `60s` (±5s Jitter) | `GET` / `SETEX` |
 | **Duplicate Claim** | `fs:claim:order:{userId}:{productId}` | `60s` | `SET ... EX 60 NX` (Atomic) |
 | **BullMQ Internal** | `bull:orders:*` | BullMQ Managed | Managed via `@bull-board` / BullMQ SDK |
 
@@ -59,11 +61,11 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
 - **Atomic Semantics:** ALWAYS use atomic `SET key value EX TTL NX`.
   - **Claim Won (`OK`):** Proceed to enqueue job in BullMQ.
   - **Claim Failed (`null`):** Return fast duplicate admission rejection.
-- **Claim + Enqueue Failure Safety:** If `SET NX` succeeds but BullMQ `queue.add()` fails due to infrastructure error, handle claim cleanup cleanly according to `redis-contract.md` so the user is not permanently locked out.
+- **Claim + Enqueue Failure Safety:** If `queue.add()` fails, use Lua compare-and-delete with the request token. Never blindly `DEL` a claim.
 
 ### 3. Cache Invalidation Sequence
 - Invalidation sequence MUST follow:
-  `DB Worker Tx Commit Success → Post-Commit Cache Invalidation Signal (DEL fs:cache:products:*)`
+  `DB Commit (including Outbox) → INCR Cache Epoch → mark Outbox published`
 - **Invalidation Failure Resiliency:** If Redis invalidation fails, database state remains authoritative. Log the invalidation failure; do NOT rollback an already committed DB order transaction.
 
 ---
@@ -73,10 +75,10 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
 ```mermaid
 graph TD
     A[Order Request] --> B[Extract userId & productId]
-    B --> C[Execute Redis SET fs:claim:order:userId:productId 1 EX 60 NX]
+    B --> C[Execute Redis SET claim-key randomToken EX 60 NX]
     C -- Claim Won --> D[Enqueue Job to BullMQ Queue]
     D -- Enqueue Success --> E[Return 202 Accepted]
-    D -- Enqueue Fail --> F[Release Claim & Return Error]
+    D -- Enqueue Fail --> F[Lua compare-delete Claim & Return Error]
     C -- Claim Failed --> G[Return Fast Duplicate Rejection]
 ```
 
@@ -88,12 +90,14 @@ graph TD
 ## Verification
 - Run real Redis integration tests (`pnpm test:integration`). Do NOT mock Redis for concurrency atomicity tests.
 - Verify that `SET ... NX` correctly returns `null` on duplicate requests for the same `(userId, productId)`.
-- Verify that calling `GET /products` after stock reduction returns the updated stock count following cache invalidation.
+- Verify that the Epoch increases only after DB commit and the next GET uses a new cache generation.
+- Stop Redis after commit, restore it, and verify the Outbox Relay repairs invalidation.
 
 ## Performance Considerations
 - **Connection Pool:** Reuse Redis connection pool across API handlers.
 - **Serialization:** Store JSON-compatible stringified DTO objects in cache; avoid storing complex class instances.
 - **Key Expiry Jitter:** Include ±5s jitter on cache TTL to prevent Cache Stampede.
+- **One-Hop Hit Path:** Preload the read script, handle `NOSCRIPT` by reloading once, and never use `KEYS` on the request path.
 
 ## Common Anti-Patterns to Avoid
 - **Anti-Pattern 1:** Writing non-atomic check-then-set logic (`if (!await redis.get(key)) await redis.set(key, 1)`).
