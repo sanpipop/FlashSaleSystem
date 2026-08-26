@@ -11,7 +11,7 @@
 
 ## Automation
 
-- `CI` ตรวจ dependency, lint, typecheck, quick test และ Compose syntax แบบรวดเร็ว
+- `CI` ตรวจ dependency, typecheck และ Compose syntax แบบรวดเร็ว
 - `Compose smoke test` กดรันเองเมื่อต้องการเปิดระบบรวมและเก็บ log
 - `Manual k6 load test` ใช้สั่งทดสอบโหลดด้วยตนเองเมื่อมี `k6/competition.js`
 

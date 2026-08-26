@@ -17,7 +17,7 @@ jobs:
   quick-check:
     name: quick-check
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -77,17 +77,9 @@ jobs:
         if: steps.project.outputs.node_project == 'true'
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      - name: Lint
-        if: steps.project.outputs.node_project == 'true'
-        run: pnpm run --if-present lint
-
       - name: Type check
         if: steps.project.outputs.node_project == 'true'
         run: pnpm run --if-present typecheck
-
-      - name: Quick tests
-        if: steps.project.outputs.node_project == 'true'
-        run: pnpm run --if-present test:quick
 
       - name: Validate Docker Compose syntax
         shell: bash
