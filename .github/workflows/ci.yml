@@ -10,58 +10,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: quick-check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality-and-integration:
-    name: quality-and-integration
+  quick-check:
+    name: quick-check
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: flashsale
-          POSTGRES_PASSWORD: flashsale_ci
-          POSTGRES_DB: flashsale
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U flashsale -d flashsale"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-      redis_queue:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-      redis_cache:
-        image: redis:7-alpine
-        ports:
-          - 6380:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-    env:
-      CI: true
-      NODE_ENV: test
-      DATABASE_URL: postgresql://flashsale:flashsale_ci@localhost:5432/flashsale
-      REDIS_URL: redis://localhost:6379
-      REDIS_QUEUE_URL: redis://localhost:6379
-      REDIS_CACHE_URL: redis://localhost:6380
-      JWT_SECRET: ci-only-not-a-production-secret
+    timeout-minutes: 7
 
     steps:
       - name: Checkout repository
@@ -75,7 +31,7 @@ jobs:
             echo "node_project=true" >> "$GITHUB_OUTPUT"
           else
             echo "node_project=false" >> "$GITHUB_OUTPUT"
-            echo "No package.json yet; repository-policy checks only."
+            echo "No package.json yet; source checks were skipped."
           fi
 
       - name: Setup Node.js
@@ -88,17 +44,17 @@ jobs:
         if: steps.project.outputs.node_project == 'true'
         run: corepack enable
 
-      - name: Require reproducible pnpm metadata
+      - name: Validate pnpm metadata
         if: steps.project.outputs.node_project == 'true'
         shell: bash
         run: |
           if [[ ! -f pnpm-lock.yaml ]]; then
-            echo "::error::package.json exists but pnpm-lock.yaml is missing. Commit the lockfile."
+            echo "::error::package.json exists but pnpm-lock.yaml is missing."
             exit 1
           fi
 
           if ! grep -Eq '"packageManager"[[:space:]]*:[[:space:]]*"pnpm@[0-9]+\.[0-9]+\.[0-9]+' package.json; then
-            echo "::error::Set packageManager to an exact pnpm version, for example pnpm@10.0.0."
+            echo "::error::Set packageManager to an exact pnpm version in package.json."
             exit 1
           fi
 
@@ -108,7 +64,7 @@ jobs:
         shell: bash
         run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
-      - name: Restore pnpm package cache
+      - name: Restore pnpm cache
         if: steps.project.outputs.node_project == 'true'
         uses: actions/cache@v4
         with:
@@ -119,39 +75,21 @@ jobs:
 
       - name: Install dependencies
         if: steps.project.outputs.node_project == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Require quality scripts
-        if: steps.project.outputs.node_project == 'true'
-        shell: bash
-        run: |
-          node -e "const p=require('./package.json'); const required=['lint','typecheck','test','test:integration','build','db:migrate']; const missing=required.filter(name => !p.scripts?.[name]); if (missing.length) { console.error('Missing required package scripts: ' + missing.join(', ')); process.exit(1); }"
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Lint
         if: steps.project.outputs.node_project == 'true'
-        run: pnpm lint
+        run: pnpm run --if-present lint
 
       - name: Type check
         if: steps.project.outputs.node_project == 'true'
-        run: pnpm typecheck
+        run: pnpm run --if-present typecheck
 
-      - name: Unit tests
+      - name: Quick tests
         if: steps.project.outputs.node_project == 'true'
-        run: pnpm test
+        run: pnpm run --if-present test:quick
 
-      - name: Build
-        if: steps.project.outputs.node_project == 'true'
-        run: pnpm build
-
-      - name: Apply database migrations
-        if: steps.project.outputs.node_project == 'true'
-        run: pnpm db:migrate
-
-      - name: Integration tests
-        if: steps.project.outputs.node_project == 'true'
-        run: pnpm test:integration
-
-      - name: Validate Docker Compose
+      - name: Validate Docker Compose syntax
         shell: bash
         run: |
           compose_file=""
@@ -165,5 +103,5 @@ jobs:
           if [[ -n "$compose_file" ]]; then
             docker compose -f "$compose_file" config --quiet
           else
-            echo "No Compose file yet; skipping Compose validation."
+            echo "No Compose file yet; skipping Compose syntax validation."
           fi

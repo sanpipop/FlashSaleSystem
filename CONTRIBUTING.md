@@ -18,7 +18,7 @@
 2. ดึง `main` ล่าสุด แล้วสร้าง Branch ตามงาน เช่น `feat/worker-microbatch`
 3. Commit เป็นช่วงสั้น ๆ และ Push อย่างน้อยวันละสองครั้ง
 4. เปิด Draft PR ได้ตั้งแต่เริ่ม เพื่อให้คนอื่นเห็น Contract ที่กำลังใช้
-5. ก่อนขอ Review ต้องรัน lint, typecheck, test, build, migration และ integration test ที่เกี่ยวข้อง
+5. ก่อนขอ Review ต้องรัน quick check ส่วนการทดสอบเต็มให้รันเมื่อรวม Feature สำคัญหรือก่อนขึ้น VM
 6. ผู้ตรวจอ่านทั้ง Happy path, Failure path, Retry และความถูกต้องเมื่อทำงานพร้อมกัน
 7. Merge แบบ Squash เมื่อ GitHub Actions ผ่านและมี Approval อย่างน้อยหนึ่งคน
 8. ผู้เขียนอธิบายสิ่งที่เปลี่ยนและ Failure case สำคัญให้ทีมภายในห้านาที
