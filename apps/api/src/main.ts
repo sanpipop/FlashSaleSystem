@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -8,6 +7,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module.js';
 import { ApiExceptionFilter } from './common/api-exception.filter.js';
+import { canonicalRequestId } from './common/request-id.js';
 import { writeStructuredLog } from './common/logger/structured-log.js';
 import { ApiMetricsService } from './common/metrics/api-metrics.service.js';
 
@@ -27,10 +27,7 @@ async function bootstrap(): Promise<void> {
 
   server.addHook('onRequest', async (request, reply) => {
     const incomingRequestId = request.headers['x-request-id'];
-    const requestId =
-      typeof incomingRequestId === 'string' && incomingRequestId.length > 0
-        ? incomingRequestId
-        : randomUUID();
+    const requestId = canonicalRequestId(incomingRequestId);
 
     reply.header('x-request-id', requestId);
     request.headers['x-request-id'] = requestId;

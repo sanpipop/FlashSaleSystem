@@ -213,6 +213,71 @@ describe('Order processing with real PostgreSQL, Redis, and BullMQ', () => {
     expect(snapshot.negativeStocks).toBe(0);
   });
 
+  it('persists a sold-out rejection without creating an order', async () => {
+    await resetState(0);
+    const job = makeJob('sold-out-user');
+
+    await enqueueOrderJob(queue, job);
+    await waitForQueueDrain(queue);
+
+    const [result] = await AppDataSource.query<
+      Array<{ status: string; remaining_stock: number; order_count: string }>
+    >(
+      `
+        SELECT
+          result.status,
+          product.remaining_stock,
+          (SELECT COUNT(*) FROM orders WHERE job_id = result.job_id) AS order_count
+        FROM order_results AS result
+        INNER JOIN products AS product ON product.product_id = result.product_id
+        WHERE result.job_id = $1
+      `,
+      [job.jobId],
+    );
+
+    expect(result).toEqual({
+      status: 'REJECTED_SOLD_OUT',
+      remaining_stock: 0,
+      order_count: '0',
+    });
+  });
+
+  it('keeps one successful order when duplicate user/product jobs bypass admission', async () => {
+    await resetState(1);
+    const firstJob = makeJob('duplicate-user');
+    const duplicateJob: OrderJobPayload = {
+      ...firstJob,
+      jobId: `ord-${'d'.repeat(64)}`,
+      requestId: '123e4567-e89b-42d3-a456-426614174000',
+    };
+
+    await Promise.all([
+      enqueueOrderJob(queue, firstJob),
+      enqueueOrderJob(queue, duplicateJob),
+    ]);
+    await waitForQueueDrain(queue);
+
+    const results = await AppDataSource.query<Array<{ status: string }>>(
+      `
+        SELECT status
+        FROM order_results
+        WHERE job_id IN ($1, $2)
+        ORDER BY status
+      `,
+      [firstJob.jobId, duplicateJob.jobId],
+    );
+    const snapshot = await integritySnapshot();
+
+    expect(results).toEqual([{ status: 'REJECTED_DUPLICATE' }, { status: 'SUCCESS' }]);
+    expect(snapshot).toMatchObject({
+      remainingStock: 0,
+      orders: 1,
+      successes: 1,
+      duplicates: 0,
+      negativeStocks: 0,
+    });
+  });
+
   it('persists an inactive-sale rejection without failing the BullMQ job', async () => {
     await resetState(5);
     await AppDataSource.query(

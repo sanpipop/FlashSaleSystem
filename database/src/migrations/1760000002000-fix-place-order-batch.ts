@@ -1,4 +1,5 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
+import { PlaceOrderBatch1760000001000 } from './1760000001000-place-order-batch.js';
 
 export class FixPlaceOrderBatch1760000002000 implements MigrationInterface {
   name = 'FixPlaceOrderBatch1760000002000';
@@ -117,6 +118,6 @@ export class FixPlaceOrderBatch1760000002000 implements MigrationInterface {
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP FUNCTION IF EXISTS place_order_batch(JSONB)');
+    await new PlaceOrderBatch1760000001000().up(queryRunner);
   }
 }

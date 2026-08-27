@@ -9,7 +9,7 @@ x-logging: &default-logging
 x-api-environment: &api-environment
   NODE_ENV: production
   PORT: 3000
-  JWT_SECRET: ${JWT_SECRET:-local-only-replace-before-deploy}
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
   POSTGRES_HOST: postgres
   POSTGRES_PORT: 5432
   POSTGRES_DB: ${POSTGRES_DB:-flashsale}
