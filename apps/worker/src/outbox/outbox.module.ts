@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
+import { InfrastructureModule } from '../infrastructure/infrastructure.module.js';
+import { OutboxRelayService } from './outbox-relay.service.js';
 
-// Member 3 adds the post-commit cache invalidation relay here.
-@Module({})
+@Module({
+  imports: [InfrastructureModule],
+  providers: [OutboxRelayService],
+  exports: [OutboxRelayService],
+})
 export class OutboxModule {}

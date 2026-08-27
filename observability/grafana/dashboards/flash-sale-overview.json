@@ -1,0 +1,63 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "HTTP RPS",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "targets": [{ "expr": "sum(rate(flash_sale_http_requests_total[1m]))", "legendFormat": "requests/s" }]
+    },
+    {
+      "title": "HTTP Latency p95",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, route) (rate(flash_sale_http_request_duration_seconds_bucket[1m])))", "legendFormat": "{{route}}" }]
+    },
+    {
+      "title": "Product Cache Hit Ratio",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "targets": [{ "expr": "sum(rate(flash_sale_product_cache_requests_total{outcome=\"hit\"}[1m])) / clamp_min(sum(rate(flash_sale_product_cache_requests_total[1m])), 0.000001)", "legendFormat": "hit ratio" }]
+    },
+    {
+      "title": "Queue Waiting / Active",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [{ "expr": "max by (state) (flash_sale_queue_jobs{state=~\"waiting|active\"})", "legendFormat": "{{state}}" }]
+    },
+    {
+      "title": "Worker Outcomes / second",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [{ "expr": "sum by (outcome) (rate(flash_sale_worker_jobs_total[1m]))", "legendFormat": "{{outcome}}" }]
+    },
+    {
+      "title": "VM CPU Utilization",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "targets": [{ "expr": "1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m]))", "legendFormat": "CPU" }]
+    },
+    {
+      "title": "VM Available RAM",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "targets": [{ "expr": "node_memory_MemAvailable_bytes", "legendFormat": "available bytes" }]
+    },
+    {
+      "title": "API + Worker Resident Memory",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 16 },
+      "targets": [{ "expr": "sum by (service) ({__name__=~\"flash_sale_(api|worker)_process_process_resident_memory_bytes\"})", "legendFormat": "{{service}}" }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["flash-sale", "competition"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "title": "Flash Sale Competition Overview",
+  "uid": "flash-sale-overview",
+  "version": 1
+}
