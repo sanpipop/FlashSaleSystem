@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.pnpm-store/
+.DS_Store
+Thumbs.db
+output/evidence/*.json
+output/evidence/*.log

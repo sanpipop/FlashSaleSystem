@@ -1,0 +1,11 @@
+.git
+.github
+.agent
+node_modules
+**/node_modules
+**/dist
+coverage
+output
+tmp
+.env
+*.log
