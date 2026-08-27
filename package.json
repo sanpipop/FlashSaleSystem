@@ -21,7 +21,8 @@
     "lint": "eslint apps packages database --max-warnings=0",
     "typecheck": "pnpm -r --sort --if-present typecheck",
     "test": "pnpm -r --sort --if-present test",
-    "test:integration": "pnpm -r --sort --if-present test:integration",
+    "test:integration": "node tests/integration/run-integration.mjs",
+    "test:integration:worker": "pnpm --filter @flash-sale/worker test:integration",
     "db:migrate": "pnpm --filter @flash-sale/database migrate",
     "db:seed": "pnpm --filter @flash-sale/database seed",
     "compose:config": "docker compose config --quiet"

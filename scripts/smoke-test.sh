@@ -20,3 +20,17 @@ docker compose exec -T postgres psql \
 echo "Checking isolated Redis instances"
 docker compose exec -T redis-ops redis-cli ping
 docker compose exec -T redis-cache redis-cli ping
+
+echo "Checking public API, metrics, and Bull Board"
+curl --fail --silent --show-error "$base_url/api/v1/products?page=1&limit=10" >/dev/null
+curl --fail --silent --show-error "$base_url/metrics" | grep 'flash_sale_http_requests_total' >/dev/null
+curl --fail --silent --show-error --location "$base_url/admin/queues/" | grep -i 'Bull Dashboard' >/dev/null
+
+echo "Checking database integrity gates"
+docker compose exec -T postgres psql \
+  -U "${POSTGRES_USER:-flashsale}" \
+  -d "${POSTGRES_DB:-flashsale}" \
+  -v ON_ERROR_STOP=1 \
+  -f /dev/stdin < scripts/verify-integrity.sql
+
+echo "Smoke test passed"

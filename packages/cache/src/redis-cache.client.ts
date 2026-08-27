@@ -13,11 +13,16 @@ function parsePort(value: string | undefined, fallback: number): number {
 export function redisCacheOptionsFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): RedisOptions {
+  const connectTimeout = parsePort(env.REDIS_CACHE_CONNECT_TIMEOUT_MS, 100);
+
   return {
     host: env.REDIS_CACHE_HOST ?? '127.0.0.1',
     port: parsePort(env.REDIS_CACHE_PORT, 6379),
     lazyConnect: true,
     maxRetriesPerRequest: 1,
+    connectTimeout,
+    enableOfflineQueue: false,
+    retryStrategy: () => null,
   };
 }
 

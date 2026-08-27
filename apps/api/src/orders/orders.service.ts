@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createOrderJobId } from '@flash-sale/queue';
 import type { OrderAdmissionResponse } from '@flash-sale/contracts';
 import { ApiException } from '../common/api-exception.js';
+import { writeStructuredLog } from '../common/logger/structured-log.js';
 import { ProductsService } from '../products/products.service.js';
 import { OrderClaimService } from './order-claim.service.js';
 import { OrderQueueProducer } from './order-queue.producer.js';
@@ -42,6 +43,13 @@ export class OrdersService {
         userId,
         productId,
         createdAt: new Date().toISOString(),
+      });
+      writeStructuredLog('info', {
+        event: 'ORDER_ENQUEUED',
+        requestId,
+        jobId,
+        productId,
+        outcome: 'ADMITTED',
       });
     } catch {
       await this.claimService.releaseIfOwned(userId, productId, claim.token).catch(() => undefined);

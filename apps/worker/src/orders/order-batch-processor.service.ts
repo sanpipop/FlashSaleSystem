@@ -1,11 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { OrderJobPayload, OrderJobResult } from '@flash-sale/contracts';
 import { AppDataSource, placeOrderBatch } from '@flash-sale/database';
+import { performance } from 'node:perf_hooks';
+import { WorkerMetricsService } from '../common/metrics/worker-metrics.service.js';
+import { writeStructuredLog } from '../common/logger/structured-log.js';
+import { OutboxRelayService } from '../outbox/outbox-relay.service.js';
 
 @Injectable()
 export class OrderBatchProcessorService {
   private batchCalls = 0;
   private processedJobs = 0;
+
+  constructor(
+    @Inject(OutboxRelayService)
+    private readonly outboxRelay: OutboxRelayService,
+    @Inject(WorkerMetricsService)
+    private readonly metrics: WorkerMetricsService,
+  ) {}
 
   get statistics(): Readonly<{ batchCalls: number; processedJobs: number }> {
     return {
@@ -15,6 +26,7 @@ export class OrderBatchProcessorService {
   }
 
   async process(jobs: readonly OrderJobPayload[]): Promise<OrderJobResult[]> {
+    const startedAt = performance.now();
     const distinctJobs = [...new Map(jobs.map((job) => [job.jobId, job])).values()];
     const payloadByJobId = new Map(distinctJobs.map((job) => [job.jobId, job]));
     const databaseResults = await placeOrderBatch(AppDataSource, distinctJobs);
@@ -29,7 +41,7 @@ export class OrderBatchProcessorService {
       );
     }
 
-    return databaseResults.map((result) => {
+    const results = databaseResults.map((result) => {
       const payload = payloadByJobId.get(result.jobId);
 
       if (payload === undefined) {
@@ -46,5 +58,39 @@ export class OrderBatchProcessorService {
         message: result.message,
       };
     });
+
+    const durationMs = performance.now() - startedAt;
+    this.metrics.observeBatch(results, durationMs);
+    for (const result of results.filter((item) => item.status === 'SUCCESS')) {
+      writeStructuredLog('info', {
+        event: 'ORDER_PROCESSED',
+        requestId: payloadByJobId.get(result.jobId)?.requestId,
+        jobId: result.jobId,
+        userId: result.userId,
+        productId: result.productId,
+        outcome: result.status,
+        durationMs: Number(durationMs.toFixed(3)),
+      });
+    }
+    const rejected = results.filter((result) => result.status !== 'SUCCESS');
+    if (rejected.length > 0) {
+      const representative = rejected[0];
+      writeStructuredLog('info', {
+        event: 'ORDER_BATCH_REJECTIONS',
+        requestId:
+          representative === undefined
+            ? undefined
+            : payloadByJobId.get(representative.jobId)?.requestId,
+        jobId: representative?.jobId,
+        productId: representative?.productId,
+        outcome: 'BUSINESS_REJECTIONS',
+        rejectedJobs: rejected.length,
+        durationMs: Number(durationMs.toFixed(3)),
+      });
+    }
+    if (results.some((result) => result.status === 'SUCCESS')) {
+      await this.outboxRelay.publishPendingNow();
+    }
+    return results;
   }
 }

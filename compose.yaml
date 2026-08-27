@@ -21,6 +21,7 @@ x-api-environment: &api-environment
   REDIS_CACHE_HOST: redis-cache
   REDIS_CACHE_PORT: 6379
   NODE_OPTIONS: --max-old-space-size=240
+  HTTP_SUCCESS_LOG_SAMPLE_RATE: 0.01
 
 x-api-service: &api-service
   image: flash-sale-api:local
@@ -66,7 +67,7 @@ services:
       - edge
       - backend
     cpus: 0.10
-    mem_limit: 64m
+    mem_limit: 128m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null || exit 1"]
       interval: 5s
@@ -113,6 +114,7 @@ services:
       WORKER_CONCURRENCY: 8
       WORKER_BATCH_SIZE: 16
       WORKER_BATCH_WAIT_MS: 1
+      WORKER_METRICS_PORT: 9464
       NODE_OPTIONS: --max-old-space-size=512
     depends_on:
       seed:
@@ -123,6 +125,8 @@ services:
         condition: service_healthy
     networks:
       - backend
+    expose:
+      - "9464"
     cpus: 0.90
     mem_limit: 640m
     logging: *default-logging
@@ -240,6 +244,62 @@ services:
       retries: 12
     logging: *default-logging
 
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=24h
+      - --storage.tsdb.retention.size=512MB
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      api-1:
+        condition: service_healthy
+      worker:
+        condition: service_started
+    networks:
+      - backend
+    cpus: 0.15
+    mem_limit: 256m
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s/grafana/'
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - backend
+    cpus: 0.10
+    mem_limit: 256m
+    logging: *default-logging
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    volumes:
+      - /:/host:ro
+    networks:
+      - backend
+    cpus: 0.05
+    mem_limit: 64m
+    logging: *default-logging
+
 networks:
   edge:
   backend:
@@ -248,3 +308,5 @@ networks:
 volumes:
   postgres-data:
   redis-ops-data:
+  prometheus-data:
+  grafana-data:
