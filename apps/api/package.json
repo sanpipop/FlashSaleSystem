@@ -13,6 +13,7 @@
   "dependencies": {
     "@flash-sale/cache": "workspace:*",
     "@flash-sale/contracts": "workspace:*",
+    "@flash-sale/database": "workspace:*",
     "@flash-sale/queue": "workspace:*",
     "@nestjs/common": "^11.2.1",
     "@nestjs/core": "^11.2.1",
@@ -20,6 +21,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "fastify": "^5.6.0",
+    "ioredis": "^6.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },

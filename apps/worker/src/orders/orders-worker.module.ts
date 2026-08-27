@@ -1,5 +1,13 @@
 import { Module } from '@nestjs/common';
+import { OrderBatchCoordinatorService } from './order-batch-coordinator.service.js';
+import { OrderBatchProcessorService } from './order-batch-processor.service.js';
+import { OrdersWorkerConsumer } from './orders-worker.consumer.js';
 
-// Member 3 adds the BullMQ consumer and micro-batch coordinator here on Day 2.
-@Module({})
+@Module({
+  providers: [
+    OrderBatchProcessorService,
+    OrderBatchCoordinatorService,
+    OrdersWorkerConsumer,
+  ],
+})
 export class OrdersWorkerModule {}

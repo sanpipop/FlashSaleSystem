@@ -35,6 +35,9 @@ importers:
       '@flash-sale/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@flash-sale/database':
+        specifier: workspace:*
+        version: link:../../database
       '@flash-sale/queue':
         specifier: workspace:*
         version: link:../../packages/queue
@@ -56,6 +59,9 @@ importers:
       fastify:
         specifier: ^5.6.0
         version: 5.11.3
+      ioredis:
+        specifier: ^6.0.0
+        version: 6.0.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -87,6 +93,9 @@ importers:
       '@nestjs/core':
         specifier: ^11.2.1
         version: 11.2.3(@nestjs/common@11.2.3(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      bullmq:
+        specifier: ^6.2.0
+        version: 6.3.1(ioredis@6.0.0)(pg@8.23.0)
       ioredis:
         specifier: ^6.0.0
         version: 6.0.0

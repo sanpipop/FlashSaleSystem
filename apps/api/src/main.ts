@@ -6,6 +6,7 @@ import {
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module.js';
+import { ApiExceptionFilter } from './common/api-exception.filter.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -22,6 +23,7 @@ async function bootstrap(): Promise<void> {
         : randomUUID();
 
     reply.header('x-request-id', requestId);
+    request.headers['x-request-id'] = requestId;
   });
 
   app.useGlobalPipes(
@@ -31,6 +33,7 @@ async function bootstrap(): Promise<void> {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3000);
