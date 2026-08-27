@@ -13,7 +13,7 @@ Reviewer: Member 1
 P0
 
 ## Dependencies
-- Hard Dependencies: [k6-load-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/k6-load-test.md)
+- Hard Dependencies: [k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md)
 
 ## Can Start Immediately?
 No (รันหลัง k6 Load Test จบสิ้นในแต่ละรอบ)
@@ -26,7 +26,7 @@ No (รันหลัง k6 Load Test จบสิ้นในแต่ละ�
 - `doc/contracts/**`
 
 ## Contracts Used
-- [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
+- [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Scope
 - เขียนและรันสคริปต์ `scripts/verify-integrity.sh` ตรวจสอบ 8 เงื่อนไขบังคับ:

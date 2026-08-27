@@ -18,10 +18,10 @@ Evidence collection is governed by Phase 6 (`doc/report/`). Every technical clai
 > AI agents MUST NEVER invent, hallucinate, or fabricate fake benchmark numbers, fake screenshots, or fake competitor comparison metrics. If evidence has not yet been collected from an actual test run, mark its status as `PENDING` or `NOT YET MEASURED`.
 
 ## Authoritative References
-- **Evidence Checklist Source of Truth:** [doc/report/evidence-checklist.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/report/evidence-checklist.md)
-- **Final Report Outline:** [doc/report/final-report-outline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/report/final-report-outline.md)
-- **Baseline Specification:** [doc/performance/baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Final Results Specification:** [doc/performance/final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
+- **Evidence Checklist Source of Truth:** [doc/report/evidence-checklist.md](file:///FlashSaleSystem/doc/report/evidence-checklist.md)
+- **Final Report Outline:** [doc/report/final-report-outline.md](file:///FlashSaleSystem/doc/report/final-report-outline.md)
+- **Baseline Specification:** [doc/performance/baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Final Results Specification:** [doc/performance/final-results.md](file:///FlashSaleSystem/doc/performance/final-results.md)
 
 ## Preconditions
 1. Confirm target evidence ID in `doc/report/evidence-checklist.md` (e.g., `EVD-005: Read-Heavy k6 Raw Output`).

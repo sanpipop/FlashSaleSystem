@@ -13,7 +13,7 @@ Reviewer: Member 1, Member 2
 P0 (Gatekeeper before Day 4 Load Testing)
 
 ## Dependencies
-- Hard Dependencies: [authentication.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/authentication.md), [products-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/products-api.md), [orders-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/orders-api.md), [order-processing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/order-processing.md), [caching.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/caching.md)
+- Hard Dependencies: [authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md), [products-api.md](file:///FlashSaleSystem/doc/task/day2/products-api.md), [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md), [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md), [caching.md](file:///FlashSaleSystem/doc/task/day3/caching.md)
 
 ## Can Start Immediately?
 No (เริ่มช่วงบ่ายหลัง Feature หลักใน Day 2-3 พัฒนาเสร็จ)
@@ -26,9 +26,9 @@ No (เริ่มช่วงบ่ายหลัง Feature หลักใ�
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Scope
 - เขียน Integration Test Cases ครอบคลุม:

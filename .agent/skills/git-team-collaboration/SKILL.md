@@ -18,10 +18,10 @@ Team ownership and workflow governance are defined in `CONTRIBUTING.md` and Phas
 - **Integration Captain (Rotated Daily):** Coordinates shared files (`compose.yaml`, `package.json`, `pnpm-workspace.yaml`, `.env.example`, `doc/contracts/**`).
 
 ## Authoritative References
-- **Contributing Guidelines:** [CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md)
-- **Team Ownership Matrix:** [doc/planning/team-ownership.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/team-ownership.md)
-- **Master Plan & Milestones:** [doc/planning/master-plan.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/master-plan.md)
-- **Pull Request Template:** [.github/pull_request_template.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/.github/pull_request_template.md)
+- **Contributing Guidelines:** [CONTRIBUTING.md](file:///FlashSaleSystem/CONTRIBUTING.md)
+- **Team Ownership Matrix:** [doc/planning/team-ownership.md](file:///FlashSaleSystem/doc/planning/team-ownership.md)
+- **Master Plan & Milestones:** [doc/planning/master-plan.md](file:///FlashSaleSystem/doc/planning/master-plan.md)
+- **Pull Request Template:** [.github/pull_request_template.md](file:///FlashSaleSystem/.github/pull_request_template.md)
 
 ## Preconditions
 1. Run `git status --short` before touching any files.

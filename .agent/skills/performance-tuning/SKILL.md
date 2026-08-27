@@ -18,10 +18,10 @@ Performance tuning is a **Cross-Team Collaborative Skill**. Member 1 tunes API/N
 > Performance tuning MUST NOT begin until all P0/P1 functional correctness tests pass 100%. If correctness tests fail, **PERFORMANCE TUNING IS BLOCKED**.
 
 ## Authoritative References
-- **Baseline Specification:** [doc/performance/baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Tuning Results Matrix:** [doc/performance/tuning-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/tuning-results.md)
-- **Final Results Specification:** [doc/performance/final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
-- **Project Decisions Log:** [doc/planning/decisions.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/decisions.md)
+- **Baseline Specification:** [doc/performance/baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Tuning Results Matrix:** [doc/performance/tuning-results.md](file:///FlashSaleSystem/doc/performance/tuning-results.md)
+- **Final Results Specification:** [doc/performance/final-results.md](file:///FlashSaleSystem/doc/performance/final-results.md)
+- **Project Decisions Log:** [doc/planning/decisions.md](file:///FlashSaleSystem/doc/planning/decisions.md)
 
 ## Preconditions
 1. Verify system baseline configuration is documented in `doc/performance/baseline.md`.

@@ -13,7 +13,7 @@ Reviewer: Member 3
 P1
 
 ## Dependencies
-- Hard Dependencies: [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
+- Hard Dependencies: [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -27,7 +27,7 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
 
 ## Scope
 - ติดตั้งแพ็กเกจ `@bull-board/nestjs` และ `@bull-board/api`

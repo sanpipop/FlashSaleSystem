@@ -117,17 +117,17 @@
 
 | ID | Title / Summary | Status | Primary Owner | References / Source |
 | --- | --- | --- | --- | --- |
-| `DEC-001` | Single VM Deployment with Docker Compose | `ACCEPTED` | Team | [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md) |
-| `DEC-002` | NestJS Framework for Stateless API & Worker | `ACCEPTED` | Team | [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md) |
-| `DEC-003` | PostgreSQL as Persistent Source of Truth | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
-| `DEC-004` | Async Order Admission with `202 Accepted` | `ACCEPTED` | Member 1 | [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md) |
-| `DEC-005` | Database Final Protection Constraints | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
-| `DEC-006` | Micro-batched Pessimistic Locking | `ACCEPTED` | Member 3 | [concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md) |
-| `DEC-007` | Redis Product Cache-Aside & Invalidation | `ACCEPTED` | Member 2 | [cache-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/cache-strategy.md) |
-| `DEC-008` | Correctness Before Performance Policy | `ACCEPTED` | Team | [baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md) |
-| `DEC-009` | Durable Result Ledger + Transactional Outbox | `ACCEPTED` | Member 3 | [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md) |
-| `DEC-010` | Physical Redis Separation | `ACCEPTED` | Member 2 | [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md) |
-| `DEC-011` | Optimal API Container Instance Count | `BENCHMARK-DRIVEN` | Member 1 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
-| `DEC-012` | BullMQ Worker Concurrency Level | `BENCHMARK-DRIVEN` | Member 2 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
-| `DEC-013` | PostgreSQL Connection Pool Size | `BENCHMARK-DRIVEN` | Member 3 | [performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md) |
-| `DEC-015` | Duplicate Admission Response Policy | `ACCEPTED` | Member 1 | [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md) |
+| `DEC-001` | Single VM Deployment with Docker Compose | `ACCEPTED` | Team | [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md) |
+| `DEC-002` | NestJS Framework for Stateless API & Worker | `ACCEPTED` | Team | [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md) |
+| `DEC-003` | PostgreSQL as Persistent Source of Truth | `ACCEPTED` | Member 3 | [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md) |
+| `DEC-004` | Async Order Admission with `202 Accepted` | `ACCEPTED` | Member 1 | [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md) |
+| `DEC-005` | Database Final Protection Constraints | `ACCEPTED` | Member 3 | [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md) |
+| `DEC-006` | Micro-batched Pessimistic Locking | `ACCEPTED` | Member 3 | [concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md) |
+| `DEC-007` | Redis Product Cache-Aside & Invalidation | `ACCEPTED` | Member 2 | [cache-strategy.md](file:///FlashSaleSystem/doc/architecture/cache-strategy.md) |
+| `DEC-008` | Correctness Before Performance Policy | `ACCEPTED` | Team | [baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md) |
+| `DEC-009` | Durable Result Ledger + Transactional Outbox | `ACCEPTED` | Member 3 | [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md) |
+| `DEC-010` | Physical Redis Separation | `ACCEPTED` | Member 2 | [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md) |
+| `DEC-011` | Optimal API Container Instance Count | `BENCHMARK-DRIVEN` | Member 1 | [performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md) |
+| `DEC-012` | BullMQ Worker Concurrency Level | `BENCHMARK-DRIVEN` | Member 2 | [performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md) |
+| `DEC-013` | PostgreSQL Connection Pool Size | `BENCHMARK-DRIVEN` | Member 3 | [performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md) |
+| `DEC-015` | Duplicate Admission Response Policy | `ACCEPTED` | Member 1 | [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md) |

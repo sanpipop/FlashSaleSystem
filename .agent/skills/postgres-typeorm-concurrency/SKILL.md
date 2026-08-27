@@ -16,11 +16,11 @@ Database operations and worker transaction execution are owned by **Member 3 (Wo
 - **Worker Concurrency Engine:** `apps/worker/` consumes BullMQ jobs and executes database transactions under pessimistic row locking.
 
 ## Authoritative References
-- **Database Contract:** [doc/contracts/database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
-- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Concurrency & Idempotency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
-- **Testing Strategy:** [doc/testing/testing-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/testing-strategy.md)
+- **Database Contract:** [doc/contracts/database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
+- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Concurrency & Idempotency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- **Testing Strategy:** [doc/testing/testing-strategy.md](file:///FlashSaleSystem/doc/testing/testing-strategy.md)
 
 ## Preconditions
 1. Confirm allowed task paths (e.g., `database/**`, `apps/worker/src/`, or `packages/database/`).

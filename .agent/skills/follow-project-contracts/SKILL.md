@@ -15,10 +15,10 @@ Integration boundaries are frozen in Phase 2 to enable parallel development. Con
 
 ## Authoritative References
 Before implementing any component boundary, inspect the corresponding contract document:
-- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Queue Job & Message Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Database Schema & Constraint Contract:** [doc/contracts/database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
-- **Redis Key & Data Structure Contract:** [doc/contracts/redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Queue Job & Message Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Database Schema & Constraint Contract:** [doc/contracts/database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
+- **Redis Key & Data Structure Contract:** [doc/contracts/redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Preconditions
 1. Identify whether your current task is a **Producer** (e.g., API enqueueing a job) or a **Consumer** (e.g., Worker processing a job).

@@ -64,7 +64,7 @@
 - **ข้อจำกัด:** Unit Test ไม่สามารถใช้พิสูจน์ Race Condition ข้ามบริการได้
 
 ### 6.3 Component & API Contract Tests
-- **ขอบเขต:** ทดสอบ Endpoints ตาม [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- **ขอบเขต:** ทดสอบ Endpoints ตาม [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 - **Scenarios:**
   - `POST /api/v1/auth/token`: Valid user -> 200 + JWT; Missing body -> 400 Bad Request
   - `GET /api/v1/products`: Page 1 limit 10 -> 200 + Pagination metadata; Invalid page -> 400

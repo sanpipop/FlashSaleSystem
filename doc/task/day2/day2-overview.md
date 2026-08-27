@@ -26,9 +26,16 @@
 
 | สมาชิก / บทบาท | ช่วงเช้า (09:00 - 12:00) | ช่วงบ่าย (13:00 - 17:30) |
 | --- | --- | --- |
-| **Member 1 (Edge/API)** | พัฒนาระบบ JWT Authentication & Guard ([authentication.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/authentication.md)) และ Products Read API ([products-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/products-api.md)) | พัฒนา Orders Admission API ([orders-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/orders-api.md)) ต่อเข้ากับ Queue Producer |
+| **Member 1 (Edge/API)** | พัฒนาระบบ JWT Authentication & Guard ([authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md)) และ Products Read API ([products-api.md](file:///FlashSaleSystem/doc/task/day2/products-api.md)) | พัฒนา Orders Admission API ([orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md)) ต่อเข้ากับ Queue Producer |
 | **Member 2 (Queue/Redis)** | ช่วย Member 1 ทดสอบ Queue Producer Enqueue และเตรียม Redis Claim Key Helper (`SET ... NX`) | เตรียมพร้อมรับ Job Result Event และซัพพอร์ต Member 3 ในการล้างแคชหลัง Commit |
-| **Member 3 (Worker/DB)** | พัฒนา Order Processing Logic ใน Worker ([order-processing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/order-processing.md)) ร่วมกับ Transaction & Pessimistic Row Locking | เขียน Concurrency Integration Test พิสูจน์สต็อกไม่ติดลบและการกันซื้อซ้ำ |
+| **Member 3 (Worker/DB)** | พัฒนา Order Processing Logic ใน Worker ([order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md)) ร่วมกับ Transaction & Pessimistic Row Locking | เขียน Concurrency Integration Test พิสูจน์สต็อกไม่ติดลบและการกันซื้อซ้ำ |
+
+### 3.1 รายการ Task Checklist ประจำวัน (Day 2 Status: 0% Pending)
+
+- [ ] **[Member 1]** [authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md) — พัฒนาระบบ JWT Authentication API (`POST /api/v1/auth/token`) และ Auth Guard
+- [ ] **[Member 1]** [products-api.md](file:///FlashSaleSystem/doc/task/day2/products-api.md) — พัฒนา Products Read API (`GET /api/v1/products`) รองรับ Pagination
+- [ ] **[Member 1 & 2]** [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md) — พัฒนา Orders Admission API (`POST /api/v1/orders`), Atomic SET NX Claim Guard และ Queue Producer ตอบกลับ `202 Accepted`
+- [ ] **[Member 3]** [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md) — พัฒนา Order Processing Logic ใน Worker ภายใต้ ACID Transaction & `SELECT FOR UPDATE` Row Locking
 
 ---
 

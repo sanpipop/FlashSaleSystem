@@ -13,8 +13,8 @@ Reviewer: Member 3
 P0
 
 ## Dependencies
-- Hard Dependencies: [worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md) (ต้องการตาราง products และ seed)
-- Soft Dependencies: [caching.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/caching.md) (ทำ DB Path ใน Day 2 ก่อน แล้วเพิ่ม Redis Cache ใน Day 3)
+- Hard Dependencies: [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md) (ต้องการตาราง products และ seed)
+- Soft Dependencies: [caching.md](file:///FlashSaleSystem/doc/task/day3/caching.md) (ทำ DB Path ใน Day 2 ก่อน แล้วเพิ่ม Redis Cache ใน Day 3)
 
 ## Can Start Immediately?
 Yes
@@ -27,12 +27,12 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 
 ## Scope
 - สร้าง Products Module, Controller, และ Service ใน NestJS API
 - Implement Endpoint `GET /api/v1/products` รับ Query Parameters `page` และ `limit`
-- คืนค่ารายการสินค้าพร้อม Response Structure (`status`, `data`, `meta`) ตรงตาม [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- คืนค่ารายการสินค้าพร้อม Response Structure (`status`, `data`, `meta`) ตรงตาม [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 
 ## Out of Scope
 - การทำ Redis Caching (ทำเพิ่มเติมใน Day 3)

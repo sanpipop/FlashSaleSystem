@@ -245,7 +245,7 @@ Do not commit or push.
 ### รูปแบบการอ้างอิงไฟล์ใน Prompt (File Reference Syntax)
 เมื่อต้องการสั่งให้ AI อ่านไฟล์เอกสาร สัญญา หรือ Task สามารถระบุพาธไฟล์ได้ 2 รูปแบบหลัก:
 1. **รูปแบบ `@` Tag:** `@[path/to/file]` หรือ `@[/absolute/path/to/file]`  
-   *ตัวอย่าง:* `@[doc/task/day2/orders-api.md]` หรือ `@[/home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md]`
+   *ตัวอย่าง:* `@[doc/task/day2/orders-api.md]` หรือ `@[/FlashSaleSystem/doc/contracts/api-contract.md]`
 2. **รูปแบบ `/` Relative Path:** `/doc/task/day2/orders-api.md` หรือ `doc/task/day2/orders-api.md`
 
 การระบุด้วย `@[file]` หรือ `/path/to/file` จะช่วยให้ IDE ดึงบริบทเนื้อหาของไฟล์เข้าสู่บทสนทนาได้ทันที AI จะอ่านข้อกำหนดทั้งหมดในไฟล์นั้นโดยอัตโนมัติ

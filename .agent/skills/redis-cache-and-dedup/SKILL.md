@@ -19,11 +19,11 @@ Redis operations are primarily owned by **Member 2 (Queue / Redis / Cache Lead)*
 > **PostgreSQL Authority Rule:** Redis is a fast-path cache and admission guard; it is NOT the persistent source of truth. The existence of a Redis claim or cache entry does NOT constitute proof of a confirmed purchase. Final purchase authority resides exclusively in PostgreSQL.
 
 ## Authoritative References
-- **Redis Contract:** [doc/contracts/redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
-- **API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Cache Strategy Architecture:** [doc/architecture/cache-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/cache-strategy.md)
-- **Concurrency & Idempotency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- **Redis Contract:** [doc/contracts/redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
+- **API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Cache Strategy Architecture:** [doc/architecture/cache-strategy.md](file:///FlashSaleSystem/doc/architecture/cache-strategy.md)
+- **Concurrency & Idempotency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
 
 ## Preconditions
 1. Confirm allowed task paths (e.g., `packages/cache/**`, `apps/api/src/products/`, or `apps/api/src/orders/`).

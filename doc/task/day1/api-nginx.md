@@ -13,7 +13,7 @@ Reviewer: Member 2
 P0
 
 ## Dependencies
-- Hard Dependencies: [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)
+- Hard Dependencies: [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)
 - Soft Dependencies: None (ใช้ Mock Nginx Upstream ก่อนได้)
 
 ## Can Start Immediately?
@@ -29,11 +29,11 @@ Yes (หลัง Bootstrap สร้างโฟลเดอร์ `apps/api`)
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- [api-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/api-flow.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- [api-flow.md](file:///FlashSaleSystem/doc/architecture/api-flow.md)
 
 ## Scope
 - สแกฟโฟลด์ NestJS App สเกเลตันใน `apps/api/`

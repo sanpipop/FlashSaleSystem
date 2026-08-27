@@ -16,7 +16,7 @@ Reviewer: Member 1
 P0
 
 ## Dependencies
-- Hard Dependencies: [products-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/products-api.md), [order-processing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/order-processing.md)
+- Hard Dependencies: [products-api.md](file:///FlashSaleSystem/doc/task/day2/products-api.md), [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -31,8 +31,8 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [cache-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/cache-strategy.md)
-- [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- [cache-strategy.md](file:///FlashSaleSystem/doc/architecture/cache-strategy.md)
+- [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Scope
 - พัฒนา Cache Service/Preloaded Lua Script ใช้ `EVALSHA` อ่าน Epoch + Versioned Key ใน Redis round-trip เดียว

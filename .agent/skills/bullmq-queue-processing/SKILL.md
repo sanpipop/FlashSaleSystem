@@ -19,11 +19,11 @@ BullMQ queue infrastructure is owned by **Member 2 (Queue / Redis / Cache Lead)*
 > **Queue Infrastructure vs. Business Outcome Rule:** BullMQ job states (`waiting`, `active`, `completed`, `failed`) describe *queue processing state*, NOT final business outcome. A BullMQ job ending in `completed` state simply means the worker finished processing (which could be a confirmed order OR a valid business rejection such as `SOLD_OUT`).
 
 ## Authoritative References
-- **Queue Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Database Contract:** [doc/contracts/database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
-- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- **Queue Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Database Contract:** [doc/contracts/database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
+- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Preconditions
 1. Confirm allowed task paths (e.g., `packages/queue/**`, `apps/api/src/orders/`, or `apps/worker/src/`).

@@ -45,13 +45,13 @@ Activate this skill at the beginning of every task or conversation in this repos
 
 ## Authoritative References
 Do not copy full technical specifications into this skill. Always refer agents to the canonical documentation:
-- **Architecture Source of Truth:** [doc/architecture/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **Frozen Contracts Source of Truth:** [doc/contracts/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Project Master Plan & Ownership:** [doc/planning/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/master-plan.md)
-- **Daily Task Execution Plan:** [doc/task/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-overview.md)
-- **Testing & Verification Standards:** [doc/testing/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/testing-strategy.md)
-- **Performance Framework:** [doc/performance/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Report & Evidence Checklist:** [doc/report/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/report/evidence-checklist.md)
+- **Architecture Source of Truth:** [doc/architecture/](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **Frozen Contracts Source of Truth:** [doc/contracts/](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Project Master Plan & Ownership:** [doc/planning/](file:///FlashSaleSystem/doc/planning/master-plan.md)
+- **Daily Task Execution Plan:** [doc/task/](file:///FlashSaleSystem/doc/task/day1/day1-overview.md)
+- **Testing & Verification Standards:** [doc/testing/](file:///FlashSaleSystem/doc/testing/testing-strategy.md)
+- **Performance Framework:** [doc/performance/](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Report & Evidence Checklist:** [doc/report/](file:///FlashSaleSystem/doc/report/evidence-checklist.md)
 
 ## Preconditions
 Before starting any technical action, confirm that you have read the relevant task file in `doc/task/` and checked git status.

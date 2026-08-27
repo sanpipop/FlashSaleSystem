@@ -19,7 +19,7 @@
 ## 2. สถานะเป้าหมายปลายวัน (Expected End State)
 
 - ผ่านกระบวนการทดลองปรับแต่งประสิทธิภาพ (Performance Experiments Log) และได้การตั้งค่าที่ดีที่สุด (Optimal Configuration)
-- ยิง Final Benchmark รอบสุดท้ายและบันทึกผลลงใน [final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
+- ยิง Final Benchmark รอบสุดท้ายและบันทึกผลลงใน [final-results.md](file:///FlashSaleSystem/doc/performance/final-results.md)
 - ผ่านการตรวจรับความพร้อมตาม Final Validation Checklist ทั้งด้าน Architecture, API Compatibility, Correctness, Observability, Deployment และ Repository Governance
 - สรุปผลการดำเนินงานและจัดเตรียมหลักฐานส่งมอบพร้อมแข่งขัน
 
@@ -29,9 +29,15 @@
 
 | สมาชิก / บทบาท | ช่วงเช้า (09:00 - 12:00) | ช่วงบ่าย (13:00 - 17:30) |
 | --- | --- | --- |
-| **Member 1 (Edge/API)** | ทดลองปรับแต่ง API Instance Count, Nginx Keepalive & Upstream Tuning ([performance-tuning.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/performance-tuning.md)) | ช่วยยิง k6 Final Benchmark และจัดเก็บ k6 Output ([final-benchmark.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/final-benchmark.md)) |
+| **Member 1 (Edge/API)** | ทดลองปรับแต่ง API Instance Count, Nginx Keepalive & Upstream Tuning ([performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md)) | ช่วยยิง k6 Final Benchmark และจัดเก็บ k6 Output ([final-benchmark.md](file:///FlashSaleSystem/doc/task/day5/final-benchmark.md)) |
 | **Member 2 (Queue/Redis)** | ทดลองปรับแต่ง BullMQ Concurrency, Redis Pool Size และ Cache Strategy | รวบรวม ภาพถ่าย Screenshots ของ Bull Board และ Metrics Dashboard ณ ช่วง Peak Load |
-| **Member 3 (Worker/DB)** | ทดลองปรับแต่ง DB Connection Pool, Query Indexes และ Lock Duration | ตรวจสอบ Data Integrity หลัง Final Benchmark และตรวจรับ Final Checklist ([final-validation.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/final-validation.md)) |
+| **Member 3 (Worker/DB)** | ทดลองปรับแต่ง DB Connection Pool, Query Indexes และ Lock Duration | ตรวจสอบ Data Integrity หลัง Final Benchmark และตรวจรับ Final Checklist ([final-validation.md](file:///FlashSaleSystem/doc/task/day5/final-validation.md)) |
+
+### 3.1 รายการ Task Checklist ประจำวัน (Day 5 Status: 0% Pending)
+
+- [ ] **[All Members]** [performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md) — ดำเนินการทดลองปรับแต่งประสิทธิภาพแบบ Single Variable Experiments
+- [ ] **[Member 1]** [final-benchmark.md](file:///FlashSaleSystem/doc/task/day5/final-benchmark.md) — ยิง k6 Final Benchmark รอบสุดท้ายและบันทึกผลลงใน `final-results.md`
+- [ ] **[Member 3]** [final-validation.md](file:///FlashSaleSystem/doc/task/day5/final-validation.md) — ตรวจรับ Final Release Validation Checklist ก่อน Freeze โค้ดส่งมอบโปรเจกต์
 
 ---
 

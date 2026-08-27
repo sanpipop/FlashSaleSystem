@@ -13,8 +13,8 @@ Reviewer: Member 1
 P0
 
 ## Dependencies
-- Hard Dependencies: [worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md), [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
-- Soft Dependencies: [orders-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/orders-api.md) (สามารถใช้ Mock Queue Payload ทดสอบก่อนได้)
+- Hard Dependencies: [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md), [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
+- Soft Dependencies: [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md) (สามารถใช้ Mock Queue Payload ทดสอบก่อนได้)
 
 ## Can Start Immediately?
 Yes
@@ -29,13 +29,13 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- [order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- [concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- [order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- [concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
 
 ## Scope
 - พัฒนา BullMQ Worker รับ Queue `orders` และรวม 10–32 Jobs หรือรอสูงสุด 1 ms (ค่าเริ่ม 16)

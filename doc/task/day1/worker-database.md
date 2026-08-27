@@ -13,7 +13,7 @@ Reviewer: Member 1
 P0
 
 ## Dependencies
-- Hard Dependencies: [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)
+- Hard Dependencies: [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)
 - Soft Dependencies: None (ใช้ PostgreSQL Container เปล่า)
 
 ## Can Start Immediately?
@@ -29,10 +29,10 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
+- [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
 
 ## Scope
 - สร้าง TypeORM Config และ Migration ใน `database/` สำหรับ:

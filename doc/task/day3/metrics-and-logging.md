@@ -16,7 +16,7 @@ Reviewer: Member 1
 P1
 
 ## Dependencies
-- Hard Dependencies: [api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md), [order-processing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/order-processing.md)
+- Hard Dependencies: [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md), [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -31,7 +31,7 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- [observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Scope
 - ตั้งค่า Winston/Pino Logger ให้บันทึก Log ในรูปแบบ JSON Format

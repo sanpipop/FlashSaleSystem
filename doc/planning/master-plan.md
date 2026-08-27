@@ -92,13 +92,45 @@ gantt
 
 | ลำดับ Step | ชื่องาน (Task Name) | พึ่งพางาน (Depends On) | ผู้รับผิดชอบ (Owner) | ผลกระทบหากล่าช้า (Blocking Impact) |
 | --- | --- | --- | --- | --- |
-| **CP-1** | [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md) | None | Integration Captain | **Hard Block:** ไม่สามารถวางโค้ดใน `apps/` หรือ `packages/` ได้ |
-| **CP-2** | [docker-compose.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/docker-compose.md) | CP-1 | Integration Captain | **Hard Block:** ไม่สามารถทดสอบรันระบบรวมและ Integration Gate ได้ |
-| **CP-3** | [orders-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/orders-api.md) | CP-1, Auth | Member 1 | **Hard Block:** ไม่สามารถส่ง Job คำสั่งซื้อเข้า Queue ได้ |
-| **CP-4** | [order-processing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/order-processing.md) | CP-2, CP-3 | Member 3 | **Hard Block:** สต็อกไม่ถูกตัด ขาดกระบวนการพิสูจน์ Correctness |
-| **CP-5** | [integration-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/integration-testing.md)| CP-4, Cache | Test Captain | **Hard Block:** ห้ามเริ่มยิง Load Test ใน Day 4 หากไม่ผ่าน |
-| **CP-6** | [k6-load-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/k6-load-test.md) | CP-5 | Member 1 | **Hard Block:** ไม่มีข้อมูล Baseline Metrics สำหรับวิเคราะห์ Bottleneck |
-| **CP-7** | [final-validation.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/final-validation.md) | CP-6, Tuning | Integration Captain | **Hard Block:** ไม่สามารถตรวจรับและส่งมอบโปรเจกต์ได้ |
+| **CP-1** | [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md) | None | Integration Captain | **Hard Block:** ไม่สามารถวางโค้ดใน `apps/` หรือ `packages/` ได้ |
+| **CP-2** | [docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md) | CP-1 | Integration Captain | **Hard Block:** ไม่สามารถทดสอบรันระบบรวมและ Integration Gate ได้ |
+| **CP-3** | [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md) | CP-1, Auth | Member 1 | **Hard Block:** ไม่สามารถส่ง Job คำสั่งซื้อเข้า Queue ได้ |
+| **CP-4** | [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md) | CP-2, CP-3 | Member 3 | **Hard Block:** สต็อกไม่ถูกตัด ขาดกระบวนการพิสูจน์ Correctness |
+| **CP-5** | [integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md)| CP-4, Cache | Test Captain | **Hard Block:** ห้ามเริ่มยิง Load Test ใน Day 4 หากไม่ผ่าน |
+| **CP-6** | [k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md) | CP-5 | Member 1 | **Hard Block:** ไม่มีข้อมูล Baseline Metrics สำหรับวิเคราะห์ Bottleneck |
+| **CP-7** | [final-validation.md](file:///FlashSaleSystem/doc/task/day5/final-validation.md) | CP-6, Tuning | Integration Captain | **Hard Block:** ไม่สามารถตรวจรับและส่งมอบโปรเจกต์ได้ |
+
+### 7.1 ตารางสถานะงานย่อยทั้งหมด (Master Task Progress Checklist)
+
+#### 🗓️ Day 1: Foundation & Infrastructure Bootstrap (`100% Complete`)
+- [x] **[CP-1]** [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md) — Monorepo Architecture Setup (`package.json`, `pnpm-workspace.yaml`)
+- [x] **[CP-2]** [docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md) — Docker Compose Multi-Container Setup (`compose.yaml`)
+- [x] [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md) — NestJS API Skeleton (`apps/api/`) & Nginx Proxy Load Balancer (`infra/nginx/`)
+- [x] [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md) — Shared Packages (`packages/queue`, `packages/cache`) & Redis Setup
+- [x] [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md) — PostgreSQL Schema & Seed 20 items & Worker Skeleton App (`apps/worker/`)
+- [x] [day1-integration-check.md](file:///FlashSaleSystem/doc/task/day1/day1-integration-check.md) — Day 1 Integration Gate Verification (Compose Up & Health Check OK)
+
+#### 🗓️ Day 2: Core Business Flow & Async Processing (`0% Pending`)
+- [ ] [authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md) — JWT Auth API (`POST /api/v1/auth/token`) & Bearer Guard
+- [ ] [products-api.md](file:///FlashSaleSystem/doc/task/day2/products-api.md) — Products Read API (`GET /api/v1/products`) with Pagination
+- [ ] **[CP-3]** [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md) — Orders Admission API (`POST /api/v1/orders`), SET NX Claim Guard & Queue Producer
+- [ ] **[CP-4]** [order-processing.md](file:///FlashSaleSystem/doc/task/day2/order-processing.md) — BullMQ Worker Processing with Transaction & `SELECT FOR UPDATE` Lock
+
+#### 🗓️ Day 3: Performance Foundation & Observability (`0% Pending`)
+- [ ] [caching.md](file:///FlashSaleSystem/doc/task/day3/caching.md) — Product Redis Cache-Aside & Invalidation Signal
+- [ ] [bull-board.md](file:///FlashSaleSystem/doc/task/day3/bull-board.md) — Bull Board UI Dashboard (`/admin/queues`) Setup
+- [ ] [metrics-and-logging.md](file:///FlashSaleSystem/doc/task/day3/metrics-and-logging.md) — Structured JSON Correlation Logging & Prometheus Metrics
+- [ ] **[CP-5]** [integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md) — Integration & Concurrency Test Suite Verification
+
+#### 🗓️ Day 4: Load Testing, Correctness Proof & Bottleneck Analysis (`0% Pending`)
+- [ ] **[CP-6]** [k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md) — External k6 Load Testing Execution (1,000 Read / 500 Write VUs)
+- [ ] [correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md) — SQL Data Integrity Proof (Zero Negative Stock, Zero Duplicate Orders)
+- [ ] [bottleneck-analysis.md](file:///FlashSaleSystem/doc/task/day4/bottleneck-analysis.md) — System Bottleneck Analysis & Candidate Optimizations List
+
+#### 🗓️ Day 5: Performance Tuning, Final Benchmark & Final Validation (`0% Pending`)
+- [ ] [performance-tuning.md](file:///FlashSaleSystem/doc/task/day5/performance-tuning.md) — Single Variable Tuning Experiments
+- [ ] [final-benchmark.md](file:///FlashSaleSystem/doc/task/day5/final-benchmark.md) — Final k6 Benchmark & Results Recording
+- [ ] **[CP-7]** [final-validation.md](file:///FlashSaleSystem/doc/task/day5/final-validation.md) — Final Release Validation Checklist & Code Freeze
 
 ---
 
@@ -128,7 +160,7 @@ gantt
 
 ## 10. กลยุทธ์การรวมระบบ (Integration Strategy & Daily Rounds)
 
-ยึดถือกลยุทธ์การรวมระบบตามที่ตกลงใน [CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md):
+ยึดถือกลยุทธ์การรวมระบบตามที่ตกลงใน [CONTRIBUTING.md](file:///FlashSaleSystem/CONTRIBUTING.md):
 - **รอบเช้า:** เปิด/อัปเดต PR เวลา **11:30 น.** -> Integration Captain รวมงานและ Smoke Test เวลา **12:00 น.**
 - **รอบเย็น:** เปิด/อัปเดต PR เวลา **17:30 น.** -> Integration Captain รวมงานและรัน Integration Gate เวลา **18:00 น.**
 - **Teach-back:** สมาชิกระบุผลการเปลี่ยนแปลงและ Failure cases สำคัญคนละไม่เกิน 5 นาทีหลังรวมงาน

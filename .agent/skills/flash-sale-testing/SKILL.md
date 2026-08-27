@@ -18,11 +18,11 @@ Testing authority is defined in Phase 7 (`doc/testing/`). Automated unit tests r
 > Unit tests may use mocks for isolated class logic. However, **Concurrency, Atomicity, and Data Integrity tests MUST run against REAL PostgreSQL, REAL Redis, and REAL BullMQ instances**. Mocked databases or mocked Redis clients CANNOT prove distributed race safety or pessimistic row locking correctness.
 
 ## Authoritative References
-- **Testing Strategy Source of Truth:** [doc/testing/testing-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/testing-strategy.md)
-- **Load Testing Specification:** [doc/testing/load-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/load-testing.md)
-- **Concurrency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
-- **Day 3 Integration Testing Task:** [doc/task/day3/integration-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/integration-testing.md)
-- **Day 4 Correctness Test Task:** [doc/task/day4/correctness-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/correctness-test.md)
+- **Testing Strategy Source of Truth:** [doc/testing/testing-strategy.md](file:///FlashSaleSystem/doc/testing/testing-strategy.md)
+- **Load Testing Specification:** [doc/testing/load-testing.md](file:///FlashSaleSystem/doc/testing/load-testing.md)
+- **Concurrency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- **Day 3 Integration Testing Task:** [doc/task/day3/integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md)
+- **Day 4 Correctness Test Task:** [doc/task/day4/correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md)
 
 ## Preconditions
 1. Verify test environment (PostgreSQL, Redis, BullMQ) is running via Docker Compose.

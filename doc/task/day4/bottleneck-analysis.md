@@ -16,7 +16,7 @@ Reviewer: Integration Captain
 P0
 
 ## Dependencies
-- Hard Dependencies: [k6-load-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/k6-load-test.md), [correctness-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/correctness-test.md)
+- Hard Dependencies: [k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md), [correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md)
 
 ## Can Start Immediately?
 No (ทำเป็นงานสุดท้ายของ Day 4 หลังยิง Load Test และตรวจ Integrity แล้ว)
@@ -29,7 +29,7 @@ No (ทำเป็นงานสุดท้ายของ Day 4 หลัง
 - `doc/contracts/**`
 
 ## Contracts Used
-- [observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- [observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Scope
 - รวบรวมข้อมูล Baseline Metrics:
@@ -48,7 +48,7 @@ No (ทำเป็นงานสุดท้ายของ Day 4 หลัง
 - ข้อสรุปจุดคอขวดต้องมีตัวเลข Metrics อ้างอิง ห้ามเดาจากความรู้สึก
 
 ## Acceptance Criteria
-1. เอกสาร [baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md) ถูกบันทึกค่า Baseline Benchmark สมบูรณ์
+1. เอกสาร [baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md) ถูกบันทึกค่า Baseline Benchmark สมบูรณ์
 2. ได้รับตารางจัดลำดับ Candidate Optimizations สำหรับ Day 5
 
 ## Test / Verification

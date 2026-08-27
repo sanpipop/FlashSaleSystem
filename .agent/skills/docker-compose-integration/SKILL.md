@@ -14,10 +14,10 @@ Activate this skill whenever:
 Docker Compose configuration is a **High-Risk Shared Area** controlled by the **Integration Captain** (rotated daily among Member 1, 2, and 3). Because all three team members rely on Docker Compose to run their services, uncoordinated edits can break the entire development or test environment.
 
 ## Authoritative References
-- **Architecture Overview:** [doc/architecture/architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **Team Ownership Policy:** [doc/planning/team-ownership.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/team-ownership.md)
-- **Day 1 Compose Task:** [doc/task/day1/docker-compose.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/docker-compose.md)
-- **Day 1 Integration Check:** [doc/task/day1/day1-integration-check.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-integration-check.md)
+- **Architecture Overview:** [doc/architecture/architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **Team Ownership Policy:** [doc/planning/team-ownership.md](file:///FlashSaleSystem/doc/planning/team-ownership.md)
+- **Day 1 Compose Task:** [doc/task/day1/docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md)
+- **Day 1 Integration Check:** [doc/task/day1/day1-integration-check.md](file:///FlashSaleSystem/doc/task/day1/day1-integration-check.md)
 
 ## Preconditions
 1. Verify task assignment authorizes shared Docker Compose modifications or that you are serving as Integration Captain.

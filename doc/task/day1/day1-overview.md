@@ -27,10 +27,19 @@
 
 | สมาชิก / บทบาท | ช่วงเช้า (09:00 - 12:00) | ช่วงบ่าย (13:00 - 17:30) |
 | --- | --- | --- |
-| **Integration Captain** | สแกฟโฟลด์ Monorepo Structure & Root `package.json` ([project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)) | จัดทำ `compose.yaml` รวมบริการ Nginx, API x3, Worker, Redis, PostgreSQL ([docker-compose.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/docker-compose.md)) |
-| **Member 1 (Edge/API)** | สร้าง NestJS API Skeleton App (`apps/api/`) และตั้งค่า Bootstrap ([api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md)) | คอนฟิก Nginx Reverse Proxy (`infra/nginx/`) ให้ Load Balance ไปยัง 3 API Instances |
-| **Member 2 (Queue/Redis)** | สร้าง Shared Package `packages/queue` และ `packages/cache` ([queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)) | ทดสอบการเชื่อมต่อ Redis และสร้าง BullMQ Test Producer/Consumer Skeleton |
-| **Member 3 (Worker/DB)** | สร้าง Database Migration & Schema สำหรับ `products` และ `orders` ([worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md)) | เขียน Seed Script ใส่สินค้า 20 ชิ้น และสร้าง BullMQ Worker Skeleton App (`apps/worker/`) |
+| **Integration Captain** | สแกฟโฟลด์ Monorepo Structure & Root `package.json` ([project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)) | จัดทำ `compose.yaml` รวมบริการ Nginx, API x3, Worker, Redis, PostgreSQL ([docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md)) |
+| **Member 1 (Edge/API)** | สร้าง NestJS API Skeleton App (`apps/api/`) และตั้งค่า Bootstrap ([api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md)) | คอนฟิก Nginx Reverse Proxy (`infra/nginx/`) ให้ Load Balance ไปยัง 3 API Instances |
+| **Member 2 (Queue/Redis)** | สร้าง Shared Package `packages/queue` และ `packages/cache` ([queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)) | ทดสอบการเชื่อมต่อ Redis และสร้าง BullMQ Test Producer/Consumer Skeleton |
+| **Member 3 (Worker/DB)** | สร้าง Database Migration & Schema สำหรับ `products` และ `orders` ([worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md)) | เขียน Seed Script ใส่สินค้า 20 ชิ้น และสร้าง BullMQ Worker Skeleton App (`apps/worker/`) |
+
+### 3.1 รายการ Task Checklist ประจำวัน (Day 1 Status: 100% Complete)
+
+- [x] **[Integration Captain]** [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md) — สแกฟโฟลด์ Monorepo Structure & Root `package.json`
+- [x] **[Integration Captain]** [docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md) — จัดทำ `compose.yaml` รวม Nginx, API x3, Worker, Redis-Ops, Redis-Cache, PostgreSQL
+- [x] **[Member 1]** [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md) — สร้าง NestJS API Skeleton App (`apps/api/`) พร้อม `/health` endpoint และตั้งค่า Nginx Load Balancer (`infra/nginx/`)
+- [x] **[Member 2]** [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md) — สร้าง Shared Package `packages/queue`, `packages/cache` และทดสอบ Redis Connections
+- [x] **[Member 3]** [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md) — สร้าง Database Schema (`products`, `orders`, `order_results`), Seed Script 20 ชิ้น และ Worker Skeleton App (`apps/worker/`)
+- [x] **[All Members]** [day1-integration-check.md](file:///FlashSaleSystem/doc/task/day1/day1-integration-check.md) — รันและผ่านประตูตรวจสอบการรวมระบบปลายวัน (Docker Compose Up & Health Check OK)
 
 ---
 
@@ -62,7 +71,7 @@
 
 ## 6. ประตูตรวจสอบการรวมระบบปลายวัน (End-of-Day Integration Gate)
 
-เวลา 17:30 - 18:00 น. ทีมต้องร่วมกันรันสคริปต์ตรวจสอบความพร้อมตาม checklist ใน [day1-integration-check.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-integration-check.md):
+เวลา 17:30 - 18:00 น. ทีมต้องร่วมกันรันสคริปต์ตรวจสอบความพร้อมตาม checklist ใน [day1-integration-check.md](file:///FlashSaleSystem/doc/task/day1/day1-integration-check.md):
 
 - [ ] `docker compose up --build -d` สำเร็จทุก Container
 - [ ] `curl http://localhost/health` ตอบ 200 OK และกระจายเข้า API ทั้ง 3 ตัว

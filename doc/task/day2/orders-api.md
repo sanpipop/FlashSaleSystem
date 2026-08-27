@@ -13,7 +13,7 @@ Reviewer: Member 2
 P0
 
 ## Dependencies
-- Hard Dependencies: [authentication.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/authentication.md), [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
+- Hard Dependencies: [authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md), [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -28,9 +28,9 @@ No (ต้องใช้ JwtAuthGuard และ Queue Producer Package)
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Scope
 - สร้าง Orders Module และ Controller ใน NestJS API

@@ -14,12 +14,12 @@ The API layer is primarily owned by **Member 1 (Edge / API Lead)**. It acts as a
 
 ## Authoritative References
 Before modifying any API behavior, inspect the following authoritative documents:
-- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Redis Key & Claim Contract:** [doc/contracts/redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
-- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/api-flow.md)
-- **Order Admission Flow:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Redis Key & Claim Contract:** [doc/contracts/redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
+- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///FlashSaleSystem/doc/architecture/api-flow.md)
+- **Order Admission Flow:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Preconditions
 1. Confirm task allowed paths include `apps/api/**`.

@@ -13,7 +13,7 @@ Reviewer: Member 2
 P0
 
 ## Dependencies
-- Hard Dependencies: [api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md)
+- Hard Dependencies: [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -29,7 +29,7 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 
 ## Scope
 - สร้าง Auth Module และ Auth Controller ใน NestJS API
