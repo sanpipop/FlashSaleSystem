@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
-import { OrderBatchCoordinatorService } from './order-batch-coordinator.service.js';
+import { InfrastructureModule } from '../infrastructure/infrastructure.module.js';
+import { MicroBatchCoordinatorService } from './micro-batch-coordinator.service.js';
 import { OrderBatchProcessorService } from './order-batch-processor.service.js';
-import { OrdersWorkerConsumer } from './orders-worker.consumer.js';
+import { OrderQueueConsumerService } from './order-queue-consumer.service.js';
 
 @Module({
+  imports: [InfrastructureModule],
   providers: [
     OrderBatchProcessorService,
-    OrderBatchCoordinatorService,
-    OrdersWorkerConsumer,
+    MicroBatchCoordinatorService,
+    OrderQueueConsumerService,
   ],
 })
 export class OrdersWorkerModule {}

@@ -8,8 +8,8 @@
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "test:integration": "vitest run src/orders/order-processing.integration.spec.ts --passWithNoTests"
+    "test": "vitest run --passWithNoTests --exclude='src/**/*.integration.spec.ts'",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@flash-sale/cache": "workspace:*",

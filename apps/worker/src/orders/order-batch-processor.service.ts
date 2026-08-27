@@ -1,49 +1,50 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type { OrderJobPayload, OrderJobResult } from '@flash-sale/contracts';
-import { AppDataSource } from '@flash-sale/database';
-
-interface DatabaseOrderResult {
-  job_id: string;
-  status: OrderJobResult['status'];
-  order_id: string | null;
-  message: string;
-}
+import { AppDataSource, placeOrderBatch } from '@flash-sale/database';
 
 @Injectable()
 export class OrderBatchProcessorService {
-  private readonly logger = new Logger(OrderBatchProcessorService.name);
+  private batchCalls = 0;
+  private processedJobs = 0;
 
-  async process(jobs: OrderJobPayload[]): Promise<OrderJobResult[]> {
-    const rows = await AppDataSource.query<DatabaseOrderResult[]>(
-      'SELECT * FROM place_order_batch($1::jsonb)',
-      [JSON.stringify(jobs)],
-    );
-    const results = new Map(rows.map((row) => [row.job_id, row]));
+  get statistics(): Readonly<{ batchCalls: number; processedJobs: number }> {
+    return {
+      batchCalls: this.batchCalls,
+      processedJobs: this.processedJobs,
+    };
+  }
 
-    return jobs.map((job) => {
-      const row = results.get(job.jobId);
-      if (!row) {
-        throw new Error(`Database returned no result for job ${job.jobId}`);
+  async process(jobs: readonly OrderJobPayload[]): Promise<OrderJobResult[]> {
+    const distinctJobs = [...new Map(jobs.map((job) => [job.jobId, job])).values()];
+    const payloadByJobId = new Map(distinctJobs.map((job) => [job.jobId, job]));
+    const databaseResults = await placeOrderBatch(AppDataSource, distinctJobs);
+    const processedAt = new Date().toISOString();
+
+    this.batchCalls += 1;
+    this.processedJobs += distinctJobs.length;
+
+    if (databaseResults.length !== distinctJobs.length) {
+      throw new Error(
+        `Database returned ${databaseResults.length} results for ${distinctJobs.length} jobs.`,
+      );
+    }
+
+    return databaseResults.map((result) => {
+      const payload = payloadByJobId.get(result.jobId);
+
+      if (payload === undefined) {
+        throw new Error(`Database returned an unknown jobId: ${result.jobId}`);
       }
-      const result: OrderJobResult = {
-        status: row.status,
-        jobId: row.job_id,
-        userId: job.userId,
-        productId: job.productId,
-        processedAt: new Date().toISOString(),
-        message: row.message,
+
+      return {
+        status: result.status,
+        jobId: payload.jobId,
+        userId: payload.userId,
+        productId: payload.productId,
+        ...(result.orderId === undefined ? {} : { orderId: result.orderId }),
+        processedAt,
+        message: result.message,
       };
-      if (row.order_id) {
-        result.orderId = row.order_id;
-      }
-      this.logger.log(JSON.stringify({
-        event: 'ORDER_PROCESSED',
-        jobId: result.jobId,
-        requestId: job.requestId,
-        productId: result.productId,
-        outcome: result.status,
-      }));
-      return result;
     });
   }
 }

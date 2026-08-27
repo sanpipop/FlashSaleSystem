@@ -7,6 +7,7 @@ import { TransactionalOutboxEntity } from './entities/transactional-outbox.entit
 import { InitialSchema1760000000000 } from './migrations/1760000000000-initial-schema.js';
 import { PlaceOrderBatch1760000001000 } from './migrations/1760000001000-place-order-batch.js';
 import { FixPlaceOrderBatch1760000002000 } from './migrations/1760000002000-fix-place-order-batch.js';
+import { WinningPlaceOrderBatch1760000003000 } from './migrations/1760000003000-winning-place-order-batch.js';
 
 function positiveInteger(value: string | undefined, fallback: number): number {
   const parsed = Number(value ?? fallback);
@@ -38,5 +39,6 @@ export const AppDataSource = new DataSource({
     InitialSchema1760000000000,
     PlaceOrderBatch1760000001000,
     FixPlaceOrderBatch1760000002000,
+    WinningPlaceOrderBatch1760000003000,
   ],
 });
