@@ -27,8 +27,12 @@ generator จึงยังไม่มี official 3-run baseline ที่ใ
 
 ### 2.1 หลักฐานความพร้อมของ Harness (ไม่ใช่ Baseline)
 
-- k6 syntax/config ผ่านทั้ง `auth`, `read`, `write` และ `duplicate` ด้วย
-  `grafana/k6:0.57.0`
+- k6 syntax/config ผ่านทั้ง `auth`, `read`, `write` และ `duplicate`
+- **Benchmark generator version: k6 v2.2.0** (frozen for official series)
+- Previous v0.57.0 results were preflight-only and are excluded from official baseline
+- Reason for migration: v2.2.0 is the latest maintained major version; official series
+  has not begun; benchmark generator can still be re-frozen safely; major-version
+  compatibility has been revalidated
 - Summary evidence ใช้ k6 `handleSummary` ตัด `setup_data` ที่มี JWT ก่อน persist โดยไม่
   แก้ไข metric values
 - Local write validation 5 users ผ่าน BullMQ drain, durable-result correlation และ retry
@@ -56,7 +60,7 @@ baseline ของ Target VM
 
 ### 3.2 External Load Generator (เครื่องยิงโหลด k6)
 - **Execution Location:** **เครื่องภายนอก VM** (เพื่อไม่ให้ k6 แย่ง CPU/RAM จากระบบที่ถูกทดสอบ)
-- **Tool:** Grafana k6 (Latest Docker image หรือ CLI)
+- **Tool:** Grafana k6 v2.2.0 (pinned native binary; Docker `grafana/k6:2.2.0` for sanity check only)
 - **Network Context:** ยิงผ่าน Public IP เข้า Nginx Proxy บน Port 80
 
 ---

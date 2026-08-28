@@ -287,8 +287,8 @@ export function handleSummary(data) {
     throw new Error('SUMMARY_PATH is required so the sanitized k6 summary can be preserved.');
   }
 
-  // k6 0.57 includes setup_data in --summary-export. It contains prepared JWTs,
-  // so remove only that sensitive field before persisting benchmark evidence.
+  // k6 may include setup_data in the handleSummary data object. It contains
+  // prepared JWTs, so remove that sensitive field before persisting benchmark evidence.
   const sanitized = { ...data };
   delete sanitized.setup_data;
 

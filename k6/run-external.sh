@@ -51,6 +51,17 @@ command -v "$k6_bin" >/dev/null || {
   echo "k6 is not installed on this external load generator." >&2
   exit 2
 }
+k6_version_output=$("$k6_bin" version 2>&1) || {
+  echo "Unable to determine k6 version." >&2
+  exit 2
+}
+k6_version_token=$(printf '%s\n' "$k6_version_output" | grep -oE '(v?[0-9]+\.[0-9]+\.[0-9]+)' | head -1)
+k6_version_normalized="${k6_version_token#v}"
+if [[ "$k6_version_normalized" != "2.2.0" ]]; then
+  echo "k6 version mismatch: expected 2.2.0, got '${k6_version_normalized:-unknown}' (full output: $k6_version_output)." >&2
+  echo "Official benchmark runs require exactly k6 v2.2.0 for reproducibility." >&2
+  exit 2
+fi
 command -v node >/dev/null || {
   echo "Node.js is required only for redacted metadata collection." >&2
   exit 2
