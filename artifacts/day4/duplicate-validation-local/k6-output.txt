@@ -1,0 +1,48 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2 max VUs, 2m30s max duration (incl. graceful stop):
+              * duplicate_burst: 1 iterations for each of 2 VUs (maxDuration: 2m0s, exec: duplicateBurst, gracefulStop: 30s)
+
+
+     ✓ duplicate responses follow 202/409 contract
+     ✓ duplicate 202 responses contain one deterministic job id
+
+     █ setup
+
+       ✓ auth returns 200
+       ✓ auth returns an access token
+
+     auth_duration..................: avg=1.09ms  min=1.09ms  med=1.09ms  p(90)=1.1ms    p(95)=1.1ms    p(99)=1.1ms    max=1.1ms   
+     auth_infra_error...............: 0.00%   0 out of 2
+     auth_requests..................: 2       96.424814/s
+   ✓ checks.........................: 100.00% 8 out of 8
+     data_received..................: 3.3 kB  160 kB/s
+     data_sent......................: 2.5 kB  121 kB/s
+     duplicate_admission_duration...: avg=9.95ms  min=7.37ms  med=8.39ms  p(90)=13.97ms  p(95)=16.18ms  p(99)=17.95ms  max=18.39ms 
+     duplicate_admission_requests...: 6       289.274441/s
+   ✓ duplicate_infra_error..........: 0.00%   0 out of 6
+     http_req_blocked...............: avg=97.35µs min=52.79µs med=78.48µs p(90)=171.89µs p(95)=176.11µs p(99)=179.48µs max=180.33µs
+     http_req_connecting............: avg=54.11µs min=36.79µs med=54.33µs p(90)=68.25µs  p(95)=69.33µs  p(99)=70.19µs  max=70.41µs 
+     http_req_duration..............: avg=7.74ms  min=1.09ms  med=7.99ms  p(90)=12.21ms  p(95)=15.3ms   p(99)=17.77ms  max=18.39ms 
+       { expected_response:true }...: avg=7.74ms  min=1.09ms  med=7.99ms  p(90)=12.21ms  p(95)=15.3ms   p(99)=17.77ms  max=18.39ms 
+     http_req_failed................: 0.00%   0 out of 8
+     http_req_receiving.............: avg=40.55µs min=14.68µs med=41.05µs p(90)=60.01µs  p(95)=61.42µs  p(99)=62.54µs  max=62.83µs 
+     http_req_sending...............: avg=30.94µs min=9.68µs  med=34.08µs p(90)=42.18µs  p(95)=42.7µs   p(99)=43.12µs  max=43.22µs 
+     http_req_tls_handshaking.......: avg=0s      min=0s      med=0s      p(90)=0s       p(95)=0s       p(99)=0s       max=0s      
+     http_req_waiting...............: avg=7.66ms  min=1.01ms  med=7.92ms  p(90)=12.14ms  p(95)=15.22ms  p(99)=17.68ms  max=18.29ms 
+     http_reqs......................: 8       385.699255/s
+     iteration_duration.............: avg=14.28ms min=9.84ms  med=14.28ms p(90)=17.83ms  p(95)=18.27ms  p(99)=18.63ms  max=18.72ms 
+     iterations.....................: 2       96.424814/s
+
+
+running (0m00.0s), 0/2 VUs, 2 complete and 0 interrupted iterations
+duplicate_burst ✓ [ 100% ] 2 VUs  0m00.0s/2m0s  2/2 iters, 1 per VU

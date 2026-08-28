@@ -1,0 +1,18 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2 max VUs, 2m30s max duration (incl. graceful stop):
+              * duplicate_burst: 1 iterations for each of 2 VUs (maxDuration: 2m0s, exec: duplicateBurst, gracefulStop: 30s)
+
+profile=duplicate requests=6 request_rate=446.121033379891 checks_rate=1 sanitized_summary=artifacts/day4/duplicate-validation-local-r2/k6-summary.json
+
+running (0m00.0s), 0/2 VUs, 2 complete and 0 interrupted iterations
+duplicate_burst ✓ [ 100% ] 2 VUs  0m00.0s/2m0s  2/2 iters, 1 per VU

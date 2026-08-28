@@ -1,0 +1,834 @@
+
+> flash-sale-system@0.1.0 test:integration /home/netiwut/Documents/shareproject/FlashSaleSystem
+> node tests/integration/run-integration.mjs
+
+ Image flash-sale-api:local Building 
+ Image flash-sale-worker:local Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.08kB done
+#1 DONE 0.0s
+
+#2 [migrate internal] load build definition from Dockerfile
+#2 transferring dockerfile: 898B done
+#2 DONE 0.0s
+
+#3 [api-1 internal] load build definition from Dockerfile
+#3 transferring dockerfile: 895B done
+#3 DONE 0.0s
+
+#4 [api-1 internal] load metadata for docker.io/library/node:22-alpine
+#4 DONE 1.5s
+
+#5 [api-1 internal] load .dockerignore
+#5 transferring context: 128B done
+#5 DONE 0.0s
+
+#6 [migrate build  1/16] FROM docker.io/library/node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32
+#6 resolve docker.io/library/node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 done
+#6 DONE 0.0s
+
+#7 [migrate internal] load build context
+#7 transferring context: 7.88kB done
+#7 DONE 0.0s
+
+#8 [migrate build  5/16] COPY apps/api/package.json apps/api/package.json
+#8 CACHED
+
+#9 [migrate build  2/16] WORKDIR /app
+#9 CACHED
+
+#10 [migrate build 14/16] COPY database ./database
+#10 CACHED
+
+#11 [migrate build  7/16] COPY packages/contracts/package.json packages/contracts/package.json
+#11 CACHED
+
+#12 [migrate build 12/16] COPY apps ./apps
+#12 CACHED
+
+#13 [migrate build 13/16] COPY packages ./packages
+#13 CACHED
+
+#14 [migrate build  6/16] COPY apps/worker/package.json apps/worker/package.json
+#14 CACHED
+
+#15 [migrate build 10/16] COPY database/package.json database/package.json
+#15 CACHED
+
+#16 [migrate build 16/16] RUN pnpm build
+#16 CACHED
+
+#17 [migrate build  9/16] COPY packages/cache/package.json packages/cache/package.json
+#17 CACHED
+
+#18 [migrate build 11/16] RUN pnpm install --frozen-lockfile
+#18 CACHED
+
+#19 [migrate build 15/16] COPY doc/requirement/products-seed.json ./doc/requirement/products-seed.json
+#19 CACHED
+
+#20 [migrate build  8/16] COPY packages/queue/package.json packages/queue/package.json
+#20 CACHED
+
+#21 [migrate build  4/16] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json eslint.config.mjs ./
+#21 CACHED
+
+#22 [migrate runtime 3/4] RUN corepack enable
+#22 CACHED
+
+#23 [migrate build  3/16] RUN corepack enable
+#23 CACHED
+
+#24 [migrate runtime 4/4] COPY --from=build /app /app
+#24 CACHED
+
+#25 [api-1] exporting to image
+#25 exporting layers done
+#25 exporting manifest sha256:492e539c6e58a44a5c23294f9a16edede763057067a164bf05c697500b0bdd47 done
+#25 exporting config sha256:a42138ae93eec69f309ace4adf5e42c158e549030eaa234bd731b9060a955239 done
+#25 exporting attestation manifest sha256:8d69c764f62e9fa242c8ea3d0e1406180c7d08ae31f7f23bc95e4da83ad32870 done
+#25 exporting manifest list sha256:10ae6d138e0f01a4feb4a1c5079b357239373dcb7260e80460315f041bee7d0a done
+#25 naming to docker.io/library/flash-sale-api:local done
+#25 unpacking to docker.io/library/flash-sale-api:local done
+#25 DONE 0.0s
+
+#26 [migrate] exporting to image
+#26 exporting layers done
+#26 exporting manifest sha256:5a8b1bc48917d14cde379e6fd03c33784f8a143a64500a685f1f912e6dcc9dbe done
+#26 exporting config sha256:f046f94e4f3b5d5a179ebc4c4962d7df947960fde3d90d7ba93fcfbf68544172 done
+#26 exporting attestation manifest sha256:e192856b4f5443e03fe9cc10e267d79b67235a3b596bfdc93c05552a2a995c2e done
+#26 exporting manifest list sha256:d33a2b3602b499919ed8a465d13369ca9d56e02d0f923420b0ee60ec21500144 done
+#26 naming to docker.io/library/flash-sale-worker:local done
+#26 unpacking to docker.io/library/flash-sale-worker:local done
+#26 DONE 0.0s
+
+#27 [migrate] resolving provenance for metadata file
+#27 DONE 0.0s
+
+#28 [api-1] resolving provenance for metadata file
+#28 DONE 0.0s
+ Image flash-sale-worker:local Built 
+ Image flash-sale-api:local Built 
+ Container flash-sale-system-node-exporter-1 Recreate 
+ Container flash-sale-system-redis-ops-1 Recreate 
+ Container flash-sale-system-redis-cache-1 Recreate 
+ Container flash-sale-system-postgres-1 Recreate 
+ Container flash-sale-system-node-exporter-1 Recreated 
+ Container flash-sale-system-postgres-1 Recreated 
+ Container flash-sale-system-migrate-1 Recreate 
+ Container flash-sale-system-migrate-1 Recreated 
+ Container flash-sale-system-seed-1 Recreate 
+ Container flash-sale-system-seed-1 Recreated 
+ Container flash-sale-system-redis-ops-1 Recreated 
+ Container flash-sale-system-redis-cache-1 Recreated 
+ Container flash-sale-system-api-2-1 Recreate 
+ Container flash-sale-system-worker-1 Recreate 
+ Container flash-sale-system-api-1-1 Recreate 
+ Container flash-sale-system-api-3-1 Recreate 
+ Container flash-sale-system-api-3-1 Recreated 
+ Container flash-sale-system-api-1-1 Recreated 
+ Container flash-sale-system-api-2-1 Recreated 
+ Container flash-sale-system-nginx-1 Recreate 
+ Container flash-sale-system-nginx-1 Recreated 
+ Container flash-sale-system-worker-1 Recreated 
+ Container flash-sale-system-prometheus-1 Recreate 
+ Container flash-sale-system-prometheus-1 Recreated 
+ Container flash-sale-system-grafana-1 Recreate 
+ Container flash-sale-system-grafana-1 Recreated 
+ Container flash-sale-system-redis-cache-1 Starting 
+ Container flash-sale-system-redis-ops-1 Starting 
+ Container flash-sale-system-postgres-1 Starting 
+ Container flash-sale-system-node-exporter-1 Starting 
+ Container flash-sale-system-postgres-1 Started 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Started 
+ Container flash-sale-system-redis-ops-1 Started 
+ Container flash-sale-system-node-exporter-1 Started 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-migrate-1 Starting 
+ Container flash-sale-system-migrate-1 Started 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-seed-1 Starting 
+ Container flash-sale-system-seed-1 Started 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-api-2-1 Starting 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-worker-1 Starting 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-api-1-1 Starting 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-api-3-1 Starting 
+ Container flash-sale-system-api-3-1 Started 
+ Container flash-sale-system-api-1-1 Started 
+ Container flash-sale-system-api-2-1 Started 
+ Container flash-sale-system-api-1-1 Waiting 
+ Container flash-sale-system-api-2-1 Waiting 
+ Container flash-sale-system-api-3-1 Waiting 
+ Container flash-sale-system-worker-1 Started 
+ Container flash-sale-system-api-1-1 Waiting 
+ Container flash-sale-system-api-3-1 Healthy 
+ Container flash-sale-system-api-2-1 Healthy 
+ Container flash-sale-system-api-1-1 Healthy 
+ Container flash-sale-system-nginx-1 Starting 
+ Container flash-sale-system-api-1-1 Healthy 
+ Container flash-sale-system-prometheus-1 Starting 
+ Container flash-sale-system-prometheus-1 Started 
+ Container flash-sale-system-grafana-1 Starting 
+ Container flash-sale-system-grafana-1 Started 
+ Container flash-sale-system-nginx-1 Started 
+ Container flash-sale-system-prometheus-1 Waiting 
+ Container flash-sale-system-api-3-1 Waiting 
+ Container flash-sale-system-worker-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-api-2-1 Waiting 
+ Container flash-sale-system-nginx-1 Waiting 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-node-exporter-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-grafana-1 Waiting 
+ Container flash-sale-system-api-1-1 Waiting 
+ Container flash-sale-system-node-exporter-1 Healthy 
+ Container flash-sale-system-api-3-1 Healthy 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-api-2-1 Healthy 
+ Container flash-sale-system-api-1-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-prometheus-1 Healthy 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-worker-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-grafana-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-nginx-1 Healthy 
+ Container flash-sale-system-worker-1 Stopping 
+ Container flash-sale-system-worker-1 Stopped 
+ Container flash-sale-system-worker-run-b5622360fc85 Creating 
+ Container flash-sale-system-worker-run-b5622360fc85 Created 
+
+ RUN  v3.2.7 /app/apps/api
+
+ ✓ src/orders/orders-admission.integration.spec.ts (4 tests) 46ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  08:24:17
+   Duration  766ms (transform 46ms, setup 0ms, collect 404ms, tests 46ms, environment 0ms, prepare 95ms)
+
+ Container flash-sale-system-worker-run-9c4ffba01521 Creating 
+ Container flash-sale-system-worker-run-9c4ffba01521 Created 
+
+ RUN  v3.2.7 /app/apps/worker
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ
+{"timestamp":"2026-08-28T08:24:20.034Z","level":"info","service":"worker-service","event":"WORKER_METRICS_READY","outcome":"READY","port":9464}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.126Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-000-p-1001","jobId":"ord-76446f2cb074d0bd4a80640ecdcd9c92ea727adc6e1bb45c47b8d57f7c6d46e7","userId":"day2-user-000","productId":"p-1001","outcome":"SUCCESS","durationMs":7.22}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.128Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-001-p-1001","jobId":"ord-04850de5d41e0872c61956782f8c7f0ec95b0fd637eae3bbf31ed250d564ff39","userId":"day2-user-001","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-002-p-1001","jobId":"ord-c6d2a792c717be544e7130b5477be5dcad71da1c4ed7123cb56ba7826fa87496","userId":"day2-user-002","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-003-p-1001","jobId":"ord-275693366cc362e57f0ae1f7efe017494908866682acab0ef7d791eddbce2def","userId":"day2-user-003","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-004-p-1001","jobId":"ord-3a884189454f113b428691081f87d29247af9177824a607508453ee9b39f0220","userId":"day2-user-004","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-005-p-1001","jobId":"ord-342507b133192193cd5a3970cca0ad5ce5cd467956f09cbd5cfc82cb1b55d4d2","userId":"day2-user-005","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-006-p-1001","jobId":"ord-97178b232f0fdaadcbec7408db013aadcefa5631376ed4b1d522ae6a9edc7dff","userId":"day2-user-006","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+{"timestamp":"2026-08-28T08:24:20.132Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-007-p-1001","jobId":"ord-ff6e3f994b872403de72bf5f7600833ab78f22644ddc8ebff5189f1afdda3c90","userId":"day2-user-007","productId":"p-1001","outcome":"SUCCESS","durationMs":3.525}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.134Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.136Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-008-p-1001","jobId":"ord-257de26c522e3222a6afdb690b26422633890312ead7281ca90f4361ff16fbd4","userId":"day2-user-008","productId":"p-1001","outcome":"SUCCESS","durationMs":2.048}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.137Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-009-p-1001","jobId":"ord-90755e865ce136bb816e7b4d5347b883aa3319fabb8fa6b6e703543b21b26ba0","userId":"day2-user-009","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-010-p-1001","jobId":"ord-42aa6fba508910210bd2d75f7023b997efa78f3c6e255ec90fc38be7250082bd","userId":"day2-user-010","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-011-p-1001","jobId":"ord-b8ee1db5d154ca4e00c810222a5d4fd5dde2323a9310acbc66ddf76cf195cfa3","userId":"day2-user-011","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-012-p-1001","jobId":"ord-128a4fdaf0d5208f72f04bc571a4280e14f5adecb9112a99a01f7ecd070a2c1f","userId":"day2-user-012","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-013-p-1001","jobId":"ord-151e86b4aaac32a914c2d36e8e056b7d30f448a56e6d84a6a60ee7f304ea8e48","userId":"day2-user-013","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-014-p-1001","jobId":"ord-7abeba6c85f267001828d09fd405b3ae0e909920df0b9ddf262b918a1c7b393c","userId":"day2-user-014","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+{"timestamp":"2026-08-28T08:24:20.139Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-015-p-1001","jobId":"ord-54cbfbb6758ca4bde1a471651194ffc3d078cbf97eb6277c69fda70d7be94072","userId":"day2-user-015","productId":"p-1001","outcome":"SUCCESS","durationMs":2.258}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.140Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.142Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-016-p-1001","jobId":"ord-b92b6df68402852886773b4502e0d6e964ca631385f2fbc14c694284afaf39dd","userId":"day2-user-016","productId":"p-1001","outcome":"SUCCESS","durationMs":2.054}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.143Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.145Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-017-p-1001","jobId":"ord-0502c08aedbab207b0973cc7f2cbc542574faca0d667e56c8b070a79616d01c6","userId":"day2-user-017","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.145Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-018-p-1001","jobId":"ord-ee77b4e53b1acace221a46266891a79d243048c1616b7ba9868865e282f0ccf7","userId":"day2-user-018","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.145Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-019-p-1001","jobId":"ord-03710ec0f69a23e31811a93f9da9902868c2f9970c56e8714a83c2f5692787ba","userId":"day2-user-019","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.146Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-020-p-1001","jobId":"ord-d9a595b0c281f3081f81d108e641f575ba5d9d29818206a26219a502191a1bc1","userId":"day2-user-020","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.146Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-021-p-1001","jobId":"ord-68506ad80e44fbb09258547920cb27577d4c8a226b8fbd58e325fabef3ea90b7","userId":"day2-user-021","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.146Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-022-p-1001","jobId":"ord-e2c1b4dd41d31fde2ce9442f9e8c44d46ba1914cba47f58307c2830d20016fab","userId":"day2-user-022","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+{"timestamp":"2026-08-28T08:24:20.146Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-023-p-1001","jobId":"ord-2ec22c4d488191c1ccfa8743f10ac1521a21e22ae99763dcd53a648f785ca0b2","userId":"day2-user-023","productId":"p-1001","outcome":"SUCCESS","durationMs":1.957}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.146Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.147Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-024-p-1001","jobId":"ord-05a0811378a97468be15d1c04164bba0710694467482a5f4a2dd1e4132cecdb1","userId":"day2-user-024","productId":"p-1001","outcome":"SUCCESS","durationMs":1.02}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.148Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-025-p-1001","jobId":"ord-c0303b4d6d48a2c9ae085ebd1e4a5ae3929debf17e8be45c17fa3efcc1231caf","userId":"day2-user-025","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-026-p-1001","jobId":"ord-b8dbd4417f286debeab40347a3e754f5e5f02b91dbcc7fc772c041e89eb94940","userId":"day2-user-026","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-027-p-1001","jobId":"ord-836bf8d5beb54ff25078b30f4f584fbf12e16bfa7fcd586faa873045eb2b2b90","userId":"day2-user-027","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-028-p-1001","jobId":"ord-0a65b5212fff8d6a5c9adc159165aca948179d679fe002a3393adb43ce28cd6c","userId":"day2-user-028","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-029-p-1001","jobId":"ord-c8c4a59aa23b586a62caf0da41fdc77e774fabda7af5d6f5e84d4c428e3e953e","userId":"day2-user-029","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-030-p-1001","jobId":"ord-d84bc1e3de1cd1d32715c1c6cbed3cf359d24c34ae029de9e229883310a8a0aa","userId":"day2-user-030","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-031-p-1001","jobId":"ord-babbfd8c049c3f48e2fd402dee90314ee211fb31d05ca9b6f09b70dc9421788a","userId":"day2-user-031","productId":"p-1001","outcome":"SUCCESS","durationMs":1.289}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.150Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.152Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-032-p-1001","jobId":"ord-93dff75752fa08de6b30880f3674418d73791f90009ef3ec784bedc17a983d6a","userId":"day2-user-032","productId":"p-1001","outcome":"SUCCESS","durationMs":1.835}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.153Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-033-p-1001","jobId":"ord-379c4f570bb2f5105eb3805ceb78f32fcc4313248ba58c4fb1ba61d16cd3ec2d","userId":"day2-user-033","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-034-p-1001","jobId":"ord-22795a03023f2ad616a2c76946a8c7373568463952486e9582f00f3a343e06bb","userId":"day2-user-034","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-035-p-1001","jobId":"ord-f17733db93f4343df2d7bc4d4a16f9e3a0a50f17594cc11e60ce4b9690a77188","userId":"day2-user-035","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-036-p-1001","jobId":"ord-73c13f746fc60d3fe5dc6df3b438a64d9ed986fe849ee2bf184579febf4c58e4","userId":"day2-user-036","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-037-p-1001","jobId":"ord-ca11c80057764cb396caece17e5587fd0e216ac6c74422017489ed6069ac75d2","userId":"day2-user-037","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-038-p-1001","jobId":"ord-f062126ae47ff9d26733842c24073f626d370f2eb57c4c8ae567e2b038dc48c3","userId":"day2-user-038","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+{"timestamp":"2026-08-28T08:24:20.155Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-039-p-1001","jobId":"ord-6ffd1d4aa343c06a2f5d97c974654a13667483dec6f29508e0ea45eb4caa1644","userId":"day2-user-039","productId":"p-1001","outcome":"SUCCESS","durationMs":1.39}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.156Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.157Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-040-p-1001","jobId":"ord-d0eea05ece4e909451fd6248c719347ba1146f4edf63705e80d31e295295e5bb","userId":"day2-user-040","productId":"p-1001","outcome":"SUCCESS","durationMs":1.136}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.158Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-041-p-1001","jobId":"ord-5fbbc7a77247153c8207ace773ced7af8d9556e322cd45ae2ca22baf0ca49ec9","userId":"day2-user-041","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-042-p-1001","jobId":"ord-b393130a3a6e322c31757b391c4d21145b9c3eb9d1135a5076ecc263142cdf6e","userId":"day2-user-042","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-043-p-1001","jobId":"ord-95425917c75ea10e414401f112da5f7419aeca3ce35d4520ee5846c6a7c76fe9","userId":"day2-user-043","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-044-p-1001","jobId":"ord-8c52e7a909f8d689342ac53a2ffd172cc1606f27099e1c22f1f99b8a2ed5f9b5","userId":"day2-user-044","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-045-p-1001","jobId":"ord-1450dc01f92c9b648fb83c5faac359f10056ff0230f59347d928a4d500de1c00","userId":"day2-user-045","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-046-p-1001","jobId":"ord-98313ce7607de79dd4e30e7e995956e0aa7ce333d965ea6f4f02ad16000bf724","userId":"day2-user-046","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+{"timestamp":"2026-08-28T08:24:20.159Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-047-p-1001","jobId":"ord-88a18bfa74f51a18f724e67efee20d0c79b19e61cca976a77c1d6efee1194818","userId":"day2-user-047","productId":"p-1001","outcome":"SUCCESS","durationMs":1.243}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.160Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.161Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-048-p-1001","jobId":"ord-79b2b9a17a99e512fb5ce12d45a9de1223391b1343a6af9d42ccf4b386b550ed","userId":"day2-user-048","productId":"p-1001","outcome":"SUCCESS","durationMs":0.998}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.162Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.164Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-day2-user-049-p-1001","jobId":"ord-0a459e8189148a7c4eb89fd88f62aa985f80946b1504a830a347ae5d6a960d16","userId":"day2-user-049","productId":"p-1001","outcome":"SUCCESS","durationMs":1.877}
+{"timestamp":"2026-08-28T08:24:20.164Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-050-p-1001","jobId":"ord-4ea6bd778486f2e5daa382a0126548c12d6429c16340413721231f7a7d4481d6","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":6,"durationMs":1.877}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.165Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.167Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-056-p-1001","jobId":"ord-06335e3139f040d16245562ba12fdc0f6ddab3a902c6cc2a62caf187eb154fbc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.039}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.168Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-057-p-1001","jobId":"ord-23e8fc70d0fdcd2ec02a68b04c48505ef6974b0ba9208cd87662c480beed2154","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.558}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.170Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-064-p-1001","jobId":"ord-8aebefa3d45d614aaabc02e13ec83129291a61c48e8a5dad18a709059783a116","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.236}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.171Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-065-p-1001","jobId":"ord-8a6eb90c9dfb26dd27da9476db6354604194696a2468cebb32e4c73a6177d681","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.133}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.172Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-072-p-1001","jobId":"ord-b8abdbddf908ec5443274c7da4e99c20783305cf7c70f3578fe20cbc56b7246b","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.234}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.173Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-073-p-1001","jobId":"ord-3048bc2a6091a74d979124bc36512ed97299995d761b825988ccdaabc9a2a3d0","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":0.949}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.174Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-080-p-1001","jobId":"ord-b1d60d5045fff4b931a97bedf4c4ee22a25178b59caca807d9acf8b2ed73cbdf","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.132}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.176Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-081-p-1001","jobId":"ord-5ed3defe7929c6930c21dd10756b232c879b0f03f9092001d7bbfe5768d40bcd","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.037}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.177Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-088-p-1001","jobId":"ord-4887dfee22bdc2f0e17e1bbcbf80bda0ae7bdbf905094a40b9f04a99ade5debc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.525}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.179Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-089-p-1001","jobId":"ord-64142055bc37de1ce54a87374dd7459a6c33fdcb70babc5ae62c436336d5e11f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.559}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.202Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-096-p-1001","jobId":"ord-590e60b6be64ed1d5de3c2cb387c556e7c5033a7081de526d6b42f87ac999cbb","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":22.6}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.203Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-097-p-1001","jobId":"ord-6ca9867cbaa17bb80320575cbc080cdbc0a5d67d8f4d63ae6e1ed6ece1ab2e6c","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.512}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.204Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-104-p-1001","jobId":"ord-03755453f862c2a923fef6377cccca7281fea81f1ca426fd5f90706d43e4d51f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.206Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-105-p-1001","jobId":"ord-1a46025ec442c7ec2ccb662849a7e1b7d259016ef72a68d8a4d76d91fc9d98c1","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.149}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.207Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-112-p-1001","jobId":"ord-badbc1d9c7e6e7e3d301a7d78ad149af7f1c8d500b2c4199cca586295499507a","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.976}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.208Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-113-p-1001","jobId":"ord-1e58dc78ca0d98385e16752d3ea911b625d529cca51011569340603f1451baf2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.408}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.209Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-120-p-1001","jobId":"ord-cad3c92075b005d2563bda62ac95a1610b88d6ea9102af50f0f7fa99819449ab","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.923}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.210Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-121-p-1001","jobId":"ord-1f4a207084656c2db7f71eacb97b1d0e4409860c277a0e57004d8db6d02d8624","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.069}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.211Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-128-p-1001","jobId":"ord-db3c9d5f3d8d49621904bba382d9337b96f8ff1b3472344a3a439470c5125734","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.909}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.212Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-129-p-1001","jobId":"ord-9687631ccf503abaf2e652bc60c33f75f2079ef862e9da12aefc8dec526c7da4","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.031}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.214Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-136-p-1001","jobId":"ord-dd0cb4812738ac748d127bd5e1f9427ea1a057cde0de899b1f11891c554ecedc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.686}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.216Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-137-p-1001","jobId":"ord-7f7140f3f378608d929e90d636830b2bc3264c93cf797883626a9ea1e59759c8","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.572}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.217Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-144-p-1001","jobId":"ord-f783763994b76b0d955f32f0e133055e9575c55f2f5771ffac7a031d92f9a05d","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.193}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.218Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-145-p-1001","jobId":"ord-afc2c6f12b40c595c7626b6246a4e7c61f06c6452cf49914fa0e2563d31780b2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.012}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.219Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-152-p-1001","jobId":"ord-0f33780020f3bead4621da06c5f5f0c3c0d0afed6eaf61f5e5bc8677836c4461","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.812}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.220Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-153-p-1001","jobId":"ord-010bf8e0ef4bfabd5ae4c9349562fcddd8bc0af360bfbf887bc828def2b3b80f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":0.89}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.221Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-160-p-1001","jobId":"ord-f9dd74fa63ba71497402f016e1ed2c9d75474f271a5fc36e9bc4f6fde8374eef","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.936}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.222Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-161-p-1001","jobId":"ord-3b40ab1b318b673a15d0f1232ec4a61ea4cad937a0c4b4fc5c95d6c3cb002811","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.048}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.223Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-168-p-1001","jobId":"ord-00becab846638802c9535f8718b3fd0e9932fae566d97cb82d5bc994a9250576","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.077}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.225Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-169-p-1001","jobId":"ord-bfc1d637b1193fd6fa0df4410f51787af41a7778efd1fa8aa8ce9a1e3effaaa4","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.032}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.226Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-176-p-1001","jobId":"ord-6d7341c1217cb45fe9325ab0fbe3aaed12f6e7bae30db49cb9d5f3456ee4fc20","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.912}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.227Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-177-p-1001","jobId":"ord-776acf150731ce714a04c0cc43d8c43110ba9e1f6c5c6bda799d2e55058347f2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.098}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.228Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-184-p-1001","jobId":"ord-a8b9c4bbfe515646c782a48afbf20289fe0e73aed768c5d8c98d71df0a91b1ae","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.095}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.230Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-185-p-1001","jobId":"ord-478306e67b177e5d989c8b078a40051276ab552de5db94c8212529a65286d9dc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.64}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.231Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-192-p-1001","jobId":"ord-bd9667f3807a2f6b1e77a9d280399bc51afa5aeecc7077974ada705ebb0d90df","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.932}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.232Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-193-p-1001","jobId":"ord-93cb2e16a51cc692dc70da561e095458422e77c6bf21540561169dbdff19f440","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.018}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.233Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-200-p-1001","jobId":"ord-fcc8d18da2d3e25ff6cd8687451975063e852c05c6ecc6aec5dcebdbd054d762","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.863}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.234Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-201-p-1001","jobId":"ord-954cbd9f442f62773d7a1d01a989587cc8726448294df17840aa0d317394604a","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.107}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.235Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-208-p-1001","jobId":"ord-79743b293cbbf9d7c247889b4ef9f0f4055affbb43ccf6f61be289ed8b0cc951","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.907}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.236Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-209-p-1001","jobId":"ord-064d1c5f1272de40411bd90de11cb3575571fa6422ae76026f64d3c0303757bd","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.004}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.237Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-216-p-1001","jobId":"ord-4b3a3741478707ec311c86d9c121df6549ef66a925d0acb8ba99ad4304fb795e","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.843}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.238Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-217-p-1001","jobId":"ord-fdeecbfcb8960d504eff480f8aebfb83a9d1e7114e5c2b84dae6853056e0518f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":0.968}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.239Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-224-p-1001","jobId":"ord-650abc6f7c3781a79a3816082a57ea50b79c42800342c3177e5de37cb60283df","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.865}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.240Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-225-p-1001","jobId":"ord-da72508553f492103e8c0ac49e8fa9cbfa2d89817d09fa792bb795ae37ee1def","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.017}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.241Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-232-p-1001","jobId":"ord-8b17dfa3765e056bb2168fbe0aa7acb1f20777bbdeca67a1346e14ad49126299","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.958}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.242Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-233-p-1001","jobId":"ord-0e4e8dfa5d362a83808e6297ceb11a1a11fd10cd7f03ba2a443a579a275baea1","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.304}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.244Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-240-p-1001","jobId":"ord-28264d1e5d015c7253f585407facdb1b4d2386dd2333298eb5ff299a17f9d955","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.575}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.245Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-241-p-1001","jobId":"ord-8df7c680fee6ebb1852b04b295269a034699be27bae5d7d978f5cceab7e3fded","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.149}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.247Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-248-p-1001","jobId":"ord-32d910212aea6ace2cbfcddffda5fc216b26d8405d1e95860dacabbeb4f0d42b","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.078}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.248Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-249-p-1001","jobId":"ord-ab57139dc0cfd87ad4f6e8b9bd7c7aeb9b5505a9e68a4a1971c54fa27c6315c4","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.062}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.249Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-256-p-1001","jobId":"ord-b4e1f661b3b15ab15e568c02fe645acb0c03027eefbafec9c3dc5b107d3f2ffe","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.647}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.251Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-257-p-1001","jobId":"ord-8d80c2cb3e58f7c06418db3b8795c0e51d05abc9801cfc8e91bda14539ea2dce","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.129}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.252Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-264-p-1001","jobId":"ord-3e705db520fb92796112c805b281ddaba6b098d8ba82d4a8048d7afeb67807d2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.938}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.253Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-265-p-1001","jobId":"ord-869f4adcdf924110478f8a37b0ef0327044839281837417a99a20b5b838b7a19","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.039}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.254Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-272-p-1001","jobId":"ord-3b8ac4bbe32ca26f4c4174cb3afcffd784b9b67d83ef4566c11c063109c31d8d","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.985}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.256Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-273-p-1001","jobId":"ord-c8ccd6cb440563262b9a041ccb4304ea9243a698c80b13430ef18cc20e18d59f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.518}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.258Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-280-p-1001","jobId":"ord-ec2a8827895ce87e2d58e14c82ef7f327c40536c08c2f0ea4c67c951777c9fbb","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.804}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.259Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-281-p-1001","jobId":"ord-7a846d3b8b0008e0a1115cea868e273eba68e8eecf3b11eabf1055c772a23889","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.637}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.261Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-288-p-1001","jobId":"ord-0c105745a0146c04a3c30b105ad39a67047f1c400c1bdcba75f81358cf457d14","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.313}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.262Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-289-p-1001","jobId":"ord-ff656bfa36aa25e938f336b694ed6c34fe0e898343625d90a178eb3f4e650509","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.426}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.264Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-296-p-1001","jobId":"ord-05376a22938ef6741b144ac671a86078b893ad5640463753c625df9edd1504f9","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.413}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.266Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-297-p-1001","jobId":"ord-5e161cfe4f005344d3a3fcf7f1d37251b2dca623c1987490ca3b88fccad9faca","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.719}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.268Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-304-p-1001","jobId":"ord-40d47aced02ef31c6e6c1caa6650317ab594ab479444fdfeb084c50d2af11dcc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.599}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.270Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-305-p-1001","jobId":"ord-3f33e46b926a8c460463663901822151e25deba171da266dcfb3e77520af8927","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.959}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.271Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-312-p-1001","jobId":"ord-52cd40e3d3582ee3e9eaa91444d0fd8ef21aef4f7a39217de0d895f9ec27e608","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.415}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.274Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-313-p-1001","jobId":"ord-6f308bd16b3169a520c9fc6430b9944149a779de10b2b8bb774b19253800981b","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":2.924}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.276Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-320-p-1001","jobId":"ord-04754acaf1cccb07d09c2c5711f9e811f2a013012fc22afbc3fbf3c08f3bf6cc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.809}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.279Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-321-p-1001","jobId":"ord-f27fa444de08ce8eb5336c373d5b230e696a3e5e7da9b01443c86824903e257f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.953}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.281Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-328-p-1001","jobId":"ord-004d8570f4f00007a32d9bb6378878136a9f74de45cd223b9f8c5320fdd54455","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.951}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.283Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-329-p-1001","jobId":"ord-e10508c0373c0c0a9f1ea3ebb2f5ea04865ac3e26b817a5f9ee914cbe40e40c4","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.631}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.284Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-336-p-1001","jobId":"ord-988a06a221d8151043e3fbec09ec76a516ef7558ad959a25f07810f3d1293701","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.061}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.285Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-337-p-1001","jobId":"ord-b752d1220d8f2c276aa47d591fae7dea3bb54ba5839063203842c2ad6744c937","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.118}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.302Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-344-p-1001","jobId":"ord-85d32ffd0493412c5d3ec9ab912283c38c0be28f9b9eaa76f71183c7bb441879","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":17.179}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.304Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-345-p-1001","jobId":"ord-69ac7da7e38e27fd271911278c3a0f24d7b5be288a6177f1bad1c2ac522e9f3d","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.265}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.305Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-352-p-1001","jobId":"ord-15100a08226c0ca40743b311743ae230f69a815ddac7cc926fd5f8ca75ac56df","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.179}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.307Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-353-p-1001","jobId":"ord-2b4210d44a5d799b41e727162e432173dff1a845e903d7aa797b6d7e47f3405c","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.407}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.308Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-360-p-1001","jobId":"ord-c811a3047be0cb5661650da5a3377652d760ca32ae33cbf24824c66fe9894202","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.92}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.309Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-361-p-1001","jobId":"ord-78bfebc4f76e29945c97674d3db665e88d0d82fa59d07752613f22432ee53a8a","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.16}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.310Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-368-p-1001","jobId":"ord-ed1763fd454c371e1fabc7d55e929b75fd84037f6110f3ba80c7a06f5c65c633","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.971}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.311Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-369-p-1001","jobId":"ord-5d5d4893e5ee1d8ff172af43b29fb5b0ba127f723efe0faa7418d73fbe97bffe","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.217}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.313Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-376-p-1001","jobId":"ord-f01f42a5d4c7e2edb3f2151d0bad82709d9a976fb1e09c6cce59737282e14e7b","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.54}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.314Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-377-p-1001","jobId":"ord-1d2a50fdc2be8fa4f5de851e56ee48aabf6f4ddf248566762d575390e772a883","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.179}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.315Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-384-p-1001","jobId":"ord-e69b0b2aa71d56c6e62414cfc8145479315555415baab59a3f8b32d667e176de","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.909}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.316Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-385-p-1001","jobId":"ord-ea703c85bcfb6fc82e33a83a731fc9f7530486b46ec621b2123a98745727a835","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.151}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.318Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-392-p-1001","jobId":"ord-6e733069c7a90e9006eb1145d0412c130eba5dc9998f558b743860fe0460beb3","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.178}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.319Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-393-p-1001","jobId":"ord-f2ea1b5da83f4b65b30be8131fe85c058b4492cea78a5b00713c69504dc8183a","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.298}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.320Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-400-p-1001","jobId":"ord-782886cbc34c91e4a599385b20b40aba2d42f49335e29131883f749adade10f3","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.966}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.321Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-401-p-1001","jobId":"ord-b4ea4e5205834f8ab45dcb63444a60f8dcec17ed51d0a689d1a0db9ff6a54085","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.11}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.322Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-408-p-1001","jobId":"ord-00248ea9a4e3bef482684be77e4de679a8e5975fc9d911eb72c3e302b81ba8ea","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.929}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.323Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-409-p-1001","jobId":"ord-4d70012c1b64ae313fba935a7485353209bc9bfd9d3871d32e25781ab2a2305e","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.158}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.325Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-416-p-1001","jobId":"ord-70ee5a9444cd325e8c8d91aaea7da7670cfb43ade3a9d3138af3f4066ea21f49","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.965}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.326Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-417-p-1001","jobId":"ord-ba628a3701d3aae03131fcb7a1b2223145677908785a87dd5e5b3fce058485d4","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.202}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.327Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-424-p-1001","jobId":"ord-b8d42a4cde5283cf6bac54b2660cb8d51cd57456515a0d4ef86f4495964db4f3","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.026}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.328Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-425-p-1001","jobId":"ord-17118480b96001f700562d6ded90cdb591394b442f9b9d250d6f6be9926bb2d2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.23}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.329Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-432-p-1001","jobId":"ord-5695557ebada183e0c0f1b51c0110e3ca517c8dd01f4b492edae2e2149080f19","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.093}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.331Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-433-p-1001","jobId":"ord-8d02250aba64e8954e23c1d192da70d56065ace832e0e220544ff4cfc9a96dcc","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.067}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.332Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-440-p-1001","jobId":"ord-4bd16d18647a2d631644562ce30b4f410c5bb0e1ac6686efde76fee20f1ab337","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.426}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.334Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-441-p-1001","jobId":"ord-c971aebf94c69dde7b85a7bf43d2e51f4f4743be9b161b1769f95d82e52bf6eb","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.371}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.335Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-448-p-1001","jobId":"ord-9e4d62e9c447d6b6ecf43dc097b34fd10a457ed98419aeaed15daaf0d3db2473","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.18}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.336Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-449-p-1001","jobId":"ord-f2c7568b084ae03e912a7f320a0756ae3a95b56f7b1a7161508f46c917272cc0","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.446}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.338Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-456-p-1001","jobId":"ord-c2f8d864392b571c718ac886437321a6a3710d3ab89f0dda55d0f1f0aa562449","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.124}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.339Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-457-p-1001","jobId":"ord-22c893acc3121afd5ce78d4eed667867a62c6793a73ffee292388d70608155b6","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.237}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.340Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-464-p-1001","jobId":"ord-5567d12360162381873549135b6cfc49fc8970878f8727987346e0ac7cabdf2e","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.18}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.342Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-465-p-1001","jobId":"ord-62dc57e648c860528e7b3393844c996ab4241fd3fd9dfa4246651e4dbcc058b1","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.251}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.343Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-472-p-1001","jobId":"ord-baaa22094533a0cfec766f66a15796c8762bfe6bc0fd125952bc6cf8454834f0","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.119}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.344Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-473-p-1001","jobId":"ord-b25802eb9febedc9c0543cacdb58bd446c4b10b83c60e53a529ad56e3ac175a6","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.195}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.345Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-480-p-1001","jobId":"ord-b5181e48670e3ad149468215b895df2e17ea30f114eb237dd3d5a87cb4bf86cd","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.204}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.347Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-481-p-1001","jobId":"ord-6eb0658f52200ece41fc0ad80dcc025923e5a190724e8aa4c77608342d1a3dd9","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.209}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.348Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-488-p-1001","jobId":"ord-5b4267215fa5c009e1138142f553997049362cf07b8622af3bc77f09caee371f","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.116}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.349Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-489-p-1001","jobId":"ord-5d9276dfc1440f8244d7579fcd4c644c8d256a89b666d1c2eb8625e0eb8a6980","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.224}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.350Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-496-p-1001","jobId":"ord-e09e85c3f3fb6fb4a9026b08e383aaaff7cabb9e870e9acfae30a3eece5dd353","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.2}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling
+{"timestamp":"2026-08-28T08:24:20.352Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-day2-user-497-p-1001","jobId":"ord-a319c77e576898287589bcc0afe1209e18ebf698bbe325e610624fa83dd1d791","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":3,"durationMs":1.003}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > returns the durable result when the same completed job is delivered again
+{"timestamp":"2026-08-28T08:24:20.375Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-retry-user-p-1001","jobId":"ord-7e0c4aaccce602bae00c31f9eb66d421178663f5cdee859e22e1943fbf1d7503","userId":"retry-user","productId":"p-1001","outcome":"SUCCESS","durationMs":0.938}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > returns the durable result when the same completed job is delivered again
+{"timestamp":"2026-08-28T08:24:20.376Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > returns the durable result when the same completed job is delivered again
+{"timestamp":"2026-08-28T08:24:20.399Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-retry-user-p-1001","jobId":"ord-7e0c4aaccce602bae00c31f9eb66d421178663f5cdee859e22e1943fbf1d7503","userId":"retry-user","productId":"p-1001","outcome":"SUCCESS","durationMs":0.722}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.428Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-race-user-00-p-1001","jobId":"ord-515080aa7ec15dafe03844db9307596e5bb8928e006ce504e8ddd2a845b77c56","userId":"race-user-00","productId":"p-1001","outcome":"SUCCESS","durationMs":1.153}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.429Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.430Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-01-p-1001","jobId":"ord-68760ba0beb71743a8bfd0100e771446b6a8fc4a279578b02931aaefdb82b2be","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.383}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.431Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-08-p-1001","jobId":"ord-fe3fb04c63122eabfcbc16ce6c28844fccbc222159959bcf72c5e13fd6c9244d","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.955}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.432Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-09-p-1001","jobId":"ord-f41822619b39d13f25049f22f2a8814eba6ed6f44fa837743cf3e00ef54d5bdf","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":0.946}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.433Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-16-p-1001","jobId":"ord-39d8bfe168c9b3e6a6e67aa8ac5b64d472bd29b148f0b1cff60876714777634b","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.86}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.434Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-17-p-1001","jobId":"ord-96c7bbe26118de0ee191a59f8dea1d97ad731eded93b614ad39b5a5bd96c1efa","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":0.971}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.435Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-24-p-1001","jobId":"ord-639ba223e1d70e8663923d1fff28b8d72c2c16f18bcde0c7dacf57321516ce81","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.03}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.437Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-25-p-1001","jobId":"ord-7cfb85c0d6612a4b24f101a5c130a7e5d427358691677bb3e4864649ded131d7","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":7,"durationMs":1.113}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.438Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-32-p-1001","jobId":"ord-6318243e146426fa6db5462b3ea0ea1f401efb351e86d3cda29cde6a82f7133e","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.866}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.439Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-33-p-1001","jobId":"ord-ac48a762b9885a091ef67eecdfea4ccd419bdd00e5d81632a85fd2366bf4a5eb","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":4,"durationMs":1.208}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.440Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-37-p-1001","jobId":"ord-dad14bf598396af7dc0316b960de0069640555cccb6fd58b1acc99676fd7f195","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":4,"durationMs":0.752}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.441Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-41-p-1001","jobId":"ord-0fd32c9f83cbea78993c3831f2daf467282ffdedcd54bdcb748a51b4d346f94c","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":8,"durationMs":0.974}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > passes the stock-one race gate for 50 concurrent users
+{"timestamp":"2026-08-28T08:24:20.443Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-race-user-49-p-1001","jobId":"ord-3c0a6f916a81d787c98370bfafbef19225e098dee600ba550849b38952fd91a2","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.871}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > persists a sold-out rejection without creating an order
+{"timestamp":"2026-08-28T08:24:20.452Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-sold-out-user-p-1001","jobId":"ord-228cd1bdb4a01cfab648bcbe494f6d7e06cec57b67ff1091d3c3373247565d30","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.809}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > keeps one successful order when duplicate user/product jobs bypass admission
+{"timestamp":"2026-08-28T08:24:20.475Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-duplicate-user-p-1001","jobId":"ord-93c1eee76f6fa7e5ffb1d8efdd9a09f50f100e44a2dd41ef89be5369ba5f9180","userId":"duplicate-user","productId":"p-1001","outcome":"SUCCESS","durationMs":0.884}
+{"timestamp":"2026-08-28T08:24:20.475Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"123e4567-e89b-42d3-a456-426614174000","jobId":"ord-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":0.884}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > keeps one successful order when duplicate user/product jobs bypass admission
+{"timestamp":"2026-08-28T08:24:20.476Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > persists an inactive-sale rejection without failing the BullMQ job
+{"timestamp":"2026-08-28T08:24:20.500Z","level":"info","service":"worker-service","event":"ORDER_BATCH_REJECTIONS","requestId":"request-inactive-sale-user-p-1001","jobId":"ord-fe8e46b256ef7a908c1f979effcaa28bd454c7a5d5027c4d6ca5945b849b9990","productId":"p-1001","outcome":"BUSINESS_REJECTIONS","rejectedJobs":1,"durationMs":1.084}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > allows the same user to purchase two different products
+{"timestamp":"2026-08-28T08:24:20.525Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-multi-product-user-p-1001","jobId":"ord-d072039d1f1c43ec6d0a02ba061058988717877c30862b7e48dcf1e1991f806c","userId":"multi-product-user","productId":"p-1001","outcome":"SUCCESS","durationMs":1.15}
+{"timestamp":"2026-08-28T08:24:20.525Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"request-multi-product-user-p-1002","jobId":"ord-1075dbab2852f8ff13a41f828598c95ce103e374ff596ca8d334368a0e3e8bfa","userId":"multi-product-user","productId":"p-1002","outcome":"SUCCESS","durationMs":1.15}
+
+stdout | src/orders/order-processing.integration.spec.ts > Order processing with real PostgreSQL, Redis, and BullMQ > allows the same user to purchase two different products
+{"timestamp":"2026-08-28T08:24:20.525Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":2}
+
+ ✓ src/orders/order-processing.integration.spec.ts (7 tests) 541ms
+   ✓ Order processing with real PostgreSQL, Redis, and BullMQ > sells exactly 50 items to 500 concurrent unique users without overselling  310ms
+stdout | src/orders/worker-startup.integration.spec.ts > worker startup with a queued backlog
+{"timestamp":"2026-08-28T08:24:21.405Z","level":"info","service":"worker-service","event":"WORKER_METRICS_READY","outcome":"READY","port":9464}
+
+stdout | src/orders/worker-startup.integration.spec.ts > worker startup with a queued backlog > initializes PostgreSQL before consuming a pre-existing order job
+{"timestamp":"2026-08-28T08:24:21.431Z","level":"info","service":"worker-service","event":"ORDER_PROCESSED","requestId":"123e4567-e89b-42d3-a456-426614174000","jobId":"ord-a142d308f62e8cf9651ddd6f7f4cae472b73bb3a05239604ac4b938143ec5162","userId":"it-worker-startup-user","productId":"it-worker-startup-backlog","outcome":"SUCCESS","durationMs":8.439}
+
+stdout | src/orders/worker-startup.integration.spec.ts > worker startup with a queued backlog > initializes PostgreSQL before consuming a pre-existing order job
+{"timestamp":"2026-08-28T08:24:21.434Z","level":"info","service":"worker-service","event":"CACHE_EPOCH_INVALIDATED","outcome":"PUBLISHED","events":1}
+
+ ✓ src/orders/worker-startup.integration.spec.ts (1 test) 145ms
+ ✓ src/orders/migration-rollback.integration.spec.ts (1 test) 55ms
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  08:24:18
+   Duration  3.13s (transform 160ms, setup 0ms, collect 1.62s, tests 741ms, environment 0ms, prepare 257ms)
+
+ Container flash-sale-system-redis-ops-1 Running 
+ Container flash-sale-system-redis-cache-1 Running 
+ Container flash-sale-system-postgres-1 Running 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-migrate-1 Starting 
+ Container flash-sale-system-migrate-1 Started 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-seed-1 Starting 
+ Container flash-sale-system-seed-1 Started 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-worker-1 Starting 
+ Container flash-sale-system-worker-1 Started 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-worker-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-worker-1 Healthy 
+ Container flash-sale-system-postgres-1 Healthy 
+OK
+22
+ Container flash-sale-system-redis-cache-1 Stopping 
+ Container flash-sale-system-redis-cache-1 Stopped 
+ Container flash-sale-system-redis-cache-1 Starting 
+ Container flash-sale-system-redis-cache-1 Started 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Healthy 
+PASS Day 3: cache, Bull Board, metrics, correlation, dedup, outbox recovery, and SQL gates.

@@ -1,0 +1,12 @@
+Waiting for BullMQ queue drain
+ Container flash-sale-system-worker-run-03660fc181df Creating 
+ Container flash-sale-system-worker-run-03660fc181df Created 
+{"action":"wait-drain","queueDrainMs":2,"state":{"waiting":0,"active":0,"completed":0,"failed":0,"delayed":0,"paused":0}}
+Verifying PostgreSQL stock/order/result invariants
+50|0|0|0|0|0|0
+PASS: PostgreSQL integrity conditions satisfied.
+Verifying every completed BullMQ job has a durable result
+ Container flash-sale-system-worker-run-1696d5160f76 Creating 
+ Container flash-sale-system-worker-run-1696d5160f76 Created 
+{"action":"verify-durable","productId":"p-1001","expected":0,"completedJobs":0,"durableCount":0,"acceptedWithoutDurableResult":0}
+PASS: all mandatory Day 4 integrity checks passed.
