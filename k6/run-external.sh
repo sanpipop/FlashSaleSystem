@@ -4,9 +4,19 @@ set -euo pipefail
 : "${BASE_URL:?BASE_URL is required and must point to the target VM}"
 : "${TEST_PROFILE:?TEST_PROFILE is required: auth, read, write, or duplicate}"
 : "${RUN_ID:?RUN_ID is required and must be unique}"
+: "${TARGET_SSH:?TARGET_SSH is required, for example benchmark-user@target-host}"
+: "${TARGET_REPO_DIR:?TARGET_REPO_DIR is required and must be an absolute target path}"
 
 [[ "$RUN_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || {
   echo "RUN_ID must contain only letters, digits, dot, underscore, and hyphen." >&2
+  exit 2
+}
+[[ "$TARGET_SSH" =~ ^[A-Za-z0-9._-]+@[A-Za-z0-9.:-]+$ ]] || {
+  echo "TARGET_SSH must use the form user@host without SSH options." >&2
+  exit 2
+}
+[[ "$TARGET_REPO_DIR" =~ ^/[A-Za-z0-9._/-]+$ ]] || {
+  echo "TARGET_REPO_DIR must be an absolute path containing only safe path characters." >&2
   exit 2
 }
 
@@ -45,24 +55,43 @@ command -v node >/dev/null || {
   echo "Node.js is required only for redacted metadata collection." >&2
   exit 2
 }
+command -v ssh >/dev/null || {
+  echo "OpenSSH client is required for target benchmark metadata collection." >&2
+  exit 2
+}
+[[ -x /usr/bin/time ]] && /usr/bin/time --version 2>&1 | grep -qi 'GNU.*time' || {
+  echo "GNU /usr/bin/time is required for load-generator resource evidence." >&2
+  exit 2
+}
 
 artifact_dir="artifacts/day4/$RUN_ID"
 if [[ -e "$artifact_dir" ]]; then
   echo "Refusing to overwrite existing evidence: $artifact_dir" >&2
   exit 2
 fi
+
+target_metadata_file=$(mktemp)
+cleanup() {
+  rm -f "$target_metadata_file"
+}
+trap cleanup EXIT INT TERM
+
+if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$TARGET_SSH" \
+  sh -s -- "$TARGET_REPO_DIR" \
+  < k6/support/collect-target-metadata.sh > "$target_metadata_file"; then
+  echo "Unable to collect target benchmark metadata." >&2
+  exit 2
+fi
+
 mkdir -p "$artifact_dir"
+cp "$target_metadata_file" "$artifact_dir/target-environment.txt"
 
 export K6_BIN="$k6_bin"
-node k6/support/metadata.mjs start "$artifact_dir/metadata.json"
+node k6/support/metadata.mjs start \
+  "$artifact_dir/metadata.json" "$target_metadata_file"
 
 resource_file="$artifact_dir/resource-summary.txt"
-if [[ -x /usr/bin/time ]]; then
-  timed_command=(/usr/bin/time -v -o "$resource_file")
-else
-  timed_command=()
-  printf '%s\n' 'GNU time unavailable; load-generator process CPU/RAM was not captured.' > "$resource_file"
-fi
+timed_command=(/usr/bin/time -v -o "$resource_file")
 
 set +e
 env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \

@@ -13,7 +13,56 @@ function command(commandName, args, fallback = 'unavailable') {
   }
 }
 
+function targetMetadata(inputPath) {
+  const values = Object.fromEntries(
+    readFileSync(inputPath, 'utf8')
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => {
+        const separator = line.indexOf('=');
+        if (separator <= 0) {
+          throw new Error(`Malformed target metadata line: ${line}`);
+        }
+        return [line.slice(0, separator), line.slice(separator + 1)];
+      }),
+  );
+  const required = [
+    'targetCommitSha',
+    'targetDirtyState',
+    'targetHostname',
+    'targetCpu',
+    'targetLogicalCpuCount',
+    'targetRamBytes',
+  ];
+  for (const key of required) {
+    if (!values[key]) {
+      throw new Error(`Target benchmark metadata is missing ${key}.`);
+    }
+  }
+  if (!/^[0-9a-f]{40}$/.test(values.targetCommitSha)) {
+    throw new Error('Target commit SHA is not a full Git SHA.');
+  }
+  if (!['clean', 'dirty'].includes(values.targetDirtyState)) {
+    throw new Error('Target dirty state must be clean or dirty.');
+  }
+  const logicalCpuCount = Number(values.targetLogicalCpuCount);
+  const ramBytes = Number(values.targetRamBytes);
+  if (!Number.isInteger(logicalCpuCount) || logicalCpuCount < 1) {
+    throw new Error('Target logical CPU count is invalid.');
+  }
+  if (!Number.isSafeInteger(ramBytes) || ramBytes < 1) {
+    throw new Error('Target RAM byte count is invalid.');
+  }
+  return {
+    ...values,
+    targetLogicalCpuCount: logicalCpuCount,
+    targetRamBytes: ramBytes,
+    targetRam: `${ramBytes} bytes`,
+  };
+}
+
 if (action === 'start') {
+  const target = targetMetadata(process.argv[4]);
   const metadata = {
     runId: process.env.RUN_ID,
     timestampStart: new Date().toISOString(),
@@ -21,11 +70,7 @@ if (action === 'start') {
     scenario: process.env.TEST_PROFILE,
     cacheState: process.env.CACHE_STATE || 'not-applicable',
     baseUrl: process.env.BASE_URL,
-    targetCommitSha: process.env.TARGET_COMMIT_SHA || 'must-be-recorded-on-target',
-    targetDirtyState: process.env.TARGET_DIRTY_STATE || 'must-be-recorded-on-target',
-    targetHostname: process.env.TARGET_HOSTNAME || 'must-be-recorded-on-target',
-    targetCpu: process.env.TARGET_CPU || 'must-be-recorded-on-target',
-    targetRam: process.env.TARGET_RAM || 'must-be-recorded-on-target',
+    ...target,
     loadGenerator: {
       hostname: os.hostname(),
       cpu: `${os.cpus()[0]?.model || 'unknown'} / ${os.cpus().length} logical CPUs`,
@@ -62,5 +107,5 @@ if (action === 'start') {
   }
   writeFileSync(outputPath, `${JSON.stringify(metadata, null, 2)}\n`);
 } else {
-  throw new Error('Usage: metadata.mjs start|finish <metadata.json> [k6-exit-code]');
+  throw new Error('Usage: metadata.mjs start <metadata.json> <target-metadata.txt> | finish <metadata.json> [k6-exit-code]');
 }

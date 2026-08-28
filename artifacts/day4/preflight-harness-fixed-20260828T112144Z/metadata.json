@@ -1,0 +1,41 @@
+{
+  "runId": "preflight-harness-fixed-20260828T112144Z",
+  "timestampStart": "2026-08-28T11:22:04.961Z",
+  "timestampEnd": "2026-08-28T11:22:10.542Z",
+  "scenario": "read",
+  "cacheState": "cold",
+  "baseUrl": "http://172.30.58.6",
+  "targetCommitSha": "1ce42ba9e85f88dfdddaf7b0f9376f62569b8f66",
+  "targetDirtyState": "clean",
+  "targetHostname": "mob07-mob",
+  "targetCpu": "QEMU Virtual CPU version 2.5+",
+  "targetLogicalCpuCount": 4,
+  "targetRamBytes": 6220013568,
+  "targetKernel": "Linux 6.12.96+deb13-cloud-amd64 x86_64 GNU/Linux",
+  "targetOs": "Debian GNU/Linux 13 (trixie)",
+  "targetDockerVersion": "Docker version 26.1.5+dfsg1, build a72d7cd",
+  "targetComposeVersion": "Docker Compose version 2.26.1-4",
+  "targetRam": "6220013568 bytes",
+  "loadGenerator": {
+    "hostname": "debian",
+    "cpu": "Intel(R) Core(TM) 7 240H / 16 logical CPUs",
+    "ramBytes": 24810934272,
+    "os": "Linux 6.12.105+deb13-amd64 x64"
+  },
+  "k6Version": "k6 v0.57.0 (commit/50afd82c18, go1.23.6, linux/amd64)",
+  "k6ScriptSha256": "2b6fad8f07ecbf035fcb6951124db1b76af651288dcf24d8faaf71c2715efe69",
+  "harnessCommitSha": "1ce42ba9e85f88dfdddaf7b0f9376f62569b8f66",
+  "harnessDirtyState": "dirty",
+  "parameters": {
+    "readVus": "5",
+    "readDuration": "5s",
+    "writeUsers": "500",
+    "duplicateUsers": "50",
+    "productId": "p-1001",
+    "userPrefix": "user"
+  },
+  "proxyVariablesDetected": false,
+  "validityStatus": "AWAITING_INTEGRITY_VERIFICATION",
+  "invalidReason": null,
+  "k6ExitCode": 0
+}

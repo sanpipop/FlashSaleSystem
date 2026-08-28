@@ -100,12 +100,26 @@ fi
 
 echo "Verifying deterministic reset postconditions"
 queue_admin wait-drain --timeout-ms "$timeout_ms"
-docker compose exec -T postgres psql \
+reset_output=$(docker compose exec -T postgres psql \
   -U "${POSTGRES_USER:-flashsale}" \
   -d "${POSTGRES_DB:-flashsale}" \
   -v ON_ERROR_STOP=1 \
   -v product_id="$product_id" \
   -v reset_stock="$expected_stock" \
-  -f /dev/stdin < "$repo_root/k6/support/verify-reset.sql"
+  -At \
+  -F '|' \
+  -f /dev/stdin < "$repo_root/k6/support/verify-reset.sql")
+
+IFS='|' read -r matching_product_rows order_rows result_rows extra_fields <<EOF
+$reset_output
+EOF
+case "$matching_product_rows|$order_rows|$result_rows|${extra_fields:-}" in
+  1\|0\|0\|) ;;
+  *)
+    echo "FAIL: PostgreSQL reset postconditions expected matchingProductRows=1 orderRows=0 resultRows=0; actual matchingProductRows=$matching_product_rows orderRows=$order_rows resultRows=$result_rows." >&2
+    exit 1
+    ;;
+esac
+echo "PASS: PostgreSQL reset postconditions satisfied."
 
 echo "PASS: benchmark state reset for $product_id with stock $expected_stock and cache $cache_state."
