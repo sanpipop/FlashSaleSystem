@@ -9,11 +9,16 @@ import { ApiMetricsService } from '../common/metrics/api-metrics.service.js';
 import { writeStructuredLog } from '../common/logger/structured-log.js';
 import type { ProductsQueryDto } from './products.dto.js';
 
-const FOLLOWER_ATTEMPTS = 5;
-const FOLLOWER_WAIT_MS = 2;
+const FOLLOWER_ATTEMPTS = 6;
+const FOLLOWER_INITIAL_WAIT_MS = 2;
+const FOLLOWER_MAX_WAIT_MS = 32;
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function followerWaitMs(attempt: number): number {
+  return Math.min(FOLLOWER_INITIAL_WAIT_MS * 2 ** attempt, FOLLOWER_MAX_WAIT_MS);
 }
 
 @Injectable()
@@ -66,7 +71,7 @@ export class ProductsCacheService implements OnModuleInit, OnModuleDestroy {
     if (!claim.acquired) {
       this.metrics.observeFill('follower');
       for (let attempt = 0; attempt < FOLLOWER_ATTEMPTS; attempt += 1) {
-        await delay(FOLLOWER_WAIT_MS);
+        await delay(followerWaitMs(attempt));
         try {
           const followerRead = await this.cache.read(query.page, query.limit);
           const cached = followerRead.value === null ? null : this.parse(followerRead.value);
