@@ -17,7 +17,7 @@ jobs:
   quick-check:
     name: quick-check
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -81,8 +81,23 @@ jobs:
         if: steps.project.outputs.node_project == 'true'
         run: pnpm run --if-present typecheck
 
+      - name: Lint
+        if: steps.project.outputs.node_project == 'true'
+        run: pnpm run --if-present lint
+
+      - name: Build
+        if: steps.project.outputs.node_project == 'true'
+        run: pnpm run --if-present build
+
+      - name: Unit tests
+        if: steps.project.outputs.node_project == 'true'
+        run: pnpm run --if-present test
+
       - name: Validate Docker Compose syntax
         shell: bash
+        env:
+          JWT_SECRET: ci-only-compose-validation-secret
+          POSTGRES_PASSWORD: ci-only-compose-validation-password
         run: |
           compose_file=""
           for candidate in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do

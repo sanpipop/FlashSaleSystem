@@ -14,6 +14,20 @@ function command(commandName, args, fallback = 'unavailable') {
 }
 
 if (action === 'start') {
+  const requiredTargetMetadata = [
+    'TARGET_COMMIT_SHA',
+    'TARGET_DIRTY_STATE',
+    'TARGET_HOSTNAME',
+    'TARGET_CPU',
+    'TARGET_RAM',
+  ];
+  const missingTargetMetadata = requiredTargetMetadata.filter(
+    (name) => !process.env[name]?.trim(),
+  );
+  if (missingTargetMetadata.length > 0) {
+    throw new Error(`Missing target metadata: ${missingTargetMetadata.join(', ')}`);
+  }
+
   const metadata = {
     runId: process.env.RUN_ID,
     timestampStart: new Date().toISOString(),
@@ -21,11 +35,11 @@ if (action === 'start') {
     scenario: process.env.TEST_PROFILE,
     cacheState: process.env.CACHE_STATE || 'not-applicable',
     baseUrl: process.env.BASE_URL,
-    targetCommitSha: process.env.TARGET_COMMIT_SHA || 'must-be-recorded-on-target',
-    targetDirtyState: process.env.TARGET_DIRTY_STATE || 'must-be-recorded-on-target',
-    targetHostname: process.env.TARGET_HOSTNAME || 'must-be-recorded-on-target',
-    targetCpu: process.env.TARGET_CPU || 'must-be-recorded-on-target',
-    targetRam: process.env.TARGET_RAM || 'must-be-recorded-on-target',
+    targetCommitSha: process.env.TARGET_COMMIT_SHA,
+    targetDirtyState: process.env.TARGET_DIRTY_STATE,
+    targetHostname: process.env.TARGET_HOSTNAME,
+    targetCpu: process.env.TARGET_CPU,
+    targetRam: process.env.TARGET_RAM,
     loadGenerator: {
       hostname: os.hostname(),
       cpu: `${os.cpus()[0]?.model || 'unknown'} / ${os.cpus().length} logical CPUs`,

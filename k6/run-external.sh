@@ -4,6 +4,20 @@ set -euo pipefail
 : "${BASE_URL:?BASE_URL is required and must point to the target VM}"
 : "${TEST_PROFILE:?TEST_PROFILE is required: auth, read, write, or duplicate}"
 : "${RUN_ID:?RUN_ID is required and must be unique}"
+: "${TARGET_COMMIT_SHA:?TARGET_COMMIT_SHA is required for evidence provenance}"
+: "${TARGET_DIRTY_STATE:?TARGET_DIRTY_STATE=clean is required for an official run}"
+: "${TARGET_HOSTNAME:?TARGET_HOSTNAME is required for evidence provenance}"
+: "${TARGET_CPU:?TARGET_CPU is required for evidence provenance}"
+: "${TARGET_RAM:?TARGET_RAM is required for evidence provenance}"
+
+[[ "$TARGET_COMMIT_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || {
+  echo "TARGET_COMMIT_SHA must be the full 40-character commit SHA deployed on the VM." >&2
+  exit 2
+}
+[[ "$TARGET_DIRTY_STATE" == "clean" ]] || {
+  echo "Refusing an official run against a dirty target checkout." >&2
+  exit 2
+}
 
 [[ "$RUN_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || {
   echo "RUN_ID must contain only letters, digits, dot, underscore, and hyphen." >&2
@@ -56,7 +70,7 @@ mkdir -p "$artifact_dir"
 export K6_BIN="$k6_bin"
 node k6/support/metadata.mjs start "$artifact_dir/metadata.json"
 
-resource_file="$artifact_dir/resource-summary.txt"
+resource_file="$artifact_dir/load-generator-resource.txt"
 if [[ -x /usr/bin/time ]]; then
   timed_command=(/usr/bin/time -v -o "$resource_file")
 else
@@ -126,5 +140,5 @@ if [[ "$queue_exit" -ne 0 ]]; then
 fi
 node k6/support/metadata.mjs finish \
   "$artifact_dir/metadata.json" "$final_exit" "$invalid_reason"
-echo "Evidence saved to $artifact_dir; integrity and target-resource evidence are still required."
+echo "Evidence saved to $artifact_dir; copy target-resource.txt from the VM and run integrity verification before marking the run valid."
 exit "$final_exit"

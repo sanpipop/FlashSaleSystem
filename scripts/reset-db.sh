@@ -7,7 +7,11 @@ timeout_ms="${QUEUE_DRAIN_TIMEOUT_MS:-30000}"
 cache_state="${CACHE_STATE:-cold}"
 base_url="${BASE_URL:-http://localhost}"
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-support_mount="$repo_root/k6/support:/app/apps/worker/benchmark-support:ro"
+docker_repo_root="$repo_root"
+if command -v cygpath >/dev/null 2>&1; then
+  docker_repo_root=$(cygpath -m "$repo_root")
+fi
+support_mount="$docker_repo_root/k6/support:/app/apps/worker/benchmark-support:ro"
 
 if [ "${CONFIRM_BENCHMARK_RESET:-}" != "YES" ]; then
   echo "FAIL: set CONFIRM_BENCHMARK_RESET=YES to reset benchmark state for $product_id." >&2
@@ -37,7 +41,8 @@ case "$cache_state" in
 esac
 
 queue_admin() {
-  docker compose run --rm --no-deps \
+  MSYS_NO_PATHCONV=1 \
+    docker compose run --rm --no-deps \
     -v "$support_mount" \
     worker node /app/apps/worker/benchmark-support/queue-admin.mjs "$@"
 }

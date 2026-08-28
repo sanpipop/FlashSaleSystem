@@ -205,15 +205,45 @@ async function retryProof() {
   }
 
   const before = await snapshot(productId);
+  const queueBefore = await counts();
+  const expectedResult = selected.returnvalue;
+  if (!expectedResult) {
+    throw new Error(`Completed job ${selected.id} has no BullMQ return value.`);
+  }
   await queue.remove(selected.id);
-  await enqueueOrderJob(queue, selected.data);
-  await waitFor(
-    (value) =>
-      (value.waiting ?? 0) === 0 &&
-      (value.active ?? 0) === 0 &&
-      (value.delayed ?? 0) === 0,
-    'Retried job did not reach a terminal queue state',
+  const replayedJobId = await enqueueOrderJob(queue, selected.data);
+  const timeoutMs = positiveInteger('timeout-ms', DEFAULT_TIMEOUT_MS);
+  const deadline = Date.now() + timeoutMs;
+  let replayedJob = await queue.getJob(replayedJobId);
+  let replayedState = replayedJob === undefined ? 'missing' : await replayedJob.getState();
+  while (!['completed', 'failed'].includes(replayedState) && Date.now() < deadline) {
+    await delay(POLL_MS);
+    replayedJob = await queue.getJob(replayedJobId);
+    replayedState = replayedJob === undefined ? 'missing' : await replayedJob.getState();
+  }
+  if (replayedJob === undefined || replayedState !== 'completed') {
+    throw new Error(
+      `Retried job did not complete successfully within ${timeoutMs} ms; state=${replayedState}`,
+    );
+  }
+
+  const replayedResult = replayedJob.returnvalue;
+  const resultFields = ['status', 'jobId', 'userId', 'productId', 'orderId'];
+  const resultMismatch = resultFields.some(
+    (field) => expectedResult[field] !== replayedResult?.[field],
   );
+  if (resultMismatch) {
+    throw new Error(
+      `Retried job returned a different durable result: expected=${JSON.stringify(expectedResult)} actual=${JSON.stringify(replayedResult)}`,
+    );
+  }
+
+  const queueAfter = await counts();
+  if ((queueAfter.failed ?? 0) !== (queueBefore.failed ?? 0)) {
+    throw new Error(
+      `Retry changed failed-job count: before=${queueBefore.failed ?? 0} after=${queueAfter.failed ?? 0}`,
+    );
+  }
   const after = await snapshot(productId);
   if (JSON.stringify(before) !== JSON.stringify(after)) {
     throw new Error(`Retry changed durable state: before=${JSON.stringify(before)} after=${JSON.stringify(after)}`);
@@ -222,6 +252,7 @@ async function retryProof() {
     action: 'retry-proof',
     productId,
     jobId: selected.data.jobId,
+    replayedState,
     before,
     after,
     unchanged: true,
