@@ -1,7 +1,7 @@
 # เอกสารการวัดค่าประสิทธิภาพเริ่มต้น (Baseline Performance Benchmark)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** PENDING BENCHMARK (Phase 4 Framework)  
+**สถานะ:** HARNESS READY / PENDING EXTERNAL BENCHMARK (Phase 4)
 **ขอบเขตโปรเจกต์:** มาตรฐานการวัดผล ประสิทธิภาพเริ่มต้นและเกณฑ์การทดสอบระบบก่อนทำการ Tuning (ทุกสมาชิกในทีม)
 
 ---
@@ -15,13 +15,32 @@
 ## 2. สถานะการวัดผลปัจจุบัน (Benchmark Status)
 
 ```text
-Status: PENDING BENCHMARK / PENDING IMPLEMENTATION
-Reason: ระบบอยู่ในระหว่างการเตรียมแอปพลิเคชันและสคริปต์ k6 Load Test (ยังไม่มีผลการรันจริง)
+Status: HARNESS READY / PENDING EXTERNAL BENCHMARK
+Reason: สคริปต์ k6, deterministic reset และ integrity verifier พร้อมและผ่าน local
+functional validation แล้ว แต่ยังไม่มี Target VM BASE_URL สำหรับยิงจาก external load
+generator จึงยังไม่มี official 3-run baseline ที่ใช้รายงานประสิทธิภาพได้
 ```
 
 > [!IMPORTANT]
 > **No Fake Metrics Rule**  
 > ตามกฎของโปรเจกต์ ตารางผลการทดสอบทั้งหมดจะใช้สถานะ `PENDING BENCHMARK` จนกว่าจะได้รับการรัน k6 Load Test จริงจากเครื่องภายนอก ห้ามแต่งตัวเลขหรือใส่ค่าสมมติโดยเด็ดขาด
+
+### 2.1 หลักฐานความพร้อมของ Harness (ไม่ใช่ Baseline)
+
+- k6 syntax/config ผ่านทั้ง `auth`, `read`, `write` และ `duplicate` ด้วย
+  `grafana/k6:0.57.0`
+- Summary evidence ใช้ k6 `handleSummary` ตัด `setup_data` ที่มี JWT ก่อน persist โดยไม่
+  แก้ไข metric values
+- Local write validation 5 users ผ่าน BullMQ drain, durable-result correlation และ retry
+  idempotency: `artifacts/day4/harness-validation-local-r3/`
+- Local duplicate validation 2 users × 3 concurrent requests สร้าง 2 logical jobs และ
+  durable orders เท่านั้น: `artifacts/day4/duplicate-validation-local-r2/`
+- Local read cold/warm functional validation: `artifacts/day4/read-cold-validation-local/`
+  และ `artifacts/day4/read-warm-validation-local/`
+
+หลักฐานข้างต้นรัน k6 บน host เดียวกับ backend จึงมีสถานะ
+`NON-OFFICIAL HARNESS VALIDATION` และห้ามนำค่า RPS/latency ไปคำนวณ median หรือใช้เป็น
+baseline ของ Target VM
 
 ---
 
