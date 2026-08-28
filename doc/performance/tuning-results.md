@@ -91,6 +91,16 @@
 - **Primary Variable:** `Redis Cache TTL`
 - **Results:** `PENDING BENCHMARK`
 
+#### `PERF-007`: Single-Flight Follower Wait Budget (10ms fixed vs 94ms bounded backoff)
+- **Status:** `RETEST ON TARGET VM`
+- **Owner:** Member 2
+- **Date:** 2026-08-28
+- **Hypothesis:** การรอแบบ `2/4/8/16/32/32ms` จะให้ Cache Fill Winner มีเวลาสร้างข้อมูลครบและลด DB Fallback ระหว่าง Cache Miss Burst โดยยังมีเวลารอสูงสุดแบบจำกัด
+- **Primary Variable:** Single-Flight Follower Wait Budget (`5 x 2ms` -> bounded exponential backoff รวมสูงสุด `94ms`)
+- **Local Correctness Evidence:** Day 3 integration เดิมตรวจ Cache Miss Burst 30 requests และกำหนดให้ DB Fallback เพิ่มเท่ากับ `0`
+- **Performance Results:** `PENDING EXTERNAL 3-RUN BENCHMARK`
+- **Decision:** `RETEST` — ห้ามเลือกเป็นค่าแข่งขันจนกว่าจะผ่าน Target VM median และ SQL integrity gates
+
 ---
 
 ### 4.3 Member 3 — Worker & Database Layer Experiments

@@ -90,7 +90,7 @@ export K6_BIN="$k6_bin"
 node k6/support/metadata.mjs start \
   "$artifact_dir/metadata.json" "$target_metadata_file"
 
-resource_file="$artifact_dir/resource-summary.txt"
+resource_file="$artifact_dir/load-generator-resource.txt"
 timed_command=(/usr/bin/time -v -o "$resource_file")
 
 set +e
@@ -155,5 +155,5 @@ if [[ "$queue_exit" -ne 0 ]]; then
 fi
 node k6/support/metadata.mjs finish \
   "$artifact_dir/metadata.json" "$final_exit" "$invalid_reason"
-echo "Evidence saved to $artifact_dir; integrity and target-resource evidence are still required."
+echo "Evidence saved to $artifact_dir; copy target-resource.txt from the VM and run integrity verification before marking the run valid."
 exit "$final_exit"

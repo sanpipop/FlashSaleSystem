@@ -42,8 +42,8 @@ function targetMetadata(inputPath) {
   if (!/^[0-9a-f]{40}$/.test(values.targetCommitSha)) {
     throw new Error('Target commit SHA is not a full Git SHA.');
   }
-  if (!['clean', 'dirty'].includes(values.targetDirtyState)) {
-    throw new Error('Target dirty state must be clean or dirty.');
+  if (values.targetDirtyState !== 'clean') {
+    throw new Error('Refusing an official run against a dirty target checkout.');
   }
   const logicalCpuCount = Number(values.targetLogicalCpuCount);
   const ramBytes = Number(values.targetRamBytes);
