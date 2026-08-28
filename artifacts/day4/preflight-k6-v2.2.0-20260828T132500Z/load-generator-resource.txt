@@ -1,0 +1,23 @@
+	Command being timed: "/tmp/flashsale-k6-v2.2.0/k6-v2.2.0-linux-amd64/k6 run -e BASE_URL=http://172.30.58.6 -e TEST_PROFILE=read -e SUMMARY_PATH=artifacts/day4/preflight-k6-v2.2.0-20260828T132500Z/k6-summary.json -e READ_VUS=5 -e READ_DURATION=5s -e WRITE_USERS=500 -e DUPLICATE_USERS=50 -e PRODUCT_ID=p-1001 -e USER_PREFIX=user k6/competition.js"
+	User time (seconds): 0.41
+	System time (seconds): 0.13
+	Percent of CPU this job got: 10%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.40
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 47720
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2438
+	Voluntary context switches: 22451
+	Involuntary context switches: 108
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

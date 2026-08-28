@@ -20,6 +20,15 @@ set -euo pipefail
   exit 2
 }
 
+ssh_args=(-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=yes)
+if [[ -n "${TARGET_SSH_CONFIG_FILE:-}" ]]; then
+  [[ -r "$TARGET_SSH_CONFIG_FILE" ]] || {
+    echo "TARGET_SSH_CONFIG_FILE must reference a readable SSH configuration file." >&2
+    exit 2
+  }
+  ssh_args=(-F "$TARGET_SSH_CONFIG_FILE" "${ssh_args[@]}")
+fi
+
 queue_timeout_ms="${QUEUE_DRAIN_TIMEOUT_MS:-30000}"
 [[ "$queue_timeout_ms" =~ ^[0-9]+$ ]] && (( queue_timeout_ms > 0 )) || {
   echo "QUEUE_DRAIN_TIMEOUT_MS must be a positive integer." >&2
@@ -87,7 +96,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$TARGET_SSH" \
+if ! ssh "${ssh_args[@]}" "$TARGET_SSH" \
   sh -s -- "$TARGET_REPO_DIR" \
   < k6/support/collect-target-metadata.sh > "$target_metadata_file"; then
   echo "Unable to collect target benchmark metadata." >&2

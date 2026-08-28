@@ -33,6 +33,11 @@ generator จึงยังไม่มี official 3-run baseline ที่ใ
 - Reason for migration: v2.2.0 is the latest maintained major version; official series
   has not begun; benchmark generator can still be re-frozen safely; major-version
   compatibility has been revalidated
+- v2.2.0 compatibility evidence is non-official only: native external read preflight
+  (`artifacts/day4/preflight-k6-v2.2.0-native-20260828T140000Z/`), small write
+  compatibility (`artifacts/day4/write-compat-k6-v2.2.0-20260828T133100Z/`), and
+  duplicate-burst compatibility (`artifacts/day4/duplicate-compat-k6-v2.2.0-20260828T133700Z/`).
+  These runs prove harness behavior and must not be reported as baseline metrics.
 - Summary evidence ใช้ k6 `handleSummary` ตัด `setup_data` ที่มี JWT ก่อน persist โดยไม่
   แก้ไข metric values
 - Local write validation 5 users ผ่าน BullMQ drain, durable-result correlation และ retry
