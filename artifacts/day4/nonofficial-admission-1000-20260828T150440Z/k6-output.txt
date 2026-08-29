@@ -1,0 +1,37 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 2m30s max duration (incl. graceful stop):
+              * write_competition: 1 iterations for each of 1000 VUs (maxDuration: 2m0s, exec: writeCompetition, gracefulStop: 30s)
+
+
+Run                 [ 100% ] setup()
+write_competition   [   0% ]
+
+Run                 [ 100% ] setup()
+write_competition   [   0% ]
+
+running (0m02.9s), 0998/1000 VUs, 2 complete and 0 interrupted iterations
+write_competition   [   0% ] 1000 VUs  0m00.6s/2m0s  0002/1000 iters, 1 per VU
+
+running (0m03.9s), 0841/1000 VUs, 159 complete and 0 interrupted iterations
+write_competition   [  16% ] 1000 VUs  0m01.6s/2m0s  0159/1000 iters, 1 per VU
+
+running (0m04.9s), 0449/1000 VUs, 551 complete and 0 interrupted iterations
+write_competition   [  55% ] 1000 VUs  0m02.6s/2m0s  0551/1000 iters, 1 per VU
+
+running (0m05.9s), 0030/1000 VUs, 970 complete and 0 interrupted iterations
+write_competition   [  97% ] 1000 VUs  0m03.6s/2m0s  0970/1000 iters, 1 per VU
+profile=write requests=1000 request_rate=159.91214754114168 checks_rate=1 sanitized_summary=artifacts/day4/nonofficial-admission-1000-20260828T150440Z/k6-summary.json
+
+running (0m06.3s), 0000/1000 VUs, 1000 complete and 0 interrupted iterations
+write_competition ✓ [ 100% ] 1000 VUs  0m03.9s/2m0s  1000/1000 iters, 1 per VU

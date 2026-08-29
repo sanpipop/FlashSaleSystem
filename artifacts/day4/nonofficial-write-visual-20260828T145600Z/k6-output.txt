@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 20 max VUs, 2m30s max duration (incl. graceful stop):
+              * write_competition: 1 iterations for each of 20 VUs (maxDuration: 2m0s, exec: writeCompetition, gracefulStop: 30s)
+
+profile=write requests=20 request_rate=97.58079593542416 checks_rate=1 sanitized_summary=artifacts/day4/nonofficial-write-visual-20260828T145600Z/k6-summary.json
+
+running (0m00.2s), 00/20 VUs, 20 complete and 0 interrupted iterations
+write_competition ✓ [ 100% ] 20 VUs  0m00.2s/2m0s  20/20 iters, 1 per VU
