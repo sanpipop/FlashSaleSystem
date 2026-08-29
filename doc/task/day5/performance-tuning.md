@@ -13,7 +13,7 @@ Reviewer: Integration Captain
 P1 (Required before Final Benchmark)
 
 ## Dependencies
-- Hard Dependencies: [bottleneck-analysis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/bottleneck-analysis.md)
+- Hard Dependencies: [bottleneck-analysis.md](file:///FlashSaleSystem/doc/task/day4/bottleneck-analysis.md)
 
 ## Can Start Immediately?
 Yes
@@ -29,15 +29,15 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
 
 ## Scope
 - แบ่งหัวข้อทดลองตามความรับผิดชอบ:
   - **Member 1 (Edge/API):** ทดลองปรับจำนวน API Containers (3 vs 4), ปรับ Nginx `keepalive` และ `worker_connections`
-  - **Member 2 (Queue/Redis):** ทดลองปรับ BullMQ Concurrency Level (10 vs 20 vs 30), ปรับ Redis Connection Pool Size
-  - **Member 3 (Worker/DB):** ทดลองปรับ PostgreSQL Connection Pool Size (15 vs 30), ตรวจสอบ Query Plan และ Index Alignment
-- สำหรับเทคนิคขั้นสูง (เช่น Micro-batching `place_order_batch`, L1 Cache): **ให้ทำเฉพาะเมื่อมีผลการทดลองยืนยันว่าคุ้มค่าและมีเวลาพอเท่านั้น**
-- บันทึกการทดลองแต่ละรอบลงตารางใน [tuning-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/tuning-results.md)
+  - **Member 2 (Queue/Redis):** ทดลอง Worker Concurrency 8/12/16 และตรวจ Redis Ops/Cache latency แยกกัน
+  - **Member 3 (Worker/DB):** ทดลอง Micro-batch 16/32, DB Pool รวม 24/28/32, ตรวจ Lock Wait, Batch Calls และ Query Plan
+- Micro-batching, Versioned Cache, Result Ledger และ Outbox เป็น Winning Baseline ห้ามถอด; Day 5 ปรับเฉพาะค่าตัวเลขทีละตัวแปร
+- บันทึกการทดลองแต่ละรอบลงตารางใน [tuning-results.md](file:///FlashSaleSystem/doc/performance/tuning-results.md)
 
 ## Out of Scope
 - การปรับแต่งที่ทำลาย Data Integrity หรือหลีกเลี่ยง Business Invariants (ห้ามปิด Transaction หรือตัด Auth เพื่อทำคะแนนเด็ดขาด)

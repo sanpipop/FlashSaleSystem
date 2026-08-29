@@ -1,0 +1,23 @@
+	Command being timed: "k6 run -e BASE_URL=http://172.30.58.6 -e TEST_PROFILE=write -e SUMMARY_PATH=artifacts/day4/final-write-r2-20260829/k6-summary.json -e READ_VUS=1000 -e READ_DURATION=30s -e WRITE_USERS=500 -e DUPLICATE_USERS=50 -e PRODUCT_ID=p-1001 -e USER_PREFIX=user k6/competition.js"
+	User time (seconds): 1.42
+	System time (seconds): 0.69
+	Percent of CPU this job got: 73%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.87
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 210944
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 50018
+	Voluntary context switches: 9787
+	Involuntary context switches: 27
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

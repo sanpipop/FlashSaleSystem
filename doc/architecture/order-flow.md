@@ -1,7 +1,7 @@
 # วงจรชีวิตของคำสั่งซื้อและการประมวลผลสต็อก (Order Lifecycle & Processing Architecture)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** Draft Baseline Architecture (Phase 1)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE Architecture (Phase 1)
 **ขอบเขตโปรเจกต์:** การเชื่อมต่อระหว่าง Member 1 (API), Member 2 (Queue/Redis) และ Member 3 (Worker/DB)
 
 ---
@@ -14,10 +14,10 @@
 [ Phase A: API Admission ]       ──(Asynchronous Queue)──>       [ Phase B: Worker Processing ]
 - รับ HTTP Request                                                - ดึง Job จาก BullMQ Queue
 - ตรวจสอบ Authentication (JWT)                                    - เปิด PostgreSQL Transaction
-- ทำ Atomic Duplicate Protection                                  - ล็อกแถวสินค้า (SELECT FOR UPDATE)
+- ทำ SET NX Claim + deterministic Job ID                          - รวม Micro-batch แล้วตรวจ Durable Result
 - Enqueue Job เข้า BullMQ                                        - ตรวจสอบสต็อก & Duplicate Order
 - ตอบกลับ Client: 202 Accepted                                    - ตัดสต็อก & บันทึก Order
-                                                                  - Commit Transaction & ล้าง Cache
+                                                                  - Commit Result + Outbox & เปลี่ยน Cache Epoch
 ```
 
 ---
@@ -39,30 +39,39 @@ sequenceDiagram
         Note over Client, RedisOps: Phase A: API Admission (Synchronous Non-Blocking)
         Client->>Nginx: POST /api/v1/orders {productId: "p-1001"}
         Nginx->>API: Proxy Request (with X-Request-ID)
-        API->>RedisOps: Atomic Check Duplicate & Enqueue Job (BullMQ)
-        RedisOps-->>API: Job Enqueued (Job ID Generated)
-        API-->>Nginx: 202 Accepted (Job ID, Status: ACCEPTED)
-        Nginx-->>Client: 202 Accepted Response
+        API->>RedisOps: SET Claim Token NX EX 60
+        alt Claim Won
+            API->>RedisOps: await queue.add with ord-SHA256 Job ID
+            RedisOps-->>API: queue.add resolved (Enqueue Confirmed)
+            Note over API,RedisOps: No queue.getJob on normal fast path
+            API-->>Nginx: 202 Accepted (Job ID, Status: ACCEPTED)
+            Nginx-->>Client: 202 Accepted Response
+        else Claim Failed
+            API->>RedisOps: queue.getJob deterministic Job ID
+            RedisOps-->>API: Existing Job or not-yet-visible
+            API-->>Nginx: Existing = same 202; absent after bounded recheck = 409
+            Nginx-->>Client: Idempotent 202 or Admission In Progress 409
+        end
     end
 
     rect rgb(255, 250, 240)
         Note over RedisOps, Cache: Phase B: Worker Processing (Asynchronous Heavy Transaction)
-        Worker->>RedisOps: Pop / Consume Job (Job ID, userId, productId)
-        Worker->>DB: BEGIN TRANSACTION
-        Worker->>DB: SELECT * FROM products WHERE id = 'p-1001' FOR UPDATE
+        Worker->>RedisOps: Consume and group 10-32 Jobs (max wait 1 ms)
+        Worker->>DB: place_order_batch(jsonb) / BEGIN
+        Worker->>DB: Read order_results + SELECT product FOR UPDATE
         
         alt Stock Available & No Duplicate in DB
-            Worker->>DB: UPDATE products SET remaining_stock = remaining_stock - 1 WHERE id = 'p-1001'
-            Worker->>DB: INSERT INTO orders (id, user_id, product_id, status) VALUES (...)
+            Worker->>DB: Bulk INSERT winners; decrement by inserted count
+            Worker->>DB: INSERT order_results + transactional_outbox
             Worker->>DB: COMMIT TRANSACTION
-            Worker->>Cache: Invalidate Product Cache (DEL products:*)
+            Worker->>Cache: INCR fs:cache:products:epoch
             Worker->>RedisOps: Mark Job Complete (Result: SUCCESS)
         else Sold Out (remaining_stock <= 0) หรือ Flash Sale Inactive
-            Worker->>DB: ROLLBACK TRANSACTION
-            Worker->>RedisOps: Mark Job Failed / Completed (Result: SOLD_OUT)
+            Worker->>DB: Persist REJECTED result and COMMIT
+            Worker->>RedisOps: Mark Job Completed (Result: REJECTED_SOLD_OUT)
         else Duplicate User Order Found in DB
-            Worker->>DB: ROLLBACK TRANSACTION
-            Worker->>RedisOps: Mark Job Failed / Completed (Result: DUPLICATE_ORDER)
+            Worker->>DB: Persist REJECTED result and COMMIT
+            Worker->>RedisOps: Mark Job Completed (Result: REJECTED_DUPLICATE)
         end
     end
 ```
@@ -78,25 +87,25 @@ sequenceDiagram
 
 ### 3.2 Queueing (การเข้าคิวรอประมวลผล)
 1. งานถูกจัดเก็บไว้ใน BullMQ Queue บน Redis Operations
-2. Payload ประกอบด้วย: `jobId`, `userId`, `productId`, `requestId`, `timestamp`
+2. Payload ประกอบด้วย: `jobId`, `userId`, `productId`, `requestId`, `createdAt`
 
 ### 3.3 Worker Processing & Database Transaction Boundary
-1. Worker ดึง Job จาก Queue มาประมวลผลภายใต้ **PostgreSQL Transaction เดียว (ACID Scope)**
-2. **Pessimistic Row Locking:** สั่ง execute `SELECT remaining_stock, is_flash_sale_active FROM products WHERE id = $1 FOR UPDATE` เพื่อล็อก row ของสินค้านั้น ป้องกัน Worker ตัวอื่นอ่านสต็อกซ้ำในเวลาเดียวกัน
-3. **Stock & Flash Sale Validation:** 
+1. Worker รวม 10–32 Jobs หรือรอสูงสุด 1 ms แล้วส่งเข้า `place_order_batch(jsonb)` ภายใต้ **PostgreSQL Transaction เดียว (ACID Scope)**
+2. ตรวจ `order_results.job_id` ก่อนเพื่อคืนผลเดิมให้ Job ที่ Retry
+3. **Pessimistic Row Locking:** สั่ง `SELECT remaining_stock, is_flash_sale_active FROM products WHERE product_id = $1 FOR UPDATE` เพื่อล็อกสินค้าเพียงครั้งเดียวต่อ Batch
+4. **Stock & Flash Sale Validation:**
    - ตรวจสอบว่า `is_flash_sale_active == true` หรือไม่
    - ตรวจสอบว่า `remaining_stock > 0` หรือไม่
-4. **Duplicate Validation (Database Level):**
+5. **Duplicate Validation (Database Level):**
    - ตรวจสอบประวัติในตาราง `orders` ว่าเคยมีคู่ `(user_id, product_id)` นี้สำเร็จแล้วหรือไม่
    - เสริมด้วย Database `UNIQUE(user_id, product_id)` Constraint เพื่อให้ DB ปรับ Rollback อัตโนมัติหากหลุดเข้ามา
 
 ### 3.4 Execution Outcomes (ผลลัพธ์การประมวลผล)
-- **Successful Order:** ลดสต็อก (`remaining_stock = remaining_stock - 1`), บันทึกตาราง `orders` ด้วยสถานะ `SUCCESS` แล้วสั่ง `COMMIT`
-- **Sold Out:** หากสต็อกเหลือ 0 สั่ง `ROLLBACK` Transaction บันทึก Log สถานะ `SOLD_OUT`
-- **Duplicate Order:** หากพบว่าเคยซื้อแล้ว สั่ง `ROLLBACK` บันทึก Log สถานะ `DUPLICATE_REJECTED`
+- **Successful Order:** Bulk Insert ผู้ชนะไม่เกิน Stock, ลด `remaining_stock` ตามจำนวน Row ที่ Insert สำเร็จ, บันทึก `SUCCESS` Result และ Outbox แล้ว Commit
+- **Sold Out / Inactive / Duplicate:** ไม่สร้าง Order แต่บันทึก Business Result ลง `order_results` แล้ว Commit เพื่อให้ Retry คืนผลเดิม
 
 ### 3.5 Post-Commit Actions & Cache Invalidation
-- หลังสั่ง `COMMIT` สำเร็จเรียบร้อยแล้วเท่านั้น Worker จึงจะส่งคำสั่งลบหรือล้างแคช (`DEL products:*`) ไปยัง Redis Cache
+- หลัง `COMMIT` สำเร็จ Worker ส่ง `INCR fs:cache:products:epoch` ทันที ส่วน Outbox Relay Retry เหตุการณ์ที่ส่งไม่สำเร็จ
 - **ห้ามล้างแคชก่อน DB Commit** เพื่อป้องกันปัญหา Race Condition ที่ API ไปอ่าน DB ในช่วงที่ Transaction ยังไม่เสร็จสิ้น
 
 ---

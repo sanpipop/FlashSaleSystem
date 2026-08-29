@@ -1,7 +1,7 @@
 # การไหลของข้อมูลและวงจรคำขอฝั่ง API (API Request Flow & Admission Architecture)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** Draft Baseline Architecture (Phase 1)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE Architecture (Phase 1)
 **ขอบเขตโปรเจกต์:** ขอบเขตการทำงานของ Member 1 (API / Nginx / Auth / Endpoints)
 
 ---
@@ -134,14 +134,19 @@ sequenceDiagram
     
     Note over API: 1. Verify JWT & Extract userId<br/>2. Validate productId & forced quantity=1<br/>3. Compute Duplicate Protection Key / Job ID
     
-    API->>RedisOps: Atomic Check Duplicate & Enqueue Job (BullMQ queue.add)
+    API->>RedisOps: SET claim-key randomToken NX EX 60
     
-    alt Admission Success (คำขอถูกต้อง / เข้าคิวสำเร็จ)
-        RedisOps-->>API: Enqueue Confirmed (Job ID created)
+    alt Claim Won / First Admission
+        RedisOps-->>API: OK
+        API->>RedisOps: await queue.add with ord-SHA256 Job ID
+        RedisOps-->>API: queue.add resolved (enqueue confirmed)
+        Note over API,RedisOps: Fast path ไม่เรียก queue.getJob ซ้ำ
         API-->>Nginx: 202 Accepted { status: "ACCEPTED", jobId: "..." }
-    else Duplicate Request Rejected (คำขอซ้ำเกินสิทธิ์)
-        RedisOps-->>API: Duplicate Found
-        API-->>Nginx: 409 Conflict หรือ 202 (ตาม Policy ที่เลือก)
+    else Claim Failed / Duplicate Admission
+        RedisOps-->>API: nil
+        API->>RedisOps: queue.getJob(deterministic jobId)
+        RedisOps-->>API: Existing Job or not-yet-visible
+        API-->>Nginx: 202 with same ID if Job exists; otherwise bounded recheck then 409
     end
     
     Nginx-->>Client: Return API Response

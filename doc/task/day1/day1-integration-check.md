@@ -13,11 +13,11 @@ Member 1, Member 2, Member 3
 P0 (End-of-Day Quality Gate)
 
 ## Dependencies
-- [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)
-- [docker-compose.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/docker-compose.md)
-- [api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md)
-- [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
-- [worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md)
+- [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)
+- [docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md)
+- [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md)
+- [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
+- [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md)
 
 ## Can Start Immediately?
 No (เริ่มเวลา 17:30 น. หลังทุกงานย่อยใน Day 1 เสร็จ)

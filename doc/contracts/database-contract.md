@@ -1,7 +1,7 @@
 # สัญญาโครงสร้างฐานข้อมูลและกฎความถูกต้อง (Database Logical Schema & Integrity Contract)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** FROZEN BASELINE (Phase 2)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE (Phase 2)
 **ขอบเขตโปรเจกต์:** ข้อตกลงการออกแบบตาราง ข้อจำกัด (Constraints) และการทำ Transaction ใน PostgreSQL (ขอบเขต Member 3)
 
 ---
@@ -50,7 +50,7 @@ CREATE TABLE products (
 
 ### 3.2 ตารางคำสั่งซื้อ (`orders`)
 
-ตารางเก็บประวัติคำสั่งซื้อที่ทำรายการสำเร็จหรือบันทึกผลทางธุรกิจ
+ตารางเก็บเฉพาะคำสั่งซื้อที่สำเร็จ
 
 ```sql
 CREATE TABLE orders (
@@ -58,7 +58,7 @@ CREATE TABLE orders (
     job_id       VARCHAR(128) NOT NULL UNIQUE,
     user_id      VARCHAR(64) NOT NULL,
     product_id   VARCHAR(64) NOT NULL REFERENCES products(product_id),
-    status       VARCHAR(32) NOT NULL,
+    status       VARCHAR(32) NOT NULL CHECK (status = 'SUCCESS'),
     created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT unique_user_product UNIQUE (user_id, product_id)
@@ -72,38 +72,92 @@ CREATE TABLE orders (
 - `product_id` (`VARCHAR(64)`, `MUST`): รหัสสินค้าที่สั่งซื้อ
 - **`CONSTRAINT unique_user_product UNIQUE (user_id, product_id)` (`MUST`):** ข้อบังคับระดับ Database Engine **ห้ามผู้ใช้คนเดียวกันซื้อสินค้าชิ้นเดียวกันเกิน 1 ครั้งโดยเด็ดขาด**
 
+### 3.3 ตารางผลการประมวลผลแบบถาวร (`order_results`)
+
+```sql
+CREATE TABLE order_results (
+    job_id        VARCHAR(128) PRIMARY KEY,
+    user_id       VARCHAR(64) NOT NULL,
+    product_id    VARCHAR(64) NOT NULL REFERENCES products(product_id),
+    status        VARCHAR(32) NOT NULL CHECK (status IN (
+                     'SUCCESS', 'REJECTED_SOLD_OUT',
+                     'REJECTED_INACTIVE', 'REJECTED_DUPLICATE'
+                  )),
+    order_id      VARCHAR(64) NULL REFERENCES orders(id),
+    processed_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    message       TEXT NOT NULL,
+    CONSTRAINT result_order_consistency CHECK (
+      (status = 'SUCCESS' AND order_id IS NOT NULL) OR
+      (status <> 'SUCCESS' AND order_id IS NULL)
+    )
+);
+```
+
+`order_results.job_id` เป็น Idempotency Ledger ถาวร หาก Worker ได้ Job เดิมซ้ำต้องคืนผลเดิมจากตารางนี้โดยไม่ลดสต็อกและไม่สร้าง Order ใหม่
+
+### 3.4 ตาราง Transactional Outbox (`transactional_outbox`)
+
+```sql
+CREATE TABLE transactional_outbox (
+    event_id         UUID PRIMARY KEY,
+    aggregate_id     VARCHAR(64) NOT NULL,
+    event_type       VARCHAR(64) NOT NULL CHECK (event_type = 'PRODUCT_STOCK_CHANGED'),
+    payload          JSONB NOT NULL,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    published_at     TIMESTAMPTZ NULL,
+    attempts         INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_outbox_pending
+ON transactional_outbox (next_attempt_at, created_at)
+WHERE published_at IS NULL;
+```
+
+เมื่อ Stock เปลี่ยน Worker ต้องเขียน Outbox Event ใน Transaction เดียวกับ Orders/Results เพื่อให้การ Invalidate Cache ซ่อมตัวเองได้แม้ Redis ล่มหลัง DB Commit
+
 ---
 
 ## 4. สัญญาการทำธุรกรรมและการล็อกข้อมูล (Database Transaction & Locking Contract)
 
-ทุกการประมวลผลคำสั่งซื้อใน Worker **ต้องทำภายใต้ Transaction เดียว (ACID Scope)** ตามลำดับ Logical SQL ต่อไปนี้:
+เส้นทางแข่งขันหลักใช้ `place_order_batch(jsonb)` เพื่อรวม 10-32 Jobs ของสินค้าเดียวกัน ลด DB Round-trip และล็อกแถวสินค้าเพียงครั้งเดียว โดยทุกผลลัพธ์ต้องอยู่ใน **Transaction เดียว (ACID Scope)**:
 
 ```sql
--- Step 1: Start Transaction
+CREATE FUNCTION place_order_batch(p_jobs JSONB)
+RETURNS TABLE (
+  job_id VARCHAR(128), status VARCHAR(32),
+  order_id VARCHAR(64), message TEXT
+);
+```
+
+```sql
+-- Step 0: Start Transaction
 BEGIN;
 
--- Step 2: Acquire Pessimistic Lock on Target Product Row
+-- Step 1: Return previously persisted results for duplicate job_id values.
+-- Step 2: Acquire Pessimistic Lock on Target Product Row.
 SELECT remaining_stock, is_flash_sale_active 
 FROM products 
 WHERE product_id = 'p-1001' 
 FOR UPDATE;
 
--- Step 3: Application Logic Check in Worker:
--- If is_flash_sale_active = false OR remaining_stock <= 0 -> ROLLBACK & Exit
-
--- Step 4: Decrement Stock Atomically
-UPDATE products 
-SET remaining_stock = remaining_stock - 1,
-    updated_at = CURRENT_TIMESTAMP
-WHERE product_id = 'p-1001';
-
--- Step 5: Insert Order Record (Will trigger UNIQUE constraint check)
-INSERT INTO orders (id, job_id, user_id, product_id, status, created_at)
-VALUES ('ord-uuid', 'job:user-999:p-1001', 'user-999', 'p-1001', 'SUCCESS', CURRENT_TIMESTAMP);
-
--- Step 6: Commit All Changes Atomically
+-- Step 3: Deduplicate the batch by job_id and (user_id, product_id).
+-- Step 4: Exclude users that already have a successful order.
+-- Step 5: Choose at most remaining_stock winners.
+-- Step 6: Bulk INSERT winners into orders with UNIQUE constraints active.
+-- Step 7: Decrement remaining_stock by the actual INSERT ... RETURNING row count.
+-- Step 8: INSERT one durable order_results row for every distinct logical job.
+-- Step 9: INSERT one PRODUCT_STOCK_CHANGED outbox event if stock changed.
+-- Step 10: Commit all changes atomically.
 COMMIT;
 ```
+
+กฎเพิ่มเติม:
+
+- หาก Batch มีหลาย Product ต้อง Lock ตาม `product_id` ที่ Sort แล้วเสมอเพื่อป้องกัน Deadlock
+- ห้ามเรียก Redis, HTTP หรือเขียน Log หนักภายใน Transaction
+- `CHECK (remaining_stock >= 0)`, `UNIQUE(user_id, product_id)` และ `order_results(job_id)` ต้องเปิดใช้งานตลอด ห้ามแลก Correctness กับความเร็ว
+- Baseline fallback แบบ Job เดี่ยวใช้ Algorithm เดียวกันได้ แต่การแข่งขันให้เริ่ม Micro-batch ที่ 16 Jobs / สูงสุดรอ 1 ms แล้ววัด 16 เทียบ 32
 
 ---
 
@@ -116,10 +170,11 @@ COMMIT;
    - `PRIMARY KEY (id)` บนตาราง `orders`
    - `UNIQUE INDEX (user_id, product_id)` บนตาราง `orders`
    - `UNIQUE INDEX (job_id)` บนตาราง `orders`
+   - `PRIMARY KEY (job_id)` บนตาราง `order_results`
 
 2. **Performance Optimization Indexes (`FROZEN BASELINE`):**
-   - `CREATE INDEX idx_orders_user_id ON orders(user_id);`
-   - `CREATE INDEX idx_products_flash_sale ON products(is_flash_sale_active, remaining_stock);`
+   - ไม่สร้าง Index ซ้ำกับ `UNIQUE(user_id, product_id)` โดยไม่มี Query Plan ยืนยัน
+   - `idx_outbox_pending` เป็น Partial Index สำหรับ Outbox Relay
 
 ---
 
@@ -152,4 +207,11 @@ FROM orders
 GROUP BY user_id, product_id 
 HAVING COUNT(*) > 1;
 -- Expected Result: 0 rows returned
+
+-- Proof 5: ทุก Successful result ต้องอ้างถึง Order จริง
+SELECT COUNT(*)
+FROM order_results r
+LEFT JOIN orders o ON o.id = r.order_id
+WHERE r.status = 'SUCCESS' AND o.id IS NULL;
+-- Expected Result: 0
 ```

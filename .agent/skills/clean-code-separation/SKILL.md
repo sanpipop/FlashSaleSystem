@@ -13,9 +13,9 @@ Activate this skill whenever:
 FlashSaleSystem mandates modular, single-responsibility file design. Combining distinct architectural layers into a single file makes code fragile, difficult to test, prone to concurrency bugs, and challenging to review.
 
 ## Authoritative References
-- **NestJS Architecture Guide:** [doc/architecture/architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **Order Flow Separation:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Team Ownership Boundaries:** [doc/planning/team-ownership.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/team-ownership.md)
+- **NestJS Architecture Guide:** [doc/architecture/architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **Order Flow Separation:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Team Ownership Boundaries:** [doc/planning/team-ownership.md](file:///FlashSaleSystem/doc/planning/team-ownership.md)
 
 ## Preconditions
 Before creating or modifying a file, evaluate its primary responsibility using the **File-Split Decision Test**.

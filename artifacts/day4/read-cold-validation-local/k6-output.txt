@@ -1,0 +1,45 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2 max VUs, 6s max duration (incl. graceful stop):
+              * read_products: 2 looping VUs for 1s (exec: readProducts, gracefulStop: 5s)
+
+
+running (1.0s), 2/2 VUs, 1703 complete and 0 interrupted iterations
+read_products   [ 100% ] 2 VUs  1.0s/1s
+
+     ✓ products returns 200
+     ✓ products response follows contract
+
+   ✓ checks.........................: 100.00% 3412 out of 3412
+     data_received..................: 2.8 MB  2.7 MB/s
+     data_sent......................: 181 kB  171 kB/s
+     http_req_blocked...............: avg=1.88µs min=448ns    med=1.4µs    p(90)=2.05µs   p(95)=2.28µs   p(99)=4.13µs  max=304.81µs
+     http_req_connecting............: avg=81ns   min=0s       med=0s       p(90)=0s       p(95)=0s       p(99)=0s      max=69.76µs 
+     http_req_duration..............: avg=1.13ms min=256.02µs med=509.58µs p(90)=766.12µs p(95)=885.09µs p(99)=34.62ms max=68.86ms 
+       { expected_response:true }...: avg=1.13ms min=256.02µs med=509.58µs p(90)=766.12µs p(95)=885.09µs p(99)=34.62ms max=68.86ms 
+     http_req_failed................: 0.00%   0 out of 1706
+     http_req_receiving.............: avg=19.9µs min=3.85µs   med=18.4µs   p(90)=29.99µs  p(95)=36.31µs  p(99)=59.83µs max=148.63µs
+     http_req_sending...............: avg=4.51µs min=1.46µs   med=4.15µs   p(90)=6.09µs   p(95)=7.1µs    p(99)=14.38µs max=68.34µs 
+     http_req_tls_handshaking.......: avg=0s     min=0s       med=0s       p(90)=0s       p(95)=0s       p(99)=0s      max=0s      
+     http_req_waiting...............: avg=1.1ms  min=248.89µs med=485.74µs p(90)=738.59µs p(95)=853.16µs p(99)=34.58ms max=68.8ms  
+     http_reqs......................: 1706    1608.607872/s
+     iteration_duration.............: avg=1.2ms  min=289.31µs med=576.92µs p(90)=844.56µs p(95)=963.24µs p(99)=34.72ms max=69.07ms 
+     iterations.....................: 1706    1608.607872/s
+     read_duration..................: avg=1.13ms min=256.02µs med=509.58µs p(90)=766.12µs p(95)=885.09µs p(99)=34.62ms max=68.86ms 
+   ✓ read_infra_error...............: 0.00%   0 out of 1706
+     read_requests..................: 1706    1608.607872/s
+     vus............................: 2       min=2            max=2
+     vus_max........................: 2       min=2            max=2
+
+
+running (1.1s), 0/2 VUs, 1706 complete and 0 interrupted iterations
+read_products ✓ [ 100% ] 2 VUs  1s

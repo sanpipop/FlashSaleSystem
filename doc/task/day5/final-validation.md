@@ -13,7 +13,7 @@ Member 1, Member 2, Member 3
 P0 (Final Release Gate)
 
 ## Dependencies
-- Hard Dependencies: [final-benchmark.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day5/final-benchmark.md)
+- Hard Dependencies: [final-benchmark.md](file:///FlashSaleSystem/doc/task/day5/final-benchmark.md)
 
 ## Can Start Immediately?
 No (รันเป็นงานสุดท้ายของโปรเจกต์)
@@ -26,8 +26,8 @@ No (รันเป็นงานสุดท้ายของโปรเจ�
 - `doc/contracts/**`
 
 ## Contracts Used
-- [README.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/README.md)
-- [CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md)
+- [README.md](file:///FlashSaleSystem/README.md)
+- [CONTRIBUTING.md](file:///FlashSaleSystem/CONTRIBUTING.md)
 
 ## Comprehensive Final Verification Checklist
 
@@ -59,7 +59,7 @@ No (รันเป็นงานสุดท้ายของโปรเจ�
 - [ ] คำสั่ง `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration` และ `pnpm build` รันผ่านสีเขียว 100%
 - [ ] GitHub Actions Quick Check (`ci.yml`) ผ่านการตรวจสมบูรณ์
 - [ ] ไม่มีการ Commit Secret, Password จริง หรือไฟล์ `.env` ค้างอยู่ใน Git Repository
-- [ ] เอกสารคู่มือ [README.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/README.md) อธิบายขั้นตอนการเปิดระบบและการรันสคริปต์ได้ชัดเจน
+- [ ] เอกสารคู่มือ [README.md](file:///FlashSaleSystem/README.md) อธิบายขั้นตอนการเปิดระบบและการรันสคริปต์ได้ชัดเจน
 
 ---
 

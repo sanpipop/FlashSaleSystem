@@ -29,7 +29,7 @@ Activate this skill at the beginning of every task or conversation in this repos
 - **Member 2 (Queue / Cache Lead):**
   - Scope: Redis Operations, Product Cache-Aside (`packages/cache/`), BullMQ Infrastructure (`packages/queue/`), Atomic Claim Guard (`SET NX`), Bull Board UI, Observability stack (`observability/`).
 - **Member 3 (Worker / Database Lead):**
-  - Scope: PostgreSQL Engine & Migrations (`database/`), Seed Data, BullMQ Worker Consumer (`apps/worker/`), Transaction & Pessimistic Row Locking (`SELECT FOR UPDATE`), Database Constraints.
+  - Scope: PostgreSQL migrations, `place_order_batch`, `order_results`, Transactional Outbox, BullMQ Micro-batch Worker, Row Locking and Database Constraints.
 
 ### 4. Required Public HTTP APIs
 - `POST /api/v1/auth/token` — Issue JWT Access Token.
@@ -41,16 +41,17 @@ Activate this skill at the beginning of every task or conversation in this repos
 2. **Limit 1 Per User Per Product:** `successfulOrders(userId, productId) <= 1` enforced via PostgreSQL `UNIQUE(user_id, product_id)`.
 3. **Multi-Product Allowed:** A single user CAN purchase different products (`user-001 + p-1001 = success` and `user-001 + p-1002 = success`).
 4. **202 Accepted Semantics:** An HTTP `202 Accepted` response indicates the order request was enqueued successfully, NOT that the purchase is confirmed.
+5. **Durable Retry Semantics:** Reprocessing the same `jobId` must return the persisted `order_results` row without changing Stock or Orders.
 
 ## Authoritative References
 Do not copy full technical specifications into this skill. Always refer agents to the canonical documentation:
-- **Architecture Source of Truth:** [doc/architecture/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **Frozen Contracts Source of Truth:** [doc/contracts/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Project Master Plan & Ownership:** [doc/planning/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/master-plan.md)
-- **Daily Task Execution Plan:** [doc/task/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-overview.md)
-- **Testing & Verification Standards:** [doc/testing/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/testing-strategy.md)
-- **Performance Framework:** [doc/performance/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Report & Evidence Checklist:** [doc/report/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/report/evidence-checklist.md)
+- **Architecture Source of Truth:** [doc/architecture/](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **Frozen Contracts Source of Truth:** [doc/contracts/](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Project Master Plan & Ownership:** [doc/planning/](file:///FlashSaleSystem/doc/planning/master-plan.md)
+- **Daily Task Execution Plan:** [doc/task/](file:///FlashSaleSystem/doc/task/day1/day1-overview.md)
+- **Testing & Verification Standards:** [doc/testing/](file:///FlashSaleSystem/doc/testing/testing-strategy.md)
+- **Performance Framework:** [doc/performance/](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Report & Evidence Checklist:** [doc/report/](file:///FlashSaleSystem/doc/report/evidence-checklist.md)
 
 ## Preconditions
 Before starting any technical action, confirm that you have read the relevant task file in `doc/task/` and checked git status.

@@ -1,0 +1,123 @@
+Stopping the public edge to prevent new admissions during reset
+ Container flash-sale-system-nginx-1 Stopping 
+ Container flash-sale-system-nginx-1 Stopped 
+Pausing BullMQ admission and waiting for active jobs
+ Container flash-sale-system-worker-run-46516ef0f5dc Creating 
+ Container flash-sale-system-worker-run-46516ef0f5dc Created 
+{"action":"pause-and-drain-active","state":{"waiting":0,"active":0,"completed":0,"failed":0,"delayed":0,"paused":0}}
+Stopping Worker before queue/database reset
+ Container flash-sale-system-worker-1 Stopping 
+ Container flash-sale-system-worker-1 Stopped 
+Resetting BullMQ through its public API
+ Container flash-sale-system-worker-run-d3228c8a1d8d Creating 
+ Container flash-sale-system-worker-run-d3228c8a1d8d Created 
+{"action":"reset-queue","before":{"waiting":0,"active":0,"completed":0,"failed":0,"delayed":0,"paused":0},"after":{"waiting":0,"active":0,"completed":0,"failed":0,"delayed":0,"paused":0}}
+Clearing only validated order claims for p-1001
+ Container flash-sale-system-worker-run-74bf24e3e88e Creating 
+ Container flash-sale-system-worker-run-74bf24e3e88e Created 
+{"action":"clear-claims","productId":"p-1001","removed":0}
+Resetting PostgreSQL benchmark state for p-1001
+BEGIN
+DELETE 0
+DELETE 0
+DELETE 0
+UPDATE 1
+COMMIT
+Clearing the isolated volatile Redis Cache database
+Starting Worker and waiting for readiness
+ Container flash-sale-system-postgres-1 Running 
+ Container flash-sale-system-redis-ops-1 Running 
+ Container flash-sale-system-redis-cache-1 Running 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-migrate-1 Starting 
+ Container flash-sale-system-migrate-1 Started 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-seed-1 Starting 
+ Container flash-sale-system-seed-1 Started 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-worker-1 Starting 
+ Container flash-sale-system-worker-1 Started 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-worker-1 Waiting 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-worker-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+Starting the public edge after deterministic state is ready
+ Container flash-sale-system-postgres-1 Running 
+ Container flash-sale-system-redis-ops-1 Running 
+ Container flash-sale-system-api-1-1 Running 
+ Container flash-sale-system-redis-cache-1 Running 
+ Container flash-sale-system-api-3-1 Running 
+ Container flash-sale-system-api-2-1 Running 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-migrate-1 Starting 
+ Container flash-sale-system-migrate-1 Started 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-seed-1 Starting 
+ Container flash-sale-system-seed-1 Started 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-api-1-1 Waiting 
+ Container flash-sale-system-api-2-1 Waiting 
+ Container flash-sale-system-api-3-1 Waiting 
+ Container flash-sale-system-api-3-1 Healthy 
+ Container flash-sale-system-api-2-1 Healthy 
+ Container flash-sale-system-api-1-1 Healthy 
+ Container flash-sale-system-nginx-1 Starting 
+ Container flash-sale-system-nginx-1 Started 
+ Container flash-sale-system-postgres-1 Waiting 
+ Container flash-sale-system-api-1-1 Waiting 
+ Container flash-sale-system-redis-cache-1 Waiting 
+ Container flash-sale-system-api-3-1 Waiting 
+ Container flash-sale-system-migrate-1 Waiting 
+ Container flash-sale-system-redis-ops-1 Waiting 
+ Container flash-sale-system-nginx-1 Waiting 
+ Container flash-sale-system-seed-1 Waiting 
+ Container flash-sale-system-api-2-1 Waiting 
+ Container flash-sale-system-migrate-1 Exited 
+ Container flash-sale-system-api-3-1 Healthy 
+ Container flash-sale-system-seed-1 Exited 
+ Container flash-sale-system-api-1-1 Healthy 
+ Container flash-sale-system-redis-ops-1 Healthy 
+ Container flash-sale-system-api-2-1 Healthy 
+ Container flash-sale-system-redis-cache-1 Healthy 
+ Container flash-sale-system-postgres-1 Healthy 
+ Container flash-sale-system-nginx-1 Healthy 
+Verifying deterministic reset postconditions
+ Container flash-sale-system-worker-run-66187340a45b Creating 
+ Container flash-sale-system-worker-run-66187340a45b Created 
+{"action":"wait-drain","queueDrainMs":2,"state":{"waiting":0,"active":0,"completed":0,"failed":0,"delayed":0,"paused":0}}
+PASS: PostgreSQL reset postconditions satisfied.
+PASS: benchmark state reset for p-1001 with stock 50 and cache cold.

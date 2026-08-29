@@ -1,0 +1,22 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 500 max VUs, 2m30s max duration (incl. graceful stop):
+              * write_competition: 1 iterations for each of 500 VUs (maxDuration: 2m0s, exec: writeCompetition, gracefulStop: 30s)
+
+
+running (0m01.0s), 398/500 VUs, 102 complete and 0 interrupted iterations
+write_competition   [  20% ] 500 VUs  0m00.2s/2m0s  102/500 iters, 1 per VU
+profile=write requests=500 request_rate=352.0271463509097 checks_rate=1 sanitized_summary=artifacts/day4/singleflight-write-r3-20260829/k6-summary.json
+
+running (0m01.4s), 000/500 VUs, 500 complete and 0 interrupted iterations
+write_competition ✓ [ 100% ] 500 VUs  0m00.7s/2m0s  500/500 iters, 1 per VU

@@ -1,0 +1,10 @@
+Waiting for BullMQ queue drain
+{"action":"wait-drain","queueDrainMs":2,"state":{"waiting":0,"active":0,"completed":5,"failed":0,"delayed":0,"paused":0}}
+Verifying PostgreSQL stock/order/result invariants
+45|5|5|0|0|0|5
+PASS: PostgreSQL integrity conditions satisfied.
+Verifying every completed BullMQ job has a durable result
+{"action":"verify-durable","productId":"p-1001","expected":5,"completedJobs":5,"durableCount":5,"acceptedWithoutDurableResult":0}
+Replaying one committed successful job to prove retry idempotency
+{"action":"retry-proof","productId":"p-1001","jobId":"ord-7221fb4c2371715e1bbd686e839f84dde6d4102250ac978363ac3f641963aecd","before":{"remaining_stock":45,"order_count":5,"result_count":5,"outbox_count":2},"after":{"remaining_stock":45,"order_count":5,"result_count":5,"outbox_count":2},"unchanged":true}
+PASS: all mandatory Day 4 integrity checks passed.

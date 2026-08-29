@@ -1,0 +1,312 @@
+name: flash-sale-system
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+x-api-environment: &api-environment
+  NODE_ENV: production
+  PORT: 3000
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: ${POSTGRES_DB:-flashsale}
+  POSTGRES_USER: ${POSTGRES_USER:-flashsale}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+  POSTGRES_POOL_MAX: 4
+  REDIS_OPS_HOST: redis-ops
+  REDIS_OPS_PORT: 6379
+  REDIS_CACHE_HOST: redis-cache
+  REDIS_CACHE_PORT: 6379
+  NODE_OPTIONS: --max-old-space-size=240
+  HTTP_SUCCESS_LOG_SAMPLE_RATE: 0.01
+
+x-api-service: &api-service
+  image: flash-sale-api:local
+  restart: unless-stopped
+  environment: *api-environment
+  depends_on:
+    seed:
+      condition: service_completed_successfully
+    redis-ops:
+      condition: service_healthy
+    redis-cache:
+      condition: service_healthy
+  expose:
+    - "3000"
+  networks:
+    - backend
+  cpus: ${API_CPU_LIMIT:-0.65}
+  mem_limit: 320m
+  healthcheck:
+    test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/health >/dev/null || exit 1"]
+    interval: 5s
+    timeout: 2s
+    retries: 12
+    start_period: 10s
+  logging: *default-logging
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api-1:
+        condition: service_healthy
+      api-2:
+        condition: service_healthy
+      api-3:
+        condition: service_healthy
+    networks:
+      - edge
+      - backend
+    cpus: ${NGINX_CPU_LIMIT:-0.50}
+    mem_limit: 128m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 6
+    logging: *default-logging
+
+  api-1:
+    <<: *api-service
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      <<: *api-environment
+      INSTANCE_ID: api-1
+
+  api-2:
+    <<: *api-service
+    environment:
+      <<: *api-environment
+      INSTANCE_ID: api-2
+
+  api-3:
+    <<: *api-service
+    environment:
+      <<: *api-environment
+      INSTANCE_ID: api-3
+
+  worker:
+    image: flash-sale-worker:local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-flashsale}
+      POSTGRES_USER: ${POSTGRES_USER:-flashsale}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+      POSTGRES_POOL_MAX: ${WORKER_POSTGRES_POOL_MAX:-12}
+      REDIS_OPS_HOST: redis-ops
+      REDIS_OPS_PORT: 6379
+      REDIS_CACHE_HOST: redis-cache
+      REDIS_CACHE_PORT: 6379
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-8}
+      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-16}
+      WORKER_BATCH_WAIT_MS: ${WORKER_BATCH_WAIT_MS:-1}
+      WORKER_METRICS_PORT: 9464
+      NODE_OPTIONS: --max-old-space-size=512
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      redis-ops:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    networks:
+      - backend
+    expose:
+      - "9464"
+    cpus: ${WORKER_CPU_LIMIT:-1.25}
+    mem_limit: 640m
+    logging: *default-logging
+
+  migrate:
+    image: flash-sale-worker:local
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    command: ["node", "database/dist/cli/migrate.js"]
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-flashsale}
+      POSTGRES_USER: ${POSTGRES_USER:-flashsale}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+      POSTGRES_POOL_MAX: 2
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    cpus: 0.10
+    mem_limit: 160m
+    logging: *default-logging
+
+  seed:
+    image: flash-sale-worker:local
+    command: ["node", "database/dist/cli/seed.js"]
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-flashsale}
+      POSTGRES_USER: ${POSTGRES_USER:-flashsale}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+      POSTGRES_POOL_MAX: 2
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+    cpus: 0.10
+    mem_limit: 160m
+    logging: *default-logging
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-flashsale}
+      POSTGRES_USER: ${POSTGRES_USER:-flashsale}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+    command:
+      - postgres
+      - -c
+      - max_connections=40
+      - -c
+      - shared_buffers=384MB
+      - -c
+      - effective_cache_size=1GB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - wal_compression=on
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    cpus: ${POSTGRES_CPU_LIMIT:-1.25}
+    mem_limit: 1400m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    logging: *default-logging
+
+  redis-ops:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./infra/redis/redis-ops.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-ops-data:/data
+    networks:
+      - backend
+    cpus: ${REDIS_OPS_CPU_LIMIT:-0.50}
+    mem_limit: 384m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 12
+    logging: *default-logging
+
+  redis-cache:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./infra/redis/redis-cache.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - backend
+    cpus: ${REDIS_CACHE_CPU_LIMIT:-0.40}
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 12
+    logging: *default-logging
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=24h
+      - --storage.tsdb.retention.size=512MB
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      api-1:
+        condition: service_healthy
+      worker:
+        condition: service_started
+    networks:
+      - backend
+    cpus: ${PROMETHEUS_CPU_LIMIT:-0.10}
+    mem_limit: 256m
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s/grafana/'
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - backend
+    cpus: ${GRAFANA_CPU_LIMIT:-0.05}
+    mem_limit: 256m
+    logging: *default-logging
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    volumes:
+      - /:/host:ro
+    networks:
+      - backend
+    cpus: ${NODE_EXPORTER_CPU_LIMIT:-0.03}
+    mem_limit: 64m
+    logging: *default-logging
+
+networks:
+  edge:
+  backend:
+    internal: true
+
+volumes:
+  postgres-data:
+  redis-ops-data:
+  prometheus-data:
+  grafana-data:

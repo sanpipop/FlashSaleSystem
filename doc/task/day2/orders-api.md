@@ -13,7 +13,7 @@ Reviewer: Member 2
 P0
 
 ## Dependencies
-- Hard Dependencies: [authentication.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/authentication.md), [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
+- Hard Dependencies: [authentication.md](file:///FlashSaleSystem/doc/task/day2/authentication.md), [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -28,16 +28,19 @@ No (ต้องใช้ JwtAuthGuard และ Queue Producer Package)
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Scope
 - สร้าง Orders Module และ Controller ใน NestJS API
 - ป้องกันด้วย `JwtAuthGuard` สกัด `userId` จาก Token
 - รับ Request Body `{ "productId": "p-1001" }`
-- เรียกใช้ Redis Atomic Operation (`SET fs:claim:order:{userId}:{productId} 1 EX 60 NX`) เพื่อกันคำขอซ้ำในระดับ API
-- สร้าง Deterministic `jobId` (`job:userId:productId`) แล้วสั่ง Enqueue เข้า BullMQ Queue `orders`
+- สร้าง Random Request Token แล้วเรียก `SET fs:claim:order:{userId}:{productId} <token> EX 60 NX`
+- สร้าง Deterministic `jobId = ord-<SHA256(userId|productId)>` ซึ่งไม่มี `:` แล้ว Enqueue เข้า Queue `orders`
+- เมื่อ Claim สำเร็จ ให้ใช้ผลสำเร็จจาก `await queue.add()` เป็นหลักฐานการ Enqueue แล้วตอบ 202 ทันที ห้ามเรียก `queue.getJob()` ซ้ำบนเส้นทางปกติ
+- หาก Enqueue ล้มเหลว ให้ Lua compare-and-delete Claim เฉพาะ Token ของ Request นี้
+- หาก Claim แพ้ ให้ตรวจ `queue.getJob(jobId)`; พบ Job เดิมตอบ 202 พร้อม ID เดิม ไม่พบให้รอสั้นและตรวจซ้ำก่อนตอบ 409 ห้ามตอบ 202 เท็จ
 - ตอบกลับ HTTP `202 Accepted` พร้อม `{ "status": "processing", "orderJobId": "..." }`
 
 ## Out of Scope
@@ -49,6 +52,7 @@ No (ต้องใช้ JwtAuthGuard และ Queue Producer Package)
 ## Acceptance Criteria
 1. คำขอที่ถูกต้องและมี Bearer Token จะได้รับตอบกลับ `202 Accepted` ภายในเวลารวดเร็ว
 2. งานถูกส่งเข้า BullMQ Queue `orders` พร้อม Payload ที่ถูกต้องตาม `queue-contract.md`
+3. Duplicate Burst สร้าง BullMQ Job จริงเพียงหนึ่ง Job และทุก 202 อ้างถึง Job ที่ตรวจพบได้
 
 ## Test / Verification
 ```bash

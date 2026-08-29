@@ -1,7 +1,7 @@
 # งานพัฒนา Worker ประมวลผลคำสั่งซื้อและตัดสต็อก (Order Processing Worker Day 2)
 
 ## Goal
-พัฒนา BullMQ Worker Consumer ดึง Job คำสั่งซื้อจาก Queue เปิด PostgreSQL ACID Transaction ล็อกแถวสินค้าด้วย `SELECT FOR UPDATE` ตรวจสอบสต็อก ตัดสต็อก ป้องกันการซื้อซ้ำ และบันทึกผลลงตาราง `orders`
+พัฒนา BullMQ Worker Consumer แบบ Micro-batch เรียก `place_order_batch(jsonb)` ภายใต้ PostgreSQL ACID Transaction เพื่อรักษา Zero Oversell/Zero Duplicate และลด DB Round-trip
 
 ## Owner
 Owner: Member 3 (Worker / Database)
@@ -13,8 +13,8 @@ Reviewer: Member 1
 P0
 
 ## Dependencies
-- Hard Dependencies: [worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md), [queue-redis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/queue-redis.md)
-- Soft Dependencies: [orders-api.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day2/orders-api.md) (สามารถใช้ Mock Queue Payload ทดสอบก่อนได้)
+- Hard Dependencies: [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md), [queue-redis.md](file:///FlashSaleSystem/doc/task/day1/queue-redis.md)
+- Soft Dependencies: [orders-api.md](file:///FlashSaleSystem/doc/task/day2/orders-api.md) (สามารถใช้ Mock Queue Payload ทดสอบก่อนได้)
 
 ## Can Start Immediately?
 Yes
@@ -29,26 +29,27 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- [order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- [concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- [order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- [concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
 
 ## Scope
-- พัฒนา BullMQ Worker Consumer รับฟัง Queue `orders`
-- สำหรับแต่ละ Job:
-  1. เปิด PostgreSQL Transaction (`BEGIN`)
-  2. ล็อกแถวสินค้า `SELECT remaining_stock, is_flash_sale_active FROM products WHERE product_id = $1 FOR UPDATE`
-  3. ตรวจสอบว่า `is_flash_sale_active == true` และ `remaining_stock > 0`
-  4. ตรวจสอบว่า `user_id` เคยสั่งซื้อ `product_id` นี้สำเร็จแล้วหรือไม่
-  5. หากผ่านทุกเงื่อนไข: ลดสต็อก `remaining_stock = remaining_stock - 1`, เพิ่ม Order ลงตาราง `orders` สถานะ `SUCCESS` และ `COMMIT`
-  6. หากไม่ผ่าน: `ROLLBACK` และบันทึก Result Log (`REJECTED_SOLD_OUT` / `REJECTED_DUPLICATE`)
+- พัฒนา BullMQ Worker รับ Queue `orders` และรวม 10–32 Jobs หรือรอสูงสุด 1 ms (ค่าเริ่ม 16)
+- ส่ง Batch เข้า `place_order_batch(jsonb)` ซึ่งต้อง:
+  1. คืน `order_results` เดิมสำหรับ `job_id` ที่เคยประมวลผลแล้ว
+  2. Deduplicate ภายใน Batch ด้วย `job_id` และ `(user_id, product_id)`
+  3. ล็อก Product Row ด้วย `SELECT ... FOR UPDATE` หนึ่งครั้ง
+  4. คัดผู้ชนะไม่เกิน `remaining_stock` และ Bulk Insert `orders`
+  5. ลด Stock ตามจำนวน Row ที่ Insert สำเร็จจริง
+  6. บันทึก `order_results` ให้ครบทุก Job และเขียน `transactional_outbox` เมื่อ Stock เปลี่ยน
+  7. Commit ทั้งหมดพร้อมกันและ Mapping ผลกลับ BullMQ แยกตาม Job
 
 ## Out of Scope
-- การสั่งล้าง Redis Cache หลัง Commit (เพิ่มทำใน Day 3)
+- Immediate Redis Epoch Increment และ Outbox Relay (ต่อระบบใน Day 3; Outbox schema ทำ Day 1)
 
 ## Implementation Requirements
 - ต้องอาศัย Database Constraints `UNIQUE(user_id, product_id)` และ `CHECK(remaining_stock >= 0)` เป็นด่านความปลอดภัยขั้นสูงสุดเสมอ
@@ -56,6 +57,8 @@ Yes
 ## Acceptance Criteria
 1. ทดสอบยิงสั่งซื้อสินค้า `p-1001` (สต็อก 50) ด้วยผู้ใช้ 100 คนซ้ำกัน พบว่าสร้าง Order สำเร็จเพียง 50 รายการ และสต็อกคงเหลือเท่ากับ 0 พอดี
 2. ไม่เกิดกรณี สต็อกติดลบ (`remaining_stock < 0`) หรือ Order ซ้ำเด็ดขาด
+3. Retry Job เดิมหลัง Commit คืนผลเดิมจาก `order_results` โดย Stock/Order ไม่เปลี่ยน
+4. วัดจำนวน DB batch calls และต้องน้อยกว่าจำนวน Jobs อย่างชัดเจนเมื่อ Burst พร้อมกัน
 
 ## Test / Verification
 ```bash

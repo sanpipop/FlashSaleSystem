@@ -1,7 +1,7 @@
 # สถาปัตยกรรมรวมของระบบ Flash Sale (High-Level Architecture Overview)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** Draft Baseline Architecture (Phase 1)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE Architecture (Phase 1)
 **ขอบเขตโปรเจกต์:** Flash Sale Backend System สำหรับ Mobile Application (ทีมพัฒนา 3 คน)
 
 ---
@@ -65,8 +65,9 @@ graph TD
     subgraph Data & Queue Layer
         RedisCache["Redis Cache (Product Cache)"]
         RedisOps["Redis Operations (BullMQ Queue / Dedup)"]
-        Worker["BullMQ Worker (Order Processor)"]
-        PostgreSQL[("PostgreSQL (Persistent Source of Truth)")]
+        Worker["BullMQ Worker + Micro-batch Coordinator"]
+        PostgreSQL[("PostgreSQL: Products / Orders / Results / Outbox")]
+        Outbox["Outbox Relay"]
     end
 
     subgraph Observability Layer
@@ -90,8 +91,10 @@ graph TD
     API3 -->|Enqueue Job / Atomic Dedup| RedisOps
 
     RedisOps -->|Fetch Job| Worker
-    Worker -->|Execute Transaction & Lock Stock| PostgreSQL
-    Worker -->|Invalidate / Update Cache| RedisCache
+    Worker -->|place_order_batch + ACID| PostgreSQL
+    PostgreSQL -->|Pending Outbox Events| Outbox
+    Worker -->|Immediate INCR Cache Epoch after Commit| RedisCache
+    Outbox -->|Retry INCR Cache Epoch| RedisCache
 
     RedisOps -.-> BullBoard
     API1 -.-> Logs
@@ -163,41 +166,50 @@ graph TD
 
 ## 7. แบบโมเดลการขยายระบบและการจัดการทรัพยากร (Scaling Model & Resource Budget)
 
-- **Stateless API Scaling:** API สามารถขยายแนวนอนจาก 3 เป็น N Instances ได้ทันทีเมื่อ CPU สูงขึ้น โดยไม่ต้องปรับแต่ง Code
-- **Worker Scaling:** จำนวน Worker Concurrency ต้องถูกปรับแต่งตามขนาด Connection Pool ของ PostgreSQL (เช่น max 30 connection pool) เพื่อป้องกัน Database CPU Overhead หรือ Connection Exhaustion
-- **Resource Allocation Rules:**
-  - Nginx: 0.5 vCPU / 256 MB RAM
-  - API Instances (x3): 1.5 vCPU / 1.5 GB RAM รวม
-  - Worker: 0.75 vCPU / 768 MB RAM
-  - Redis (Cache + Queue): 0.5 vCPU / 1 GB RAM
-  - PostgreSQL: 0.75 vCPU / 1.5 GB RAM
+- **Stateless API Scaling:** Requirement บังคับอย่างน้อย 3 Instances; บน 4 vCPU ให้เริ่มที่ 3 และเพิ่มเป็น 4 เฉพาะเมื่อ Benchmark ชนะ เพราะ Container เพิ่มอาจทำให้ Context Switching สูงขึ้น
+- **Worker Scaling:** Hot Product เดียวไม่ควรเพิ่ม Concurrency สูงแบบสุ่ม เพราะทุก Transaction แย่ง Row Lock เดียวกัน ให้ลด DB Round-trip ด้วย Micro-batch แล้วค่อยปรับ Concurrency 8/12/16
+- **Connection Budget:** PostgreSQL `max_connections` เริ่ม 35–40; API 3 ตัวใช้ไม่เกิน 4 ต่อ Instance, Worker 12, และเผื่อ Migration/Admin/Monitoring โดย Pool รวมต้องไม่เกิน Budget
+- **Resource Allocation Target (Container RSS รวมไม่เกินประมาณ 4.4 GB):**
+
+| Component | CPU Budget | RAM Limit Target |
+| --- | ---: | ---: |
+| Nginx | 0.10 vCPU | 64 MB |
+| NestJS API x3 รวม | 1.20 vCPU | 960 MB |
+| Worker + Outbox Relay | 0.90 vCPU | 640 MB |
+| Redis Operations | 0.25 vCPU | 384 MB |
+| Redis Cache | 0.15 vCPU | 256 MB |
+| PostgreSQL | 0.90 vCPU | 1,400 MB |
+| Bull Board | 0.05 vCPU | 128 MB |
+| Prometheus + Grafana | 0.25 vCPU | 550 MB |
+
+เหลือ RAM ประมาณ 1.2–1.5 GB สำหรับ Ubuntu, Docker daemon และ filesystem page cache ส่วน Disk 50 GB ต้องเปิด Docker log rotation และจำกัด Prometheus retention 2–3 วัน
 
 ---
 
-## 8. การเปรียบเทียบระหว่าง Baseline Architecture และ Candidate Optimizations
+## 8. Winning Fastest-Safe Architecture
 
-เอกสารฉบับนี้กำหนดให้แบ่งแยกระหว่าง **ของที่ต้องทำ (Baseline Requirements)** และ **เทคนิคเพิ่มความเร็วที่รอการทดสอบ (Candidate Optimizations)** อย่างชัดเจน:
-
-### 8.1 Baseline Architecture (ข้อบังคับสำหรับระบบพื้นฐาน - MUST HAVE)
+### 8.1 โครงสร้างบังคับที่ต้อง Implement
 
 - **LB & API:** Nginx Round Robin / Least Connections กระจายเข้า NestJS API 3 Containers
 - **Auth:** Stateless JWT Authentication
-- **Products API:** Read Cache แบบ Cache-Aside Pattern ด้วย Redis
+- **Products API:** Versioned Cache-Aside + Single-Flight ด้วย Redis Cache Instance แยก
 - **Orders API:** รับคำสั่งซื้อ อนุมัติผ่าน Queue และตอบ `202 Accepted` ทันที
-- **Queue System:** ใช้ BullMQ ประมวลผล Order Asynchronously ทีละงานหรือแบบควบคุม Concurrency
-- **Database Safety:** ใช้ PostgreSQL Transaction ร่วมกับ Row Locking (เช่น `SELECT ... FOR UPDATE`) และ `UNIQUE(user_id, product_id)` constraint
-- **Cache Invalidation:** Worker ลบหรือล้าง Product Cache หลัง PostgreSQL Transaction Commit สำเร็จ
+- **Queue System:** Explicit `SET NX EX` Claim ตาม Requirement + BullMQ deterministic Job ID ที่ไม่มี `:` + Retention แบบจำกัด
+- **Worker:** Micro-batch เริ่ม 16 Jobs / สูงสุดรอ 1 ms แล้วเรียก `place_order_batch(jsonb)`
+- **Database Safety:** `SELECT ... FOR UPDATE`, `CHECK`, `UNIQUE`, `order_results(job_id)` และ Transactional Outbox
+- **Cache Invalidation:** `INCR fs:cache:products:epoch` หลัง Commit และ Outbox Relay Retry จนสำเร็จ
+- **Redis Isolation:** Queue Redis ใช้ `noeviction` + AOF; Cache Redis ใช้ `allkeys-lru`
 
-### 8.2 Candidate Optimizations (ตัวเลือกปรับแต่งประสิทธิภาพ - PENDING BENCHMARK)
+### 8.2 ค่าที่ยังต้องเลือกด้วย Benchmark
 
 > [!NOTE]
-> รายการต่อไปนี้เป็นข้อเสนอแนะเพื่อเร่งความเร็วในการแข่งขัน (เช่น ข้อมูลในไฟล์ `Flash_Sale_Competition_Fastest_Safe_TH.docx`) แต่ **ยังไม่ใช่ข้อบังคับ baseline** ต้องผ่านการพิสูจน์ด้วย k6 benchmark ใน Phase 4-5 ก่อน:
+> เทคนิคหลักด้าน Correctness ถูก Freeze แล้ว แต่ค่าตัวเลขต้องเลือกจากผล k6 3 รอบและ SQL Gate เท่านั้น:
 
-1. **Deterministic Job ID Deduplication (Single Redis Hop):** คำนวณ Job ID = `SHA-256(userId|productId)` ส่งให้ `queue.add` เพื่อรวบขั้นตอน Deduplicate และ Enqueue ใน Redis call เดียว
-2. **Micro-batching Worker (`place_order_batch`):** รวมงานใน Queue 10–32 Jobs รันผ่าน PostgreSQL Stored Procedure ใน Transaction เดียวเพื่อลด DB Round-trips
-3. **Queue Lane Sharding (8 Queue Lanes):** แยก Queue ย่อยตาม Hash ของ Product ID เพื่อลด Lock Contention
-4. **Stock Projection / Confirmed Sold-Out Marker:** ให้ Worker เขียน Sold-Out Marker ลง Redis หลัง DB Commit เพื่อให้ API ข้ามการ Enqueue สำหรับสินค้าที่หมดแล้ว
-5. **Multi-Instance Redis Separation:** แยก Redis Cache (Port 6380) ออกจาก Redis Queue (Port 6379) เพื่อป้องกัน I/O และ Memory Contention
+1. **Micro-batch Size:** 16 เทียบ 32 Jobs และ max wait 0.5–1 ms
+2. **Worker Concurrency:** 8 เทียบ 12 เทียบ 16; เลือกค่าที่ Queue Drain เร็วสุดโดย DB lock wait ไม่พุ่ง
+3. **API Instances:** 3 เทียบ 4 โดย Requirement ขั้นต่ำยังคง 3
+4. **DB Pool รวม:** 24 เทียบ 28 เทียบ 32 ภายใต้ `max_connections` 35–40
+5. **Queue Lane Sharding:** ไม่เปิดเป็นค่าเริ่มต้นสำหรับการทดสอบ `p-1001` เพราะทุกคำขอเป็น Product เดียวและจะลง Lane เดียว; ทดลองเฉพาะเมื่อ Test มีหลาย Hot Products
 
 ---
 

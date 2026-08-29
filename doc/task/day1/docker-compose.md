@@ -13,8 +13,8 @@ Reviewer: Member 1, Member 2, Member 3
 P0 (Critical Path)
 
 ## Dependencies
-- Hard Dependencies: [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)
-- Soft Dependencies: [api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md), [worker-database.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/worker-database.md)
+- Hard Dependencies: [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)
+- Soft Dependencies: [api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md), [worker-database.md](file:///FlashSaleSystem/doc/task/day1/worker-database.md)
 
 ## Can Start Immediately?
 No (ต้องรอโครงสร้างโฟลเดอร์จาก bootstrap)
@@ -33,7 +33,7 @@ No (ต้องรอโครงสร้างโฟลเดอร์จา�
 N/A
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
 
 ## Scope
 - เขียนบริการใน Compose File:

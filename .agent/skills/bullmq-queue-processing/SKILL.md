@@ -19,11 +19,11 @@ BullMQ queue infrastructure is owned by **Member 2 (Queue / Redis / Cache Lead)*
 > **Queue Infrastructure vs. Business Outcome Rule:** BullMQ job states (`waiting`, `active`, `completed`, `failed`) describe *queue processing state*, NOT final business outcome. A BullMQ job ending in `completed` state simply means the worker finished processing (which could be a confirmed order OR a valid business rejection such as `SOLD_OUT`).
 
 ## Authoritative References
-- **Queue Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Database Contract:** [doc/contracts/database-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/database-contract.md)
-- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- **Queue Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Database Contract:** [doc/contracts/database-contract.md](file:///FlashSaleSystem/doc/contracts/database-contract.md)
+- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Preconditions
 1. Confirm allowed task paths (e.g., `packages/queue/**`, `apps/api/src/orders/`, or `apps/worker/src/`).
@@ -31,7 +31,7 @@ BullMQ queue infrastructure is owned by **Member 2 (Queue / Redis / Cache Lead)*
 
 ## Responsibilities
 - **Queue Name Compliance:** Use frozen queue name `orders`.
-- **Job Payload Construction:** Build job payload containing trusted `userId` (from JWT), validated `productId`, `requestId`, and `jobId`.
+- **Job Payload Construction:** Build the exact payload containing `jobId`, trusted `userId`, validated `productId`, `requestId`, and ISO `createdAt`.
 - **Producer-Consumer Separation:** Keep Queue Producer (`order-queue.producer.ts`) separate from Worker Processor (`order-processor.service.ts`).
 - **Transient Retry Safety:** Configure backoff retries for transient infrastructure errors (e.g., DB connection drops) while ensuring worker processing remains idempotent.
 
@@ -47,18 +47,24 @@ BullMQ queue infrastructure is owned by **Member 2 (Queue / Redis / Cache Lead)*
 Job payload passed to BullMQ MUST strictly match `queue-contract.md`:
 ```json
 {
-  "jobId": "job-user-001-p-1001",
+  "jobId": "ord-6f4d8f0f-example-sha256",
   "userId": "user-001",
   "productId": "p-1001",
   "requestId": "req-abc-123-xyz",
-  "timestamp": 1756200000000
+  "createdAt": "2026-08-26T11:30:00.000Z"
 }
 ```
 - **SECURITY GUARDRAIL:** `userId` MUST originate from the verified JWT context, NEVER from untrusted client request bodies.
 
 ### 2. Request ID vs. Job ID Semantics
 - **`requestId`:** Unique identifier generated per HTTP request for end-to-end tracing.
-- **`jobId`:** Deterministic job identifier (e.g., derived from `user-productId` or UUID depending on contract) used for queue tracking. Multiple retried HTTP requests may share the same logical target job identity.
+- **`jobId`:** Frozen as `ord-<lowercase SHA256(userId|productId)>`; it MUST NOT contain `:` or consist only of digits.
+
+### 2.1 Producer Enqueue Confirmation
+- On the Redis Claim-winner path, `await queue.add(...)` resolving successfully is the enqueue confirmation required before returning HTTP 202.
+- Do not call `queue.getJob()` after a successful `queue.add()`; that redundant Redis read increases normal-path latency without adding correctness.
+- Use `queue.getJob(deterministicJobId)` only when `SET NX` loses, to determine whether an existing Job can safely be returned as the idempotent 202 response.
+- If `queue.add()` throws, do not return 202. Release only the matching Claim token through Lua compare-and-delete and map the failure to the frozen dependency error.
 
 ### 3. Business Rejection vs. Transient Infrastructure Failure
 - **Transient Infrastructure Failure (Retryable):** DB connection timeout, Redis socket drop. BullMQ SHOULD retry job with exponential backoff.
@@ -71,6 +77,12 @@ Queue Drain Terminal Gate:
 waiting_jobs == 0 AND active_jobs == 0
 AND all accepted jobs processed within bounded timeout (< 30s)
 ```
+
+### 5. Winning Micro-batch and Retention Rules
+- Start with batch size `16`, maximum wait `1 ms`, and Worker concurrency `8`; benchmark against batch `32` and concurrency `12/16` one variable at a time.
+- A batch MUST call `place_order_batch(jsonb)` once and map one durable result back to every distinct BullMQ Job.
+- Configure `attempts: 3`, exponential backoff `100 ms`, completed retention `age=86400,count=10000`, and failed retention `age=259200,count=5000`.
+- Job retention is an optimization only. Permanent idempotency MUST come from `order_results.job_id`.
 
 ---
 
@@ -100,8 +112,9 @@ graph TD
 - Verify that transient worker errors trigger retries according to configured backoff settings.
 
 ## Performance Considerations
-- **Worker Concurrency Tuning:** Worker concurrency setting (e.g., 10 vs 20) is a benchmark-driven parameter. Do not hard-code arbitrary high concurrency values without measuring DB lock contention.
-- **Job Retention:** Configure `removeOnComplete` and `removeOnFail` count limits to prevent Redis memory saturation during heavy benchmark runs.
+- **Worker Concurrency Tuning:** Compare 8/12/16 and record DB lock wait plus queue drain time.
+- **Job Retention:** Use the exact bounded age/count policy in `queue-contract.md`; never remove completed jobs immediately during the benchmark window.
+- **Producer Fast Path:** Preserve `SET NX → queue.add → 202` with no `getJob()` read on successful first admission.
 
 ## Common Anti-Patterns to Avoid
 - **Anti-Pattern 1:** Mixing Producer and Consumer code in a single god file (`queue.ts`).

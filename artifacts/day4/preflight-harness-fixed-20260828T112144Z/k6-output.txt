@@ -1,0 +1,33 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 10s max duration (incl. graceful stop):
+              * read_products: 5 looping VUs for 5s (exec: readProducts, gracefulStop: 5s)
+
+
+running (01.0s), 5/5 VUs, 498 complete and 0 interrupted iterations
+read_products   [  20% ] 5 VUs  1.0s/5s
+
+running (02.0s), 5/5 VUs, 1038 complete and 0 interrupted iterations
+read_products   [  40% ] 5 VUs  2.0s/5s
+
+running (03.0s), 5/5 VUs, 1564 complete and 0 interrupted iterations
+read_products   [  60% ] 5 VUs  3.0s/5s
+
+running (04.0s), 5/5 VUs, 2079 complete and 0 interrupted iterations
+read_products   [  80% ] 5 VUs  4.0s/5s
+
+running (05.0s), 5/5 VUs, 2401 complete and 0 interrupted iterations
+read_products   [ 100% ] 5 VUs  5.0s/5s
+profile=read requests=2408 request_rate=475.2029747510455 checks_rate=1 sanitized_summary=artifacts/day4/preflight-harness-fixed-20260828T112144Z/k6-summary.json
+
+running (05.1s), 0/5 VUs, 2408 complete and 0 interrupted iterations
+read_products ✓ [ 100% ] 5 VUs  5s

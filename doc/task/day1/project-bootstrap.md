@@ -38,7 +38,7 @@ Yes (เริ่มทำเป็นงานแรกของ Day 1 เช�
 N/A (โครงสร้างโปรเจกต์)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
 
 ## Scope
 - ตั้งค่า pnpm workspace (`pnpm-workspace.yaml`)

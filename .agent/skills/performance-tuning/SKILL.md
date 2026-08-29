@@ -18,10 +18,10 @@ Performance tuning is a **Cross-Team Collaborative Skill**. Member 1 tunes API/N
 > Performance tuning MUST NOT begin until all P0/P1 functional correctness tests pass 100%. If correctness tests fail, **PERFORMANCE TUNING IS BLOCKED**.
 
 ## Authoritative References
-- **Baseline Specification:** [doc/performance/baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Tuning Results Matrix:** [doc/performance/tuning-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/tuning-results.md)
-- **Final Results Specification:** [doc/performance/final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
-- **Project Decisions Log:** [doc/planning/decisions.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/decisions.md)
+- **Baseline Specification:** [doc/performance/baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Tuning Results Matrix:** [doc/performance/tuning-results.md](file:///FlashSaleSystem/doc/performance/tuning-results.md)
+- **Final Results Specification:** [doc/performance/final-results.md](file:///FlashSaleSystem/doc/performance/final-results.md)
+- **Project Decisions Log:** [doc/planning/decisions.md](file:///FlashSaleSystem/doc/planning/decisions.md)
 
 ## Preconditions
 1. Verify system baseline configuration is documented in `doc/performance/baseline.md`.
@@ -35,7 +35,7 @@ Performance tuning is a **Cross-Team Collaborative Skill**. Member 1 tunes API/N
 
 ## Non-Responsibilities
 - **DO NOT** make random multi-variable changes (e.g., changing API count, DB pool, worker concurrency, and Nginx settings all in one test run).
-- **DO NOT** implement complex unproven architectural refactors (such as micro-batching or L1 caching) without empirical bottleneck evidence.
+- **DO NOT** remove frozen Winning primitives (micro-batching, versioned cache, result ledger, outbox). Tune their numeric parameters one variable at a time; L1 cache remains benchmark-only.
 
 ---
 
@@ -46,7 +46,7 @@ Performance tuning is a **Cross-Team Collaborative Skill**. Member 1 tunes API/N
 ```text
 1. Establish Baseline Configuration & Benchmark Metrics
 2. Formulate Bottleneck Hypothesis (e.g., Worker CPU underutilized due to low concurrency)
-3. Change ONE Primary Variable (e.g., Increase BullMQ Worker Concurrency 10 -> 20)
+3. Change ONE Primary Variable (e.g., Worker Concurrency 8 -> 12)
 4. Execute Identical k6 Load Benchmark (3 Runs -> Median)
 5. Evaluate Correctness Gate (Zero Overselling, Zero Duplicates, Stock = 0)
    ├── If Correctness Fails → DECISION: REVERT
@@ -75,7 +75,7 @@ A candidate optimization MUST be **REJECTED** immediately if it relies on any fo
 ## Recommended Workflow
 
 1. **Step 1 — Baseline Check:** Inspect `doc/performance/baseline.md` for target metrics.
-2. **Step 2 — Hypothesis Formulation:** Identify single candidate variable (e.g., `PERF-003: Worker Concurrency 10 -> 20`).
+2. **Step 2 — Hypothesis Formulation:** Identify one candidate variable (e.g., `PERF-003: Worker Concurrency 8 -> 12`).
 3. **Step 3 — Single Variable Edit:** Update configuration file in target allowed path.
 4. **Step 4 — Benchmark Execution:** Run k6 scenario using `k6-performance-testing` skill (3 runs → Median).
 5. **Step 5 — Integrity Check:** Run `bash scripts/verify-integrity.sh`.
@@ -83,7 +83,7 @@ A candidate optimization MUST be **REJECTED** immediately if it relies on any fo
    ```markdown
    | ID | Variable Changed | Baseline RPS | New RPS | Latency p95 | Integrity | Decision |
    | --- | --- | --- | --- | --- | --- | --- |
-   | PERF-003 | Worker Concurrency 10->20 | 1,200 | 1,450 | 18ms | PASS | KEEP |
+   | PERF-003 | Worker Concurrency 8->12 | measured | measured | measured | PASS | KEEP/REVERT |
    ```
 
 ## Verification

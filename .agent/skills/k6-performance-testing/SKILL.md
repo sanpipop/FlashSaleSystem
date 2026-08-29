@@ -18,9 +18,9 @@ k6 performance testing is primarily owned by **Member 1 (Edge / API Lead)**. Loa
 > All benchmark load test runs MUST be executed from an **EXTERNAL machine** outside the backend VM. Running k6 inside the same VM as the backend applications will consume host CPU, RAM, and network I/O, severely distorting benchmark metrics.
 
 ## Authoritative References
-- **Load Testing Specification:** [doc/testing/load-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/load-testing.md)
-- **Baseline Benchmark Specification:** [doc/performance/baseline.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/baseline.md)
-- **Final Performance Results:** [doc/performance/final-results.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/performance/final-results.md)
+- **Load Testing Specification:** [doc/testing/load-testing.md](file:///FlashSaleSystem/doc/testing/load-testing.md)
+- **Baseline Benchmark Specification:** [doc/performance/baseline.md](file:///FlashSaleSystem/doc/performance/baseline.md)
+- **Final Performance Results:** [doc/performance/final-results.md](file:///FlashSaleSystem/doc/performance/final-results.md)
 
 ## Preconditions
 1. Confirm backend VM is running cleanly via Docker Compose on target IP.

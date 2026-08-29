@@ -86,7 +86,7 @@ doc/contracts/**
 
 ## 6. ลำดับการหมุนเวียนตำแหน่ง Integration Captain (Captain Rotation)
 
-ตามข้อตกลงใน [CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md) ตำแหน่ง Integration Captain จะหมุนเวียนดังนี้:
+ตามข้อตกลงใน [CONTRIBUTING.md](file:///FlashSaleSystem/CONTRIBUTING.md) ตำแหน่ง Integration Captain จะหมุนเวียนดังนี้:
 - **Day 1 (26 ส.ค.):** สมาชิก 1
 - **Day 2 (27 ส.ค.):** สมาชิก 2
 - **Day 3 (28 ส.ค.):** สมาชิก 3

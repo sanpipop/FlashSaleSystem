@@ -14,17 +14,17 @@ Activate this skill whenever:
 Docker Compose configuration is a **High-Risk Shared Area** controlled by the **Integration Captain** (rotated daily among Member 1, 2, and 3). Because all three team members rely on Docker Compose to run their services, uncoordinated edits can break the entire development or test environment.
 
 ## Authoritative References
-- **Architecture Overview:** [doc/architecture/architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **Team Ownership Policy:** [doc/planning/team-ownership.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/team-ownership.md)
-- **Day 1 Compose Task:** [doc/task/day1/docker-compose.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/docker-compose.md)
-- **Day 1 Integration Check:** [doc/task/day1/day1-integration-check.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-integration-check.md)
+- **Architecture Overview:** [doc/architecture/architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **Team Ownership Policy:** [doc/planning/team-ownership.md](file:///FlashSaleSystem/doc/planning/team-ownership.md)
+- **Day 1 Compose Task:** [doc/task/day1/docker-compose.md](file:///FlashSaleSystem/doc/task/day1/docker-compose.md)
+- **Day 1 Integration Check:** [doc/task/day1/day1-integration-check.md](file:///FlashSaleSystem/doc/task/day1/day1-integration-check.md)
 
 ## Preconditions
 1. Verify task assignment authorizes shared Docker Compose modifications or that you are serving as Integration Captain.
 2. Run `git status` to ensure working directory is clean before making shared Compose edits.
 
 ## Responsibilities
-- **Service Topology Definition:** Define container services (`nginx`, `api1`, `api2`, `api3`, `worker`, `postgres`, `redis`, `bull-board`).
+- **Service Topology Definition:** Define `nginx`, API x3, `worker` (including Outbox Relay), `postgres`, `redis-ops`, `redis-cache`, `bull-board`, Prometheus and Grafana.
 - **Network Isolation:** Configure internal Docker networks (`frontend-net`, `backend-net`).
 - **Volume & Storage Management:** Manage persistent volumes for PostgreSQL (`postgres-data`) and Redis data where appropriate.
 - **Environment & Secrets Wiring:** Pass safe environment variables via `.env` files without hard-coding production secrets.
@@ -40,7 +40,7 @@ Docker Compose configuration is a **High-Risk Shared Area** controlled by the **
 
 ### 1. Host Hardware Constraints (4 vCPU / 6 GB RAM Limit)
 - Total system resource consumption MUST fit comfortably inside the VM budget:
-  - **Host RAM Limit:** 6 GB Total. Container memory limits MUST leave headroom for the OS (Target max container memory footprint: ~4.5–5.0 GB total).
+  - **Host RAM Limit:** 6144 MB Total. Target container RSS/limits around 4.4 GB and leave roughly 1.2–1.5 GB for Ubuntu, Docker and page cache.
   - **Host CPU Limit:** 4 vCPU Total. Avoid running unnecessary background containers (such as heavy unused monitoring tools during baseline runs).
 
 ### 2. Service Exposure & Network Isolation Rules
@@ -51,11 +51,11 @@ Public Host Network (Port 80)
         ↓ (Internal Docker Network ONLY - No Direct Host Exposure)
 ┌───────────────────────────────────────────────────────────┐
 │  [ NestJS API 1 ]   [ NestJS API 2 ]   [ NestJS API 3 ]   │
-│  [ BullMQ Worker ]  [ PostgreSQL ]     [ Redis ]          │
+│  [ Worker+Outbox ]  [ PostgreSQL ] [Redis Ops] [Redis Cache] │
 └───────────────────────────────────────────────────────────┘
 ```
 - **Public Entry Point:** ONLY Nginx (Port 80) and Bull Board UI (if scoped for admin) should expose public host ports.
-- **Internal Infrastructure:** PostgreSQL (Port 5432) and Redis (Port 6379) MUST run on the internal Docker network and SHOULD NOT expose public host ports in final deployment.
+- **Internal Infrastructure:** PostgreSQL and both Redis instances MUST stay on the internal network. Redis Operations uses `noeviction` + AOF; Redis Cache uses bounded memory + `allkeys-lru`.
 
 ### 3. Startup Readiness & Migration Race Prevention
 - **Container Started ≠ Service Ready:** A PostgreSQL container process starting up does NOT mean PostgreSQL is ready to accept connections.
@@ -109,6 +109,7 @@ Public Host Network (Port 80)
       max-file: "3"
   ```
 - **API Replication:** Minimum required API instance count is 3 containers (`api1`, `api2`, `api3`). Scaling beyond 3 is a benchmark-driven decision.
+- **Resource Source of Truth:** Apply the per-component CPU/RAM targets from `doc/architecture/architecture.md`; do not assign all 4 vCPU or all 6 GB to core services and then add monitoring on top.
 
 ## Common Anti-Patterns to Avoid
 - **Anti-Pattern 1:** Running `docker compose down -v` casually during development, which wipes persistent database volumes.

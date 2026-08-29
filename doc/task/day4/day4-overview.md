@@ -34,9 +34,15 @@
 
 | สมาชิก / บทบาท | ช่วงเช้า (09:00 - 12:00) | ช่วงบ่าย (13:00 - 17:30) |
 | --- | --- | --- |
-| **Member 1 (Edge/API)** | เตรียมและรันสคริปต์ k6 Load Test Scenarios ([k6-load-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/k6-load-test.md)) จากเครื่องภายนอก | รวบรวม k6 Summary Report และสถิติ HTTP Latency p95/p99 |
-| **Member 2 (Queue/Redis)** | ตรวจสอบสถานะ Queue ผ่าน Bull Board และรวบรวม Cache Hit Ratio / Redis Metrics | ร่วมทำ Bottleneck Analysis วิเคราะห์ภาระงานบน CPU/RAM และ Queue Drain Time ([bottleneck-analysis.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/bottleneck-analysis.md)) |
-| **Member 3 (Worker/DB)** | จัดเตรียม DB Reset Procedure และรัน SQL Data Integrity Verification ([correctness-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/correctness-test.md)) | ตรวจสอบ DB Lock Wait Time และ Connection Pool Usage ในระหว่างยิงโหลด |
+| **Member 1 (Edge/API)** | เตรียมและรันสคริปต์ k6 Load Test Scenarios ([k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md)) จากเครื่องภายนอก | รวบรวม k6 Summary Report และสถิติ HTTP Latency p95/p99 |
+| **Member 2 (Queue/Redis)** | ตรวจสอบสถานะ Queue ผ่าน Bull Board และรวบรวม Cache Hit Ratio / Redis Metrics | ร่วมทำ Bottleneck Analysis วิเคราะห์ภาระงานบน CPU/RAM และ Queue Drain Time ([bottleneck-analysis.md](file:///FlashSaleSystem/doc/task/day4/bottleneck-analysis.md)) |
+| **Member 3 (Worker/DB)** | จัดเตรียม DB Reset Procedure และรัน SQL Data Integrity Verification ([correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md)) | ตรวจสอบ DB Lock Wait Time และ Connection Pool Usage ในระหว่างยิงโหลด |
+
+### 3.1 รายการ Task Checklist ประจำวัน (Day 4 Status: 0% Pending)
+
+- [ ] **[Member 1]** [k6-load-test.md](file:///FlashSaleSystem/doc/task/day4/k6-load-test.md) — ยิง k6 Benchmark (1,000 Read VUs + 500 Write Requests) จากเครื่องภายนอก VM
+- [ ] **[Member 3]** [correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md) — รัน SQL Data Integrity Verification Confirm zero negative stock & zero duplicate orders
+- [ ] **[Member 2]** [bottleneck-analysis.md](file:///FlashSaleSystem/doc/task/day4/bottleneck-analysis.md) — วิเคราะห์จุดคอขวด (CPU/RAM, Queue Drain, DB Locks) และจัดทำ Candidate Optimizations Table
 
 ---
 

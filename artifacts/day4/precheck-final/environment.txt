@@ -1,0 +1,28 @@
+classification=LOCAL_DEVELOPMENT_HOST_NOT_TARGET_VM
+timestamp=2026-08-28T08:33:33Z
+hostname=debian
+commit=b54dd3c9fdf39a17cb4c80cde2966afd5543ca19
+dirty_state=dirty
+logical_cpus=16
+               total        used        free      shared  buff/cache   available
+Mem:            23Gi       9.7Gi       4.5Gi       1.4Gi        10Gi        13Gi
+Swap:          3.1Gi          0B       3.1Gi
+Linux debian 6.12.105+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.105-1 (2026-08-24) x86_64 GNU/Linux
+Docker version 29.7.2, build a7dcaa6
+Docker Compose version v5.5.0
+k6 v0.57.0 (commit/50afd82c18, go1.23.6, linux/amd64)
+proxy_variables_detected=false
+CONTAINER                           REPOSITORY           TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+flash-sale-system-api-1-1           flash-sale-api       local               linux/amd64         10ae6d138e0f        92.8MB              48 minutes ago
+flash-sale-system-api-2-1           flash-sale-api       local               linux/amd64         10ae6d138e0f        92.8MB              48 minutes ago
+flash-sale-system-api-3-1           flash-sale-api       local               linux/amd64         10ae6d138e0f        92.8MB              48 minutes ago
+flash-sale-system-grafana-1         grafana/grafana      12.1.1              linux/amd64         a1701c218024        202MB               12 months ago
+flash-sale-system-migrate-1         flash-sale-worker    local               linux/amd64         d33a2b3602b4        92.8MB              48 minutes ago
+flash-sale-system-nginx-1           nginx                1.27-alpine         linux/amd64         65645c7bb6a0        21MB                16 months ago
+flash-sale-system-node-exporter-1   prom/node-exporter   v1.9.1              linux/amd64         d00a542e409e        13MB                17 months ago
+flash-sale-system-postgres-1        postgres             16-alpine           linux/amd64         cf78e76683b9        116MB               2 weeks ago
+flash-sale-system-prometheus-1      prom/prometheus      v3.5.0              linux/amd64         63805ebb8d2b        124MB               13 months ago
+flash-sale-system-redis-cache-1     redis                7.4-alpine          linux/amd64         ff02b58f971e        16.3MB              9 days ago
+flash-sale-system-redis-ops-1       redis                7.4-alpine          linux/amd64         ff02b58f971e        16.3MB              9 days ago
+flash-sale-system-seed-1            flash-sale-worker    local               linux/amd64         d33a2b3602b4        92.8MB              48 minutes ago
+flash-sale-system-worker-1          flash-sale-worker    local               linux/amd64         d33a2b3602b4        92.8MB              48 minutes ago

@@ -14,11 +14,11 @@ Activate this skill whenever:
 Nginx is owned by **Member 1 (Edge / API Lead)**. It acts as the single public entry point on Port 80 for the entire system VM. NestJS API containers run on an internal Docker network and are NOT directly exposed to the public host.
 
 ## Authoritative References
-- **Architecture Overview:** [doc/architecture/architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
-- **API Traffic Flow:** [doc/architecture/api-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/api-flow.md)
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
-- **Nginx & API Task Plan:** [doc/task/day1/api-nginx.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/api-nginx.md)
-- **Load Testing Specification:** [doc/testing/load-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/load-testing.md)
+- **Architecture Overview:** [doc/architecture/architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
+- **API Traffic Flow:** [doc/architecture/api-flow.md](file:///FlashSaleSystem/doc/architecture/api-flow.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
+- **Nginx & API Task Plan:** [doc/task/day1/api-nginx.md](file:///FlashSaleSystem/doc/task/day1/api-nginx.md)
+- **Load Testing Specification:** [doc/testing/load-testing.md](file:///FlashSaleSystem/doc/testing/load-testing.md)
 
 ## Preconditions
 1. Confirm allowed paths include `infra/nginx/**`.

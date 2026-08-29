@@ -1,7 +1,7 @@
 # สัญญาเชื่อมต่อระบบคิวประมวลผล (Queue Job Contract)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** FROZEN BASELINE (Phase 2)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE (Phase 2)
 **ขอบเขตโปรเจกต์:** ข้อตกลงการรับส่ง Message / Job Payload ระหว่าง NestJS API (Producer), BullMQ (Queue) และ Worker (Consumer) (ขอบเขต Member 1, 2, 3)
 
 ---
@@ -31,8 +31,8 @@
 
 ## 3. ชื่อคิวมาตรฐาน (Queue Logical Naming Convention)
 
-- **Main Processing Queue Name:** `orders` (`FROZEN BASELINE`)
-- **Job Name:** `process-order` (`FROZEN BASELINE`)
+- **Main Processing Queue Name:** `orders` (`FROZEN`)
+- **Job Name:** `process-order` (`FROZEN`)
 
 ```text
 BullMQ Queue Instance Name : "orders"
@@ -60,7 +60,7 @@ export interface OrderJobPayload {
 
 | Field Name | Type | Status | Source Origin | Description / Constraints |
 | --- | --- | --- | --- | --- |
-| `jobId` | `string` | `MUST` | Calculated in API | Unique Key เช่น `job:user-999:p-1001` |
+| `jobId` | `string` | `MUST` | Calculated in API | `ord-` ตามด้วย SHA-256 lowercase hex และ **ห้ามมี `:`** |
 | `requestId` | `string` | `MUST` | Nginx / API Header | UUID v4 ใช้ตามร่องรอย Log ข้ามระบบ |
 | `userId` | `string` | `MUST` | **Derived from JWT Claim** | **ห้ามยึดจาก Request Body ที่ Client ส่งมา** |
 | `productId` | `string` | `MUST` | Request Body | รหัสสินค้าที่ต้องการสั่งซื้อ |
@@ -72,12 +72,28 @@ export interface OrderJobPayload {
 
 เพื่อป้องกันการสร้าง Job ซ้ำเข้า Queue เมื่อผู้ใช้ยิง Request พร้อมกันหลายครั้ง ระบบกำหนดให้สร้าง `jobId` แบบ Deterministic:
 
-- **Formula / Pattern (`FROZEN BASELINE`):**
-  $$\text{jobId} = \text{"job:"} + \text{userId} + \text{":"} + \text{productId}$$
-  *ตัวอย่าง:* `job:user-999:p-1001`
+- **Canonical input (`FROZEN`):** UTF-8 ของ `userId + "|" + productId`
+- **Formula / Pattern (`FROZEN`):**
+  $$\text{jobId} = \text{"ord-"} + \operatorname{hex}(\operatorname{SHA256}(\text{userId} + "|" + \text{productId}))$$
+  *ตัวอย่าง:* `ord-6f4d...e91a`
+- **ข้อห้าม:** Custom Job ID ของ BullMQ ห้ามมีเครื่องหมาย `:` และห้ามเป็นตัวเลขล้วน
 - **พฤติกรรมใน BullMQ:**  
-  เมื่อ API เรียก `ordersQueue.add('process-order', payload, { jobId: 'job:user-999:p-1001' })` 
-  หากมี Job ID นี้ค้างอยู่ใน Queue สถิติ `waiting` หรือ `active` BullMQ จะปฏิเสธการเพิ่ม Job ซ้ำเข้า Queue โดยอัตโนมัติ (Atomic Queue Deduplication)
+  เมื่อ API เรียก `ordersQueue.add('process-order', payload, { jobId })` หาก Job ID เดิมยังถูกเก็บอยู่ BullMQ จะไม่สร้าง Job ซ้ำ (Atomic Queue Deduplication)
+- **Defense in depth:** API ยังต้องใช้ Redis `SET ... NX EX` ตาม `redis-contract.md` เพื่อให้เห็นการป้องกันระดับ API ตาม Requirement อาจารย์ ส่วน PostgreSQL เป็นด่านตัดสินถาวร
+
+### 5.1 Job Options ที่บังคับใช้
+
+```typescript
+{
+  jobId,
+  attempts: 3,
+  backoff: { type: 'exponential', delay: 100 },
+  removeOnComplete: { age: 86_400, count: 10_000 },
+  removeOnFail: { age: 259_200, count: 5_000 }
+}
+```
+
+Retention ทำให้ Job ID เดิมยังช่วย Deduplicate ระหว่างช่วงทดสอบ แต่ **ห้ามใช้ Retention เป็นความถูกต้องชั้นสุดท้าย** เพราะ Job ที่ถูกลบสามารถถูกเพิ่มด้วย ID เดิมได้อีก การ Retry ถาวรต้องอาศัย `order_results.job_id` และ Database Constraints
 
 ---
 
@@ -116,7 +132,9 @@ export interface OrderJobResult {
 
 1. **Transient Errors (Retry Allowed):** หากเกิดปัญหา DB Connection Drop, Lock Wait Timeout สคริปต์ Worker จะ throw Error เพื่อให้ BullMQ สั่ง Retry Job นั้นใหม่ตาม Backoff Policy
 2. **Business Rejections (No Retry):** หากผลลัพธ์เป็น `REJECTED_SOLD_OUT` หรือ `REJECTED_DUPLICATE` Worker จะทำการ **Commit/Release Job เป็น Completed** (พร้อมบันทึก Result Status) ห้าม throw error เพื่อไม่ให้ BullMQ ยิง Retry งานที่ขายหมดแล้วซ้ำซ้อน
-3. **Idempotent Retry Guarantee:** การ Retry Job ในระดับ Worker ต้องปลอดภัย 100% ด้วยการยึดถือ Database Constraints ในระดับ PostgreSQL
+3. **Idempotent Retry Guarantee:** Worker ต้องอ่าน/เขียน `order_results.job_id` ภายใน Transaction เดียวกับ Order และ Stock หากพบผลเดิมให้คืนผลเดิมโดยไม่ลดสต็อกซ้ำ
+4. **Micro-batch Processing (`FROZEN WINNING`):** Worker สามารถรวบ 10-32 Jobs หรือรอสูงสุด 1 ms แล้วส่งเข้า `place_order_batch(jsonb)` หนึ่งครั้ง แต่ต้องคืนผลให้ BullMQ แยกตาม `jobId` ครบทุก Distinct Logical Job
+5. **Benchmark Gate:** เริ่มที่ batch size `16` และ Worker concurrency `8`; ทดลอง `16/32` และ `8/12/16` ทีละตัวแปร ห้ามตั้งค่าสูงโดยไม่มีผลวัด DB lock wait และ queue drain time
 
 ---
 
@@ -125,7 +143,7 @@ export interface OrderJobResult {
 ### ตัวอย่าง Job Payload ที่ API ส่งให้ BullMQ:
 ```json
 {
-  "jobId": "job:user-999:p-1001",
+  "jobId": "ord-6f4d8f0f-example-sha256",
   "requestId": "req-8f7b2a1c-90de-4321-bbcd-123456789abc",
   "userId": "user-999",
   "productId": "p-1001",
@@ -137,7 +155,7 @@ export interface OrderJobResult {
 ```json
 {
   "status": "SUCCESS",
-  "jobId": "job:user-999:p-1001",
+  "jobId": "ord-6f4d8f0f-example-sha256",
   "userId": "user-999",
   "productId": "p-1001",
   "orderId": "ord-550e8400-e29b-41d4-a716-446655440000",

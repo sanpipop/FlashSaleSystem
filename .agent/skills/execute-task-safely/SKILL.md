@@ -10,9 +10,9 @@ Activate this skill whenever receiving a task from `doc/task/dayX/<task>.md` or 
 Each task document under `doc/task/` defines the explicit boundary of work for a team member. Agents must strictly operate within the allowed file paths of the assigned task and avoid modifying shared infrastructure or another member's code without permission.
 
 ## Authoritative References
-- **Task Plan Directory:** [doc/task/](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/day1-overview.md)
-- **Team Ownership Matrix:** [doc/planning/team-ownership.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/planning/team-ownership.md)
-- **Git & Workflow Guidelines:** [CONTRIBUTING.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/CONTRIBUTING.md)
+- **Task Plan Directory:** [doc/task/](file:///FlashSaleSystem/doc/task/day1/day1-overview.md)
+- **Team Ownership Matrix:** [doc/planning/team-ownership.md](file:///FlashSaleSystem/doc/planning/team-ownership.md)
+- **Git & Workflow Guidelines:** [CONTRIBUTING.md](file:///FlashSaleSystem/CONTRIBUTING.md)
 
 ## Preconditions
 Before modifying any files:

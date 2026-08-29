@@ -15,7 +15,7 @@
 ## 2. สถานะเป้าหมายปลายวัน (Expected End State)
 
 - Endpoint `GET /api/v1/products` ใช้งาน Redis Cache (Cache-Aside Pattern) โดยคำขอครั้งถัดไปจะดึงข้อมูลจาก Redis โดยตรงโดยไม่แตะ Database (Cache Hit)
-- เมื่อ Worker ตัดสต็อกสินค้าใน PostgreSQL สั่ง Commit สำเร็จ จะส่งสัญญาณลบแคช (`DEL fs:cache:products:*`) ทำให้คำขออ่านถัดไปได้ข้อมูลสต็อกอัปเดตล่าสุด
+- เมื่อ Worker Commit สำเร็จจะ `INCR` Versioned Cache Epoch ทันที และ Outbox Relay จะ Retry หาก Redis ล่ม
 - ติดตั้ง Bull Board Dashboard เพื่อให้สามารถดูสถานะ Queue (`waiting`, `active`, `completed`, `failed`) ผ่านเบราว์เซอร์ได้
 - มีการบันทึก Log ในรูปแบบ JSON พร้อม `requestId` และ `jobId` ข้ามส่วนประกอบ
 - Metrics หลัก (RPS, Latency, Cache Hit Ratio, Queue Backlog, CPU/RAM) พร้อมแสดงผล
@@ -27,9 +27,16 @@
 
 | สมาชิก / บทบาท | ช่วงเช้า (09:00 - 12:00) | ช่วงบ่าย (13:00 - 17:30) |
 | --- | --- | --- |
-| **Member 1 (Edge/API)** | พัฒนาระบบ Structured Logging ใน API พร้อมสกัด `X-Request-ID` ([metrics-and-logging.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/metrics-and-logging.md)) | เชื่อมต่อ API Metrics Exporter (RPS, Latency p95) และสนับสนุน Integration Test |
-| **Member 2 (Queue/Redis)** | พัฒนาระบบ Redis Cache-Aside สำหรับ Products API และระบบ ล้างแคช ([caching.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/caching.md)) | ติดตั้ง Bull Board Dashboard ([bull-board.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/bull-board.md)) และตั้งค่า Queue/Cache Metrics Exporter |
-| **Member 3 (Worker/DB)** | เชื่อมต่อระบบ Cache Invalidation Signal ใน Worker หลัง Transaction Commit สำเร็จ | เขียนและรันชุด Integration & Correctness Test Suite ([integration-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/integration-testing.md)) |
+| **Member 1 (Edge/API)** | พัฒนาระบบ Structured Logging ใน API พร้อมสกัด `X-Request-ID` ([metrics-and-logging.md](file:///FlashSaleSystem/doc/task/day3/metrics-and-logging.md)) | เชื่อมต่อ API Metrics Exporter (RPS, Latency p95) และสนับสนุน Integration Test |
+| **Member 2 (Queue/Redis)** | พัฒนาระบบ Redis Cache-Aside สำหรับ Products API และระบบ ล้างแคช ([caching.md](file:///FlashSaleSystem/doc/task/day3/caching.md)) | ติดตั้ง Bull Board Dashboard ([bull-board.md](file:///FlashSaleSystem/doc/task/day3/bull-board.md)) และตั้งค่า Queue/Cache Metrics Exporter |
+| **Member 3 (Worker/DB)** | เชื่อมต่อระบบ Cache Invalidation Signal ใน Worker หลัง Transaction Commit สำเร็จ | เขียนและรันชุด Integration & Correctness Test Suite ([integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md)) |
+
+### 3.1 รายการ Task Checklist ประจำวัน (Day 3 Status: 0% Pending)
+
+- [ ] **[Member 2]** [caching.md](file:///FlashSaleSystem/doc/task/day3/caching.md) — พัฒนา Product Cache-Aside และ Post-Commit Cache Invalidation Signal
+- [ ] **[Member 2]** [bull-board.md](file:///FlashSaleSystem/doc/task/day3/bull-board.md) — ติดตั้ง Bull Board UI Dashboard (`/admin/queues`) ดูสถานะ Queue
+- [ ] **[Member 1 & 2]** [metrics-and-logging.md](file:///FlashSaleSystem/doc/task/day3/metrics-and-logging.md) — ทำ Structured JSON Logging (`X-Request-ID`/`jobId`) และ Prometheus Metrics
+- [ ] **[Member 3]** [integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md) — เขียนและรัน Integration & Correctness Test Suite 100%
 
 ---
 
@@ -37,6 +44,6 @@
 
 เวลา 17:30 - 18:00 น. ตรวจสอบระบบก่อนขึ้น Day 4:
 1. ยิง `GET /api/v1/products` สองครั้งติดต่อกัน ครั้งแรกต้องได้ Cache Miss ครั้งที่สองต้องได้ Cache Hit
-2. ยิงสั่งซื้อสินค้าสำเร็จ ตรวจสอบพบว่า Redis Product Cache ถูกลบทันทีหลัง DB Commit
+2. ยิงสั่งซื้อสำเร็จ ตรวจว่า Cache Epoch เพิ่มหลัง Commit และ GET ใช้ Generation ใหม่
 3. เปิด Bull Board UI บนเบราว์เซอร์ สามารถมองเห็นสถานะ คิวได้ถูกต้อง
 4. รัน `pnpm test:integration` ผลการทดสอบทุกข้อต้องเป็นสีเขียว (Pass 100%)

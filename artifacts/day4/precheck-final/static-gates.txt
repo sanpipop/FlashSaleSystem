@@ -1,0 +1,90 @@
+
+> flash-sale-system@0.1.0 lint /home/netiwut/Documents/shareproject/FlashSaleSystem
+> eslint apps packages database --max-warnings=0
+
+
+> flash-sale-system@0.1.0 typecheck /home/netiwut/Documents/shareproject/FlashSaleSystem
+> pnpm -r --sort --if-present typecheck
+
+Scope: 6 of 7 workspace projects
+database typecheck$ tsc -p tsconfig.json --noEmit
+packages/cache typecheck$ tsc -p tsconfig.json --noEmit
+packages/contracts typecheck$ tsc -p tsconfig.json --noEmit
+packages/contracts typecheck: Done
+database typecheck: Done
+packages/cache typecheck: Done
+packages/queue typecheck$ tsc -p tsconfig.json --noEmit
+packages/queue typecheck: Done
+apps/api typecheck$ tsc -p tsconfig.json --noEmit
+apps/worker typecheck$ tsc -p tsconfig.json --noEmit
+apps/worker typecheck: Done
+apps/api typecheck: Done
+
+> flash-sale-system@0.1.0 test /home/netiwut/Documents/shareproject/FlashSaleSystem
+> pnpm -r --sort --if-present test
+
+Scope: 6 of 7 workspace projects
+database test$ vitest run --passWithNoTests
+packages/contracts test$ vitest run --passWithNoTests
+packages/cache test$ vitest run
+packages/contracts test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/packages/contracts
+packages/contracts test: No test files found, exiting with code 0
+packages/contracts test: include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+packages/contracts test: exclude:  **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
+packages/cache test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/packages/cache
+database test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/database
+database test: No test files found, exiting with code 0
+database test: include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+database test: exclude:  **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
+packages/contracts test: Done
+database test: Done
+packages/cache test:  ✓ src/cache-keys.spec.ts (2 tests) 2ms
+packages/cache test:  Test Files  1 passed (1)
+packages/cache test:       Tests  2 passed (2)
+packages/cache test:    Start at  15:22:20
+packages/cache test:    Duration  197ms (transform 28ms, setup 0ms, collect 24ms, tests 2ms, environment 0ms, prepare 51ms)
+packages/cache test: Done
+packages/queue test$ vitest run
+packages/queue test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/packages/queue
+packages/queue test:  ✓ src/job-id.spec.ts (2 tests) 3ms
+packages/queue test:  Test Files  1 passed (1)
+packages/queue test:       Tests  2 passed (2)
+packages/queue test:    Start at  15:22:20
+packages/queue test:    Duration  177ms (transform 25ms, setup 0ms, collect 21ms, tests 3ms, environment 0ms, prepare 42ms)
+packages/queue test: Done
+apps/api test$ vitest run --exclude='src/**/*.integration.spec.ts'
+apps/worker test$ vitest run --passWithNoTests --exclude='src/**/*.integration.spec.ts'
+apps/worker test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/apps/worker
+apps/api test:  RUN  v3.2.7 /home/netiwut/Documents/shareproject/FlashSaleSystem/apps/api
+apps/api test:  ✓ src/common/request-id.spec.ts (5 tests) 2ms
+apps/api test:  ✓ src/health/health.service.spec.ts (1 test) 1ms
+apps/api test:  Test Files  2 passed (2)
+apps/api test:       Tests  6 passed (6)
+apps/api test:    Start at  15:22:21
+apps/api test:    Duration  355ms (transform 80ms, setup 0ms, collect 137ms, tests 3ms, environment 0ms, prepare 166ms)
+apps/api test: Done
+apps/worker test:  ✓ src/orders/micro-batch-coordinator.service.spec.ts (3 tests) 8ms
+apps/worker test:  Test Files  1 passed (1)
+apps/worker test:       Tests  3 passed (3)
+apps/worker test:    Start at  15:22:21
+apps/worker test:    Duration  551ms (transform 112ms, setup 0ms, collect 304ms, tests 8ms, environment 0ms, prepare 91ms)
+apps/worker test: Done
+
+> flash-sale-system@0.1.0 build /home/netiwut/Documents/shareproject/FlashSaleSystem
+> pnpm -r --sort --if-present build
+
+Scope: 6 of 7 workspace projects
+database build$ tsc -p tsconfig.build.json
+packages/contracts build$ tsc -p tsconfig.build.json
+packages/cache build$ tsc -p tsconfig.build.json
+packages/contracts build: Done
+database build: Done
+packages/cache build: Done
+packages/queue build$ tsc -p tsconfig.build.json
+packages/queue build: Done
+apps/api build$ tsc -p tsconfig.build.json
+apps/worker build$ tsc -p tsconfig.build.json
+apps/worker build: Done
+apps/api build: Done
+doc/performance/baseline.md:4: trailing whitespace.
++**สถานะ:** HARNESS READY / PENDING EXTERNAL BENCHMARK (Phase 4)  

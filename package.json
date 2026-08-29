@@ -1,0 +1,39 @@
+{
+  "name": "flash-sale-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "High-concurrency Flash Sale backend monorepo",
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "esbuild",
+      "msgpackr-extract"
+    ]
+  },
+  "scripts": {
+    "build": "pnpm -r --sort --if-present build",
+    "dev:api": "pnpm --filter @flash-sale/api dev",
+    "dev:worker": "pnpm --filter @flash-sale/worker dev",
+    "lint": "eslint apps packages database --max-warnings=0",
+    "build:workspace-deps": "pnpm --filter @flash-sale/contracts build && pnpm --filter @flash-sale/cache build && pnpm --filter @flash-sale/queue build && pnpm --filter @flash-sale/database build",
+    "typecheck": "pnpm run build:workspace-deps && pnpm -r --sort --if-present typecheck",
+    "test": "pnpm -r --sort --if-present test",
+    "test:integration": "node tests/integration/run-integration.mjs",
+    "test:integration:worker": "pnpm --filter @flash-sale/worker test:integration",
+    "db:migrate": "pnpm --filter @flash-sale/database migrate",
+    "db:seed": "pnpm --filter @flash-sale/database seed",
+    "compose:config": "docker compose config --quiet"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/node": "^22.15.30",
+    "eslint": "^9.35.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0",
+    "vitest": "^3.2.4"
+  }
+}

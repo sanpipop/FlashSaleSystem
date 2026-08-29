@@ -18,11 +18,11 @@ Testing authority is defined in Phase 7 (`doc/testing/`). Automated unit tests r
 > Unit tests may use mocks for isolated class logic. However, **Concurrency, Atomicity, and Data Integrity tests MUST run against REAL PostgreSQL, REAL Redis, and REAL BullMQ instances**. Mocked databases or mocked Redis clients CANNOT prove distributed race safety or pessimistic row locking correctness.
 
 ## Authoritative References
-- **Testing Strategy Source of Truth:** [doc/testing/testing-strategy.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/testing-strategy.md)
-- **Load Testing Specification:** [doc/testing/load-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/testing/load-testing.md)
-- **Concurrency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
-- **Day 3 Integration Testing Task:** [doc/task/day3/integration-testing.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/integration-testing.md)
-- **Day 4 Correctness Test Task:** [doc/task/day4/correctness-test.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day4/correctness-test.md)
+- **Testing Strategy Source of Truth:** [doc/testing/testing-strategy.md](file:///FlashSaleSystem/doc/testing/testing-strategy.md)
+- **Load Testing Specification:** [doc/testing/load-testing.md](file:///FlashSaleSystem/doc/testing/load-testing.md)
+- **Concurrency Architecture:** [doc/architecture/concurrency-and-idempotency.md](file:///FlashSaleSystem/doc/architecture/concurrency-and-idempotency.md)
+- **Day 3 Integration Testing Task:** [doc/task/day3/integration-testing.md](file:///FlashSaleSystem/doc/task/day3/integration-testing.md)
+- **Day 4 Correctness Test Task:** [doc/task/day4/correctness-test.md](file:///FlashSaleSystem/doc/task/day4/correctness-test.md)
 
 ## Preconditions
 1. Verify test environment (PostgreSQL, Redis, BullMQ) is running via Docker Compose.
@@ -49,6 +49,8 @@ Every valid test suite must enforce:
 3. `isFlashSaleActive = false` MUST reject order placement.
 4. `remainingStock = 0` MUST reject new orders as `SOLD_OUT`.
 5. Multi-Product Purchase: `user-001 + p-1001` AND `user-001 + p-1002` MUST both be allowed.
+6. Retrying the same `jobId` MUST return the same `order_results` outcome without changing Stock or Orders.
+7. Every `SUCCESS` result MUST reference an existing Order, and every accepted Job must eventually have one terminal durable result.
 
 ### 2. Mandatory Pre-Performance Correctness Gates
 
@@ -72,6 +74,11 @@ Every valid test suite must enforce:
   - `distinct_successful_users = 50`
   - `remaining_stock = 0`
   - `duplicate_successful_orders = 0`
+
+#### Gate C: Retry and Cache-Recovery Test
+- Re-deliver at least one already committed Job and assert Stock/Order counts remain unchanged.
+- Simulate Redis Cache outage after DB commit, restore it, and assert the Outbox Relay increments the Cache Epoch and marks the event published.
+- Under a burst, assert DB batch call count is lower than processed Job count and every Job receives a mapped result.
 
 ---
 
@@ -98,8 +105,13 @@ graph TD
    SELECT COUNT(*) FROM products WHERE remaining_stock < 0;
    
    -- Query 2: Verify Zero Duplicate Purchases
-   SELECT user_id, product_id, COUNT(*) FROM orders 
-   GROUP BY user_id, product_id HAVING COUNT(*) > 1;
+    SELECT user_id, product_id, COUNT(*) FROM orders
+    GROUP BY user_id, product_id HAVING COUNT(*) > 1;
+
+    -- Query 3: Successful results without an order must be zero
+    SELECT COUNT(*) FROM order_results r
+    LEFT JOIN orders o ON o.id = r.order_id
+    WHERE r.status = 'SUCCESS' AND o.id IS NULL;
    ```
 5. **Step 5 — Evidence Recording:** Log test pass/fail results in task evidence records.
 

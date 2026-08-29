@@ -14,12 +14,12 @@ The API layer is primarily owned by **Member 1 (Edge / API Lead)**. It acts as a
 
 ## Authoritative References
 Before modifying any API behavior, inspect the following authoritative documents:
-- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Redis Key & Claim Contract:** [doc/contracts/redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
-- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/api-flow.md)
-- **Order Admission Flow:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
+- **Public HTTP API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Redis Key & Claim Contract:** [doc/contracts/redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
+- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///FlashSaleSystem/doc/architecture/api-flow.md)
+- **Order Admission Flow:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
 
 ## Preconditions
 1. Confirm task allowed paths include `apps/api/**`.
@@ -50,7 +50,7 @@ POST /api/v1/orders           → Flash Sale Order Admission (Async 202 Accepted
 
 - **Casing:** API requests and responses MUST use `camelCase` for all JSON properties.
 - **Response Envelopes:** Error responses MUST follow the standard envelope specified in `api-contract.md`:
-  `{ "statusCode": 400, "message": "...", "error": "...", "timestamp": "...", "path": "..." }`
+  `{ "status": "error", "code": "INVALID_PAYLOAD", "message": "...", "requestId": "req-..." }`
 
 ### 2. Stateless JWT Authentication Rules
 - `POST /auth/token` accepts valid user authentication requests and issues a signed JWT containing `userId`.
@@ -60,9 +60,12 @@ POST /api/v1/orders           → Flash Sale Order Admission (Async 202 Accepted
 
 ### 3. Asynchronous Order Admission Rules (`POST /orders`)
 - `POST /orders` is an **Admission Endpoint**. Its flow is:
-  `Validate DTO → Verify JWT → Atomic Claim Guard (Redis SET NX) → Enqueue BullMQ Job → Return 202 Accepted`
+  `Validate DTO → Verify JWT → SET NX Token → ord-SHA256 Job ID → queue.add → Return 202`
 - HTTP `202 Accepted` means **"Order request accepted for queue processing"**. It does NOT mean purchase is confirmed.
 - The API controller MUST NOT wait for the BullMQ Worker to finish DB stock processing before returning 202.
+- On the Claim-winner path, the successful awaited result of `queue.add()` is the enqueue confirmation. Return 202 immediately; DO NOT call `queue.getJob()` again on this normal path.
+- On a duplicate Claim, return 202 with the same ID only after `queue.getJob(jobId)` confirms the Job exists; otherwise return the frozen in-progress error. Never emit a false 202.
+- If enqueue fails after winning the Claim, release only the matching token through Lua compare-and-delete.
 
 ### 4. Clean Architecture & Separation
 Do NOT create "God Controllers". Keep responsibilities cleanly separated:
@@ -87,13 +90,13 @@ graph TD
     D -- GET /products --> E[Products Service]
     E --> F{Redis Cache Hit?}
     F -- Yes --> G[Return Cached JSON]
-    F -- No --> H[Query PostgreSQL & Populate Redis]
+    F -- No --> H[Single-Flight DB Fill into Versioned Key]
     D -- POST /orders --> I[Orders Guard & Controller]
     I --> J[Verify JWT userId]
     J --> K[Redis SET NX Claim Guard]
-    K -- Claim Won --> L[Enqueue BullMQ Job with requestId]
-    L --> M[Return 202 Accepted + orderJobId]
-    K -- Claim Failed --> N[Return Fast Duplicate Response]
+    K -- Claim Won --> L[Enqueue BullMQ Job with ord-SHA256 ID]
+    L -- queue.add resolved --> M[Return 202 Accepted + orderJobId]
+    K -- Claim Failed --> N[Verify Existing Job then Idempotent Response]
 ```
 
 1. **Step 1 — DTO & Pipe Definition:** Create DTOs using `class-validator` and `class-transformer`.
@@ -108,6 +111,7 @@ graph TD
 
 ## Performance Considerations
 - **No Heavy Operations in Event Loop:** Keep controller execution path minimal (< 5ms admission latency).
+- **No Redundant Queue Read:** Never add `queue.getJob()` after a successful `queue.add()`; reserve it for the duplicate-Claim branch only.
 - **Stateless Scaling:** Ensure API Containers do not store any local in-memory session arrays.
 - **HTTP Adapter:** Adapter selection (Express vs Fastify) is a project-level architecture decision. Do not switch adapters unilaterally during feature implementation.
 

@@ -54,7 +54,7 @@
 
 ### บทที่ 5: การออกแบบระบบแคชอ่านสินค้า (Cache Strategy)
 - **5.1 Cache-Aside Pattern Implementation:** ขั้นตอนการอ่านข้อมูลจาก Redis และ Fallback ไป DB
-- **5.2 Post-Commit Cache Invalidation Strategy:** การสั่งลบแคช (`DEL fs:cache:products:*`) เฉพาะหลัง DB Transaction Commit สำเร็จเพื่อป้องกัน Race Condition
+- **5.2 Post-Commit Cache Invalidation Strategy:** Versioned Cache Epoch หลัง Commit พร้อม Transactional Outbox Recovery
 
 ### บทที่ 6: การประมวลผลคำสั่งซื้อแบบไม่พร้อมกัน (Asynchronous Order Processing)
 - **6.1 Async Admission Concept:** เหตุผลที่ API ตอบ `202 Accepted` พร้อม `orderJobId` ทันทีหลัง Enqueue
@@ -93,7 +93,7 @@
 - **14.2 สรุปอัตราการเติบโตของประสิทธิภาพ (Improvement Ratio):** เปรียบเทียบ % การเพิ่มขึ้นของ RPS และ % การลดลงของ Latency p95
 
 ### บทที่ 15: การพิสูจน์ความถูกต้องของข้อมูล (Data Integrity Verification)
-- **15.1 SQL Proof Results Matrix:** ผลการรัน Query พิสูจน์ Data Integrity ครบทั้ง 5 ข้อหลังการทดสอบ Peak Load
+- **15.1 SQL/Retry Proof Results Matrix:** พิสูจน์ Data Integrity, Durable Result และ Retry Idempotency ครบ 8 ข้อหลัง Peak Load
 - **15.2 การยืนยัน Zero Overselling และ Zero Duplicate Order**
 
 ### บทที่ 16: การเปรียบเทียบกับระบบของทีมอื่น (Cross-Team Benchmark Comparison)
@@ -102,7 +102,7 @@
 
 ### บทที่ 17: ข้อจำกัดของระบบและแนวทางการพัฒนาในอนาคต (Limitations & Future Work)
 - **17.1 ข้อจำกัดของระบบปัจจุบัน:** ทรัพยากร Single VM (4 vCPU) และขอบเขตการทดสอบ
-- **17.2 ข้อเสนอแนะการพัฒนาต่อ (Future Enhancements):** การทำ Micro-batching, L1 Memory Cache หรือ Physical Redis Separation
+- **17.2 ข้อเสนอแนะการพัฒนาต่อ (Future Enhancements):** Multi-product lane sharding หรือ L1 Static Metadata Cache เฉพาะกรณี Benchmark ยืนยัน
 
 ### บทที่ 18: การแบ่งขอบเขตความรับผิดชอบของสมาชิกในทีม (Team Responsibilities)
 - **18.1 Member 1 (Edge / API Lead):** พัฒนา Nginx, API Containers, JWT Auth และ k6 Scenarios

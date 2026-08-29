@@ -1,0 +1,18 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 2m30s max duration (incl. graceful stop):
+              * write_competition: 1 iterations for each of 5 VUs (maxDuration: 2m0s, exec: writeCompetition, gracefulStop: 30s)
+
+profile=write requests=5 request_rate=381.4266286592831 checks_rate=1 sanitized_summary=artifacts/day4/harness-validation-local-r3/k6-summary.json
+
+running (0m00.0s), 0/5 VUs, 5 complete and 0 interrupted iterations
+write_competition ✓ [ 100% ] 5 VUs  0m00.0s/2m0s  5/5 iters, 1 per VU

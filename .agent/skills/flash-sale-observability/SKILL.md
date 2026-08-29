@@ -14,12 +14,12 @@ Activate this skill whenever:
 Observability is primarily owned by **Member 2 (Queue / Cache / Observability Lead)**, with instrumentation contributed by Member 1 (API/Nginx) and Member 3 (Worker/DB). Observability must run efficiently within the **4 vCPU / 6 GB RAM** VM budget without imposing high CPU or memory overhead.
 
 ## Authoritative References
-- **Observability Architecture:** [doc/architecture/observability.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/observability.md)
-- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/api-flow.md)
-- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/order-flow.md)
-- **Public API Contract:** [doc/contracts/api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
-- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- **Evidence Checklist:** [doc/report/evidence-checklist.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/report/evidence-checklist.md)
+- **Observability Architecture:** [doc/architecture/observability.md](file:///FlashSaleSystem/doc/architecture/observability.md)
+- **API Flow Architecture:** [doc/architecture/api-flow.md](file:///FlashSaleSystem/doc/architecture/api-flow.md)
+- **Order Flow Architecture:** [doc/architecture/order-flow.md](file:///FlashSaleSystem/doc/architecture/order-flow.md)
+- **Public API Contract:** [doc/contracts/api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
+- **Queue Payload Contract:** [doc/contracts/queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- **Evidence Checklist:** [doc/report/evidence-checklist.md](file:///FlashSaleSystem/doc/report/evidence-checklist.md)
 
 ## Preconditions
 1. Confirm allowed task paths (e.g., `observability/**`, `apps/api/`, `apps/worker/`, or `packages/`).
@@ -57,7 +57,7 @@ Observability is primarily owned by **Member 2 (Queue / Cache / Observability Le
 > **Prometheus Metric Label Guardrail**  
 > NEVER include high-cardinality identifiers as Prometheus metric labels.
 > - **FORBIDDEN Labels:** `userId`, `requestId`, `jobId`, `jwtToken`, or raw URLs containing dynamic IDs (`/api/v1/orders/12345`).
-> - **ALLOWED Labels:** `method="POST"`, `route="/api/v1/orders"`, `status="202"`, `service="api"`, `outcome="CONFIRMED"`.
+> - **ALLOWED Labels:** `method="POST"`, `route="/api/v1/orders"`, `status="202"`, `service="api"`, `outcome="SUCCESS"`.
 > 
 > High-cardinality labels create millions of time series, causing Prometheus to exhaust host RAM and crash the VM.
 

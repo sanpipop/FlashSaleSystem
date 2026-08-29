@@ -1,0 +1,47 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 2m30s max duration (incl. graceful stop):
+              * write_competition: 1 iterations for each of 5 VUs (maxDuration: 2m0s, exec: writeCompetition, gracefulStop: 30s)
+
+
+     ✓ order admission returns confirmed 202
+
+     █ setup
+
+       ✓ auth returns 200
+       ✓ auth returns an access token
+
+     auth_duration..................: avg=2.32ms   min=2.15ms  med=2.18ms  p(90)=2.57ms   p(95)=2.6ms    p(99)=2.63ms   max=2.64ms  
+     auth_infra_error...............: 0.00%   0 out of 5
+     auth_requests..................: 5       356.573842/s
+   ✓ checks.........................: 100.00% 15 out of 15
+     data_received..................: 4.2 kB  299 kB/s
+     data_sent......................: 2.7 kB  193 kB/s
+     http_req_blocked...............: avg=116.47µs min=51.66µs med=99.87µs p(90)=183.07µs p(95)=200.36µs p(99)=214.19µs max=217.65µs
+     http_req_connecting............: avg=58.85µs  min=31.4µs  med=61.39µs p(90)=75.94µs  p(95)=77.5µs   p(99)=78.74µs  max=79.05µs 
+     http_req_duration..............: avg=5.56ms   min=2.15ms  med=5.13ms  p(90)=9.65ms   p(95)=9.81ms   p(99)=9.95ms   max=9.98ms  
+       { expected_response:true }...: avg=5.56ms   min=2.15ms  med=5.13ms  p(90)=9.65ms   p(95)=9.81ms   p(99)=9.95ms   max=9.98ms  
+     http_req_failed................: 0.00%   0 out of 10
+     http_req_receiving.............: avg=47.29µs  min=11.68µs med=31.94µs p(90)=88.01µs  p(95)=127.43µs p(99)=158.97µs max=166.85µs
+     http_req_sending...............: avg=93.21µs  min=18.57µs med=81.94µs p(90)=182.35µs p(95)=188.73µs p(99)=193.83µs max=195.1µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      p(90)=0s       p(95)=0s       p(99)=0s       max=0s      
+     http_req_waiting...............: avg=5.42ms   min=1.94ms  med=4.95ms  p(90)=9.59ms   p(95)=9.75ms   p(99)=9.87ms   max=9.91ms  
+     http_reqs......................: 10      713.147683/s
+     iteration_duration.............: avg=9.06ms   min=7.92ms  med=9.35ms  p(90)=10.07ms  p(95)=10.13ms  p(99)=10.18ms  max=10.2ms  
+     iterations.....................: 5       356.573842/s
+     write_admission_duration.......: avg=8.81ms   min=7.63ms  med=9.15ms  p(90)=9.83ms   p(95)=9.91ms   p(99)=9.97ms   max=9.98ms  
+     write_admission_requests.......: 5       356.573842/s
+   ✓ write_infra_error..............: 0.00%   0 out of 5
+
+
+running (0m00.0s), 0/5 VUs, 5 complete and 0 interrupted iterations
+write_competition ✓ [ 100% ] 5 VUs  0m00.0s/2m0s  5/5 iters, 1 per VU

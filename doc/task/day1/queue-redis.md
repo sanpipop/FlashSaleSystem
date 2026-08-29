@@ -13,7 +13,7 @@ Reviewer: Member 3
 P0
 
 ## Dependencies
-- Hard Dependencies: [project-bootstrap.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day1/project-bootstrap.md)
+- Hard Dependencies: [project-bootstrap.md](file:///FlashSaleSystem/doc/task/day1/project-bootstrap.md)
 - Soft Dependencies: None (เชื่อมต่อกับ Redis Docker Container เปล่า)
 
 ## Can Start Immediately?
@@ -30,15 +30,17 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
-- [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- [queue-contract.md](file:///FlashSaleSystem/doc/contracts/queue-contract.md)
+- [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Architecture References
-- [architecture.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/architecture/architecture.md)
+- [architecture.md](file:///FlashSaleSystem/doc/architecture/architecture.md)
 
 ## Scope
 - สร้าง Shared Package `packages/queue` บรรจุ BullMQ Producer Module
-- สร้างคำสั่งช่วยสร้าง Deterministic `jobId` (`job:userId:productId`) ตาม [queue-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/queue-contract.md)
+- สร้าง helper `jobId = ord-<SHA256(userId|productId)>` ซึ่งไม่มี `:` ตาม `queue-contract.md`
+- แยก Redis Operations (`noeviction`, AOF everysec) และ Redis Cache (`allkeys-lru`) เป็นคนละ Instance/Connection
+- ตั้ง Job retention, attempts และ exponential backoff ตาม Queue Contract
 - สร้าง Shared Package `packages/cache` สำหรับจัดการ Redis Client Connection
 - เขียน Unit Test ทดสอบการเชื่อมต่อและสั่ง Enqueue Test Job
 
@@ -47,7 +49,7 @@ Yes
 - การทำ Cache-Aside Logic เต็มรูปแบบ
 
 ## Implementation Requirements
-- Redis Key Namespace ทั้งหมดต้องขึ้นต้นด้วย `fs:` ตามข้อตกลงใน [redis-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/redis-contract.md)
+- Redis Key Namespace ทั้งหมดต้องขึ้นต้นด้วย `fs:` ตามข้อตกลงใน [redis-contract.md](file:///FlashSaleSystem/doc/contracts/redis-contract.md)
 
 ## Acceptance Criteria
 1. สามารถรันสคริปต์ทดสอบ Enqueue Job เข้า BullMQ Queue `orders` บน Redis ได้สำเร็จ

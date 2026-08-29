@@ -16,7 +16,7 @@ Reviewer: Member 2
 P0
 
 ## Dependencies
-- Hard Dependencies: [day3-overview.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/task/day3/day3-overview.md) (ระบบต้องรันครบถ้วน)
+- Hard Dependencies: [day3-overview.md](file:///FlashSaleSystem/doc/task/day3/day3-overview.md) (ระบบต้องรันครบถ้วน)
 - Soft Dependencies: None
 
 ## Can Start Immediately?
@@ -30,7 +30,7 @@ Yes
 - `doc/contracts/**`
 
 ## Contracts Used
-- [api-contract.md](file:///home/netiwut/Documents/shareproject/FlashSaleSystem/doc/contracts/api-contract.md)
+- [api-contract.md](file:///FlashSaleSystem/doc/contracts/api-contract.md)
 
 ## Scope
 - พัฒนาสคริปต์ `k6/competition.js` รองรับ Scenarios:

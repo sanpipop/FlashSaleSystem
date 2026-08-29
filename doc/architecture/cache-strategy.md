@@ -1,7 +1,7 @@
 # กลยุทธ์การทำระบบแคช (Cache Strategy Architecture)
 
 **วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** Draft Baseline Architecture (Phase 1)  
+**สถานะ:** FROZEN WINNING FASTEST-SAFE Architecture (Phase 1)
 **ขอบเขตโปรเจกต์:** การจัดการ Redis Cache สำหรับ Read-Heavy Traffic (ขอบเขต Member 2)
 
 ---
@@ -22,7 +22,7 @@
 ### 2.1 ข้อมูลที่อนุญาตให้เก็บใน Cache (What Is Cached)
 - รายการสินค้าสำหรับหน้าแรกและ Pagination (`products:page=X:limit=Y`)
 - ข้อมูลรายละเอียดสินค้าทั่วไป (ราคา, ชื่อ, คำอธิบาย, รูปภาพ)
-- ข้อมูลสต็อกประมาณการณ์สำหรับแสดงผลลัพธ์หน้าบ้าน (Stock Read Projection)
+- ข้อมูลสต็อกที่มาจาก Database Commit หรือ DB-confirmed Read Projection เท่านั้น
 
 ### 2.2 ข้อมูลที่ห้ามใช้ Cache เป็นความจริงสัมบูรณ์ (What Must NOT Be Authoritative Cache Data)
 - **ห้ามใช้ Redis Cache เป็นคำตอบสุดท้ายของการตัดสต็อก (Remaining Stock Truth)**
@@ -32,13 +32,16 @@
 
 ## 3. รูปแบบการทำงาน Cache-Aside Pattern
 
-ระบบเลือกใช้ **Cache-Aside (Lazy Loading) Pattern** เป็นโครงสร้าง Baseline หลัก:
+ระบบเลือกใช้ **Versioned Cache-Aside + Single-Flight** เป็นโครงสร้างหลัก:
 
 ```mermaid
 flowchart TD
-    A[Client Request GET /products] --> B{Check Redis Cache}
+    A[Client Request GET /products] --> E[EVALSHA epoch plus versioned cache]
+    E --> B{One-hop Cache Hit?}
     B -- Cache Hit --> C[Return Response from Redis]
-    B -- Cache Miss --> D[Query PostgreSQL DB]
+    B -- Cache Miss --> L{Acquire short fill guard}
+    L -- Winner --> D[Query PostgreSQL DB]
+    L -- Follower --> R[Short wait then read cache again]
     D --> E[Write Result to Redis Cache with TTL]
     E --> F[Return Response from DB Query]
 ```
@@ -47,13 +50,15 @@ flowchart TD
 
 ## 4. หลักการออกแบบ Cache Key และ Pagination Impact
 
-- **รูปแบบโครงสร้าง Key หลัก:**
-  `products:page={page}:limit={limit}`
+- **Epoch Key:** `fs:cache:products:epoch`
+- **รูปแบบโครงสร้าง Data Key:**
+  `fs:cache:products:v={epoch}:page={page}:limit={limit}`
 - **ตัวอย่าง:**
-  `products:page=1:limit=10`
-  `products:page=2:limit=10`
+  `fs:cache:products:v=15:page=1:limit=10`
+  `fs:cache:products:v=15:page=2:limit=10`
 - **การผลกระทบจาก Pagination:**
-  เนื่องจาก Parameter `page` และ `limit` ทำให้เกิด Cache Keys ได้หลายรูปแบบ การล้างแคชจำเป็นต้องใช้กลยุทธ์ Pattern Matching (`DEL products:*`) หรือการทำ Versioning Key เพื่อให้ครอบคลุมทุกหน้า pagination
+  เมื่อ Stock เปลี่ยนให้ `INCR fs:cache:products:epoch` ครั้งเดียว ทุก Pagination จะอ้าง Generation ใหม่ทันที ส่วน Key รุ่นเก่าหมดอายุตาม TTL
+  เส้นทาง Cache Hit ใช้ Lua `EVALSHA` อ่าน Epoch และ Value ใน Redis round-trip เดียว
 
 ---
 
@@ -62,11 +67,11 @@ flowchart TD
 เพื่อรักษาความถูกต้องของข้อมูลสินค้าและสต็อกที่แสดงผล:
 
 1. **Trigger Event:** เกิดขึ้นเมื่อ BullMQ Worker ทำการลดสต็อกสินค้าลง PostgreSQL และสั่ง **`COMMIT` Transaction สำเร็จเรียบร้อยแล้วเท่านั้น**
-2. **Invalidation Action:** Worker ส่งคำสั่งลบแคช (Delete Key/Pattern) ไปยัง Redis Cache
+2. **Invalidation Action:** Worker ส่ง `INCR fs:cache:products:epoch` ไปยัง Redis Cache แบบ O(1)
 3. **Re-population:** เมื่อคำขอ `GET /products` ถัดไปเข้ามา จะเกิด Cache Miss และทำการอ่านข้อมูลสต็อกล่าสุดจาก PostgreSQL ไปสร้าง Cache ใหม่โดยอัตโนมัติ
 
 ```text
-Worker Commit DB Success ──> Send Invalidation Signal ──> DEL products:* in Redis ──> Next GET causes Cache Miss ──> Re-populates Fresh Data
+Worker Commit DB Success ──> INCR Cache Epoch ──> Next GET uses new Version ──> Single DB Fill ──> Fresh Cache
 ```
 
 ---
@@ -77,7 +82,7 @@ Worker Commit DB Success ──> Send Invalidation Signal ──> DEL products:*
 - **ปัญหา:** เมื่อ Cache Key สำหรับสินค้ายอดนิยมหมดอายุพร้อมกัน คำขออ่านนับพันจะทะลักไปที่ PostgreSQL พร้อมกัน
 - **Baseline Mitigation:** 
   - กำหนด **TTL แบบ Jitter (Randomized TTL):** เพิ่มค่าสุ่มให้กับ TTL (เช่น 60s ± 5s) เพื่อไม่ให้ Keys หมดอายุพร้อมกัน
-  - **Fallback Read Protection:** กำหนด Rate Limit เบื้องต้นที่ API หาก DB Connection มีภาระสูง
+  - **Single-Flight:** ให้ Request เดียวเติม Key ที่ Miss ส่วน Request อื่นรอระยะสั้นและอ่านผลเดียวกัน
 
 ### 6.2 TTL Strategy (Time-To-Live)
 - รายการสินค้าทั่วไป: TTL 60 - 300 วินาที
@@ -94,11 +99,12 @@ Worker Commit DB Success ──> Send Invalidation Signal ──> DEL products:*
 
 ---
 
-## 8. ตัวเลือกปรับแต่งประสิทธิภาพขั้นสูง (Candidate Optimizations - Optional)
+## 8. กลไกซ่อมแคชและขอบเขตความถูกต้อง
 
 > [!NOTE]
-> รายการต่อไปนี้เป็นทางเลือกที่สามารถนำมาทดสอบใน Phase Benchmark (ยังไม่ใช่ Baseline):
+> PostgreSQL ยังเป็น Source of Truth และการเปลี่ยน Epoch เกิดหลัง Commit เท่านั้น
 
-1. **Versioned Cache Key (`products:v{version}:page=1:limit=10`):** เปลี่ยนจากการสั่ง `DEL` Pattern มาเป็นการเพิ่มค่า Version Number ใน Redis เมื่อ Worker Commit สำเร็จ เพื่อลด Overhead การใช้คำสั่ง `KEYS` / `SCAN`
-2. **L1 In-Memory API Cache:** เก็บข้อมูลสินค้า static (เช่น ชื่อ, รูปภาพ, รายละเอียด) ไว้ใน memory ของ NestJS API แต่ละ Container และใช้ Redis สำหรับสต็อกเท่านั้น
-3. **Request Coalescing (Single-Flight Pattern):** ยุบคำขอ `GET /products` ที่เข้ามาพร้อมกันหลายร้อยคำขอในช่วง Cache Miss ให้เหลือ DB Query เดียว
+1. Worker ทำ Immediate Epoch Increment หลัง Commit เพื่อให้ Latency ต่ำ
+2. Transaction เดียวกันเขียน Outbox Event และ Outbox Relay Retry เมื่อ Redis ล่ม
+3. การเพิ่ม Epoch ซ้ำไม่ทำให้ข้อมูลผิด เพียงสร้าง Generation ว่างเพิ่มหนึ่งรุ่น
+4. ห้ามใช้ L1 In-Memory Stock เป็น Authority; อนุญาตเฉพาะข้อมูล Static ที่ไม่กระทบผลสั่งซื้อและต้องพิสูจน์ด้วย Benchmark
