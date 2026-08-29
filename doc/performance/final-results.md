@@ -1,127 +1,69 @@
-# สรุปผลการวัดประสิทธิภาพขั้นสุดท้าย (Final Performance Competition Report)
+# Final Performance Competition Report
 
-**วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** PENDING FINAL BENCHMARK (Phase 4 Framework)  
-**ขอบเขตโปรเจกต์:** รายงานสรุปผลประสิทธิภาพระบบรอบสุดท้ายก่อนการแข่งขัน (ทุกสมาชิกในทีม)
+**วันที่วัด:** 29 สิงหาคม 2026
 
----
+**สถานะ:** `FINAL TARGET-VM BENCHMARK PASSED`
 
-## 1. วัตถุประสงค์ (Purpose)
+**Runtime commit:** `0230002`
 
-เอกสารฉบับนี้เป็น **รายงานสรุปผลการวัดประสิทธิภาพฉบับสมบูรณ์ (Final Benchmark Competition Report)** ของระบบ Flash Sale จัดทำขึ้นเพื่อบันทึกผลการทดสอบโหลดรอบสุดท้าย การเปรียบเทียบการเติบโตของประสิทธิภาพจากค่าเริ่มต้น (Baseline Improvement) หลักฐานการผ่าน Data Integrity Gate 100% และดรรชนีหลักฐานสำหรับการนำเสนอในรายงานฉบับสมบูรณ์
+**Target:** 4 vCPU, RAM 6144 MB, Disk 50 GB
 
----
+**Generator:** external host, Grafana k6 v2.2.0
 
-## 2. สถานะรายงานปัจจุบัน (Final Benchmark Status)
+## สถาปัตยกรรมที่ใช้จริง
 
-```text
-Status: PENDING FINAL BENCHMARK / PENDING COMPETITION TEST
-Reason: ระบบอยู่ในระหว่างขั้นตอนจัดเตรียม Framework (ยังไม่มีผลการยิง Final Benchmark รอบสุดท้าย)
-```
+`Client/k6 → Nginx → Stateless API x3 → Redis Ops/BullMQ → Worker micro-batch → PostgreSQL`
 
-> [!IMPORTANT]
-> **No Fabricated Final Results Rule**  
-> ตารางสรุปผลทั้งหมดจะแสดงตัวเลขจริงหลังจากผ่านการทดสอบ k6 Final Competition Test ใน Day 5 แล้วเท่านั้น ห้ามใส่ตัวเลขประมาณการหรือผลลัพธ์ล่วงหน้า
+ฝั่งอ่านใช้ Redis Cache แบบ versioned cache-aside ส่วน PostgreSQL เป็นแหล่งข้อมูลจริง ฝั่งเขียนใช้ Redis atomic admission และ deterministic Job ID ก่อนตอบ `202 Accepted`; Worker ตัด stock ใน ACID transaction และบันทึก durable result/outbox ก่อน invalidate cache
 
----
+## Final read-warm — median 3 runs
 
-## 3. สภาพแวดล้อมระบบและการตั้งค่าสุดท้าย (Winning Final Configuration)
+| Metric | Final result |
+| --- | ---: |
+| Throughput | **3,474.55 req/s** |
+| p50 latency | **198.78 ms** |
+| p95 latency | **388.70 ms** |
+| p99 latency | **522.00 ms** |
+| HTTP error | **0%** |
+| Checks | **100%** |
 
-### 3.1 Final Infrastructure Context
-- **VM Host:** Single VM (4 vCPU, 6 GB RAM, 50 GB Disk)
-- **Git Commit SHA:** `PENDING`
-- **Load Test Source:** เครื่องยิงโหลด k6 ภายนอก VM
+หลักฐาน: `final-read-warm-r1-20260829/` ถึง `r3`
 
-### 3.2 Final System Configuration Summary (การตั้งค่าที่เลือกใช้จริง):
+## Final write — median 3 runs
 
-| Component | Final Parameter | Final Value | Verified Status |
-| --- | --- | --- | --- |
-| **Nginx Proxy** | Upstream Balancing Strategy | `PENDING` | `PENDING BENCHMARK` |
-| **NestJS API** | Container Instance Count | `PENDING` | `PENDING BENCHMARK` |
-| **BullMQ Worker** | Concurrency Level | `PENDING` | `PENDING BENCHMARK` |
-| **Worker Batch** | Batch Size / Max Wait | `PENDING` | `PENDING BENCHMARK` |
-| **Redis Cache** | Versioned Cache / TTL | `PENDING` | `PENDING BENCHMARK` |
-| **PostgreSQL** | Total Application Pool | `PENDING` | `PENDING BENCHMARK` |
-| **Node.js Runtime**| Max Old Space Size (Heap) | `PENDING` | `PENDING BENCHMARK` |
+| Metric | Baseline | Final | Improvement |
+| --- | ---: | ---: | ---: |
+| Admission RPS | 236.05 | **288.68** | **+22.30%** |
+| Admission p95 | 1,238.43 ms | **741.36 ms** | **เร็วขึ้น 40.14%** |
+| Queue drain | 81 ms | **116 ms** | ช้าลง 35 ms |
+| HTTP error | 0% | **0%** | คงเดิม |
+| Checks | 100% | **100%** | คงเดิม |
 
----
+Queue drain ช้าขึ้นเล็กน้อย 35 ms แต่ยังต่ำกว่า 0.25 วินาทีทุก final run และแลกกับเวลาตอบรับที่เร็วขึ้นมาก
 
-## 4. ผลการทดสอบรอบสุดท้าย (Final Benchmark Results)
+หลักฐาน: `singleflight-write-r1-20260829/` ถึง `r3`
 
-### 4.1 Final Read Heavy Performance (GET /api/v1/products)
+## Additional final scenarios
 
-| Specific Metric | Target / Benchmark Unit | Baseline Value | Final Result | Change (%) | Status |
-| --- | --- | --- | --- | --- | --- |
-| **Read Throughput** | Requests Per Second (`req/s`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Median Latency (p50)** | Milliseconds (`ms`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **95th Latency (p95)** | Milliseconds (`ms`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **99th Latency (p99)** | Milliseconds (`ms`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **HTTP Error Rate** | Percent (`%`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Cache Hit Ratio** | Percent (`%`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Host CPU Usage** | Percent (`%`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Host RAM Usage** | Megabytes (`MB`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
+| Scenario | Result |
+| --- | --- |
+| Cold read | 3,188.97 RPS, p95 344.80 ms, error 0%, checks 100% |
+| Duplicate burst | 50 users × 3 concurrent requests; 50 logical jobs/orders เท่านั้น, p95 137.56 ms |
+| Authentication | 500 requests; error 0%, checks 100%, ไม่มี state mutation |
 
----
+## Correctness proof
 
-### 4.2 Final Write Heavy Competition Performance (POST /api/v1/orders on p-1001)
+ทุก final write run ผ่านเงื่อนไขต่อไปนี้:
 
-| Specific Metric | Target / Benchmark Unit | Baseline Value | Final Result | Change (%) | Status |
-| --- | --- | --- | --- | --- | --- |
-| **API Admission RPS** | Requests Per Second (`req/s`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Admission Latency (p95)**| Milliseconds (`ms`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Queue Drain Time** | Seconds (`s`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Worker Throughput** | Jobs Per Second (`jobs/s`) | PENDING | PENDING | PENDING | `PENDING BENCHMARK` |
-| **Remaining Stock** | Target `0` (Stock = 50) | PENDING | PENDING | `EXACT` | `PENDING BENCHMARK` |
-| **Successful Orders** | Target `50` | PENDING | PENDING | `EXACT` | `PENDING BENCHMARK` |
-| **Distinct Users** | Target `50` | PENDING | PENDING | `EXACT` | `PENDING BENCHMARK` |
-| **Duplicate Orders** | Target `0` | PENDING | PENDING | `EXACT` | `PENDING BENCHMARK` |
+1. stock เริ่ม 50 และจบที่ 0 โดยไม่ติดลบ
+2. successful orders = 50
+3. distinct successful users = 50
+4. duplicate successful `(user_id, product_id)` = 0
+5. durable `order_results` = 500
+6. retry งานเดิมไม่ตัด stock หรือสร้าง order ซ้ำ
 
----
+ดังนั้น Redis ไม่ได้ตัดสินผู้ชนะสุดท้าย การตอบ `202` ยืนยันเพียงว่างานถูกสร้างแล้ว ส่วนผลซื้อสำเร็จยึด PostgreSQL transaction และ durable result เท่านั้น
 
-## 5. การพิสูจน์ความถูกต้องของข้อมูล (Data Integrity Proof Matrix)
+## ขอบเขตของคำกล่าวด้านประสิทธิภาพ
 
-ผลการทดสอบรอบสุดท้ายต้องผ่านการตรวจสอบความถูกต้อง 100% ตาม SQL Verification Queries:
-
-| Data Integrity Invariant | Rule Description | Expected Result | Final Verification Status |
-| --- | --- | --- | --- |
-| **Inviolable Rule 1** | สต็อกคงเหลือไม่ติดลบ (`remaining_stock >= 0`) | `0` (สินค้า `p-1001` ขายหมด) | `PENDING BENCHMARK` |
-| **Inviolable Rule 2** | จำนวน Order สำเร็จทั้งหมดต้องไม่เกินสต็อกเริ่มต้น | `50` รายการ | `PENDING BENCHMARK` |
-| **Inviolable Rule 3** | จำนวนผู้ใช้ที่ซื้อสำเร็จต้องไม่ซ้ำกัน | `50` คนไม่ซ้ำ | `PENDING BENCHMARK` |
-| **Inviolable Rule 4** | ไม่เกิด Order ซ้ำสำหรับคู่ `(user_id, product_id)` เดียวกัน | `0` รายการ | `PENDING BENCHMARK` |
-| **Inviolable Rule 5** | ไม่เกิดกรณีขายเกินสต็อก (Zero Overselling) | `0` Oversell | `PENDING BENCHMARK` |
-
----
-
-## 6. สูตรการคำนวณการเติบโตของประสิทธิภาพ (Improvement Formulas)
-
-เมื่อได้ตัวเลขผลการทดลองจริงแล้ว การคำนวณการเติบโตจะใช้สูตรมาตรฐานดังนี้:
-
-### 6.1 สูตรการคำนวณการเพิ่มขึ้นของ Throughput (RPS Increase %):
-$$\text{Throughput Improvement \%} = \left( \frac{\text{Final RPS} - \text{Baseline RPS}}{\text{Baseline RPS}} \right) \times 100\%$$
-
-### 6.2 สูตรการคำนวณการลดลงของ Latency (Latency Reduction %):
-$$\text{Latency Reduction \%} = \left( \frac{\text{Baseline p95} - \text{Final p95}}{\text{Baseline p95}} \right) \times 100\%$$
-
----
-
-## 7. ตารางเปรียบเทียบการแข่งขันระหว่างทีม (Cross-Team Comparison Framework)
-
-สำหรับการเปรียบเทียบผลกับทีมอื่นภายใต้สภาวะการแข่งขันเดียวกัน:
-
-| Benchmark Metric | Our Team Result | Competitor Team Result | Difference | Fairness Conditions Met? |
-| --- | --- | --- | --- | --- |
-| **GET Read p95 Latency** | PENDING ms | PENDING ms | PENDING | Yes (Same k6 script & IP context) |
-| **POST Write p95 Latency**| PENDING ms | PENDING ms | PENDING | Yes (Same 500 VUs & duration) |
-| **Cache Hit Ratio (%)** | PENDING % | PENDING % | PENDING | Yes (Same dataset) |
-| **Data Integrity Check** | PASS (100%) | PENDING | - | Yes (SQL verification queries) |
-
----
-
-## 8. ดรรชนีหลักฐานสำหรับการส่งมอบงาน (Evidence Index)
-
-เมื่อยิง Final Benchmark เสร็จสิ้น จะต้องอ้างอิงไฟล์หลักฐานในส่วนนี้:
-
-1. **k6 Summary Export File:** `artifacts/final-summary.json` (`PENDING`)
-2. **Dashboard Overview Screenshots:** `artifacts/screenshots/final-dashboard.png` (`PENDING`)
-3. **Database Integrity Output Log:** `artifacts/logs/integrity-check.log` (`PENDING`)
-4. **Final System Log Correlation:** `artifacts/logs/system-correlation.log` (`PENDING`)
+ผลนี้พิสูจน์ว่าคอนฟิกที่เลือกเร็วกว่า baseline ของทีมภายใต้ VM, dataset, k6 profile และ network เดียวกัน ไม่ได้พิสูจน์ว่าเร็วที่สุดในโลก การจัดอันดับกับทีมอื่นต้องใช้สคริปต์และเงื่อนไขเดียวกันก่อนจึงเปรียบเทียบได้อย่างยุติธรรม

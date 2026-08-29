@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 500 max VUs, 2m30s max duration (incl. graceful stop):
+              * auth_preparation: 1 iterations for each of 500 VUs (maxDuration: 2m0s, exec: authPreparation, gracefulStop: 30s)
+
+profile=auth requests=500 request_rate=968.4002964900831 checks_rate=1 sanitized_summary=artifacts/day4/final-auth-r1-20260829/k6-summary.json
+
+running (0m00.5s), 000/500 VUs, 500 complete and 0 interrupted iterations
+auth_preparation ✓ [ 100% ] 500 VUs  0m00.5s/2m0s  500/500 iters, 1 per VU

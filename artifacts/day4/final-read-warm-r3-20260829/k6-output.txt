@@ -1,0 +1,109 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 35s max duration (incl. graceful stop):
+              * read_products: 1000 looping VUs for 30s (exec: readProducts, gracefulStop: 5s)
+
+
+running (00.9s), 1000/1000 VUs, 1117 complete and 0 interrupted iterations
+read_products   [   3% ] 1000 VUs  00.9s/30s
+
+running (01.9s), 1000/1000 VUs, 2488 complete and 0 interrupted iterations
+read_products   [   6% ] 1000 VUs  01.9s/30s
+
+running (02.9s), 1000/1000 VUs, 4804 complete and 0 interrupted iterations
+read_products   [  10% ] 1000 VUs  02.9s/30s
+
+running (03.9s), 1000/1000 VUs, 8642 complete and 0 interrupted iterations
+read_products   [  13% ] 1000 VUs  03.9s/30s
+
+running (04.9s), 1000/1000 VUs, 12652 complete and 0 interrupted iterations
+read_products   [  16% ] 1000 VUs  04.9s/30s
+
+running (05.9s), 1000/1000 VUs, 16540 complete and 0 interrupted iterations
+read_products   [  20% ] 1000 VUs  05.9s/30s
+
+running (06.9s), 1000/1000 VUs, 20365 complete and 0 interrupted iterations
+read_products   [  23% ] 1000 VUs  06.9s/30s
+
+running (07.9s), 1000/1000 VUs, 24235 complete and 0 interrupted iterations
+read_products   [  26% ] 1000 VUs  07.9s/30s
+
+running (08.9s), 1000/1000 VUs, 27958 complete and 0 interrupted iterations
+read_products   [  30% ] 1000 VUs  08.9s/30s
+
+running (09.9s), 1000/1000 VUs, 31502 complete and 0 interrupted iterations
+read_products   [  33% ] 1000 VUs  09.9s/30s
+
+running (10.9s), 1000/1000 VUs, 35084 complete and 0 interrupted iterations
+read_products   [  36% ] 1000 VUs  10.9s/30s
+
+running (11.9s), 1000/1000 VUs, 38275 complete and 0 interrupted iterations
+read_products   [  40% ] 1000 VUs  11.9s/30s
+
+running (12.9s), 1000/1000 VUs, 41898 complete and 0 interrupted iterations
+read_products   [  43% ] 1000 VUs  12.9s/30s
+
+running (13.9s), 1000/1000 VUs, 45581 complete and 0 interrupted iterations
+read_products   [  46% ] 1000 VUs  13.9s/30s
+
+running (14.9s), 1000/1000 VUs, 49444 complete and 0 interrupted iterations
+read_products   [  50% ] 1000 VUs  14.9s/30s
+
+running (15.9s), 1000/1000 VUs, 53014 complete and 0 interrupted iterations
+read_products   [  53% ] 1000 VUs  15.9s/30s
+
+running (16.9s), 1000/1000 VUs, 56584 complete and 0 interrupted iterations
+read_products   [  56% ] 1000 VUs  16.9s/30s
+
+running (17.9s), 1000/1000 VUs, 60345 complete and 0 interrupted iterations
+read_products   [  60% ] 1000 VUs  17.9s/30s
+
+running (18.9s), 1000/1000 VUs, 63960 complete and 0 interrupted iterations
+read_products   [  63% ] 1000 VUs  18.9s/30s
+
+running (19.9s), 1000/1000 VUs, 67730 complete and 0 interrupted iterations
+read_products   [  66% ] 1000 VUs  19.9s/30s
+
+running (20.9s), 1000/1000 VUs, 71303 complete and 0 interrupted iterations
+read_products   [  70% ] 1000 VUs  20.9s/30s
+
+running (21.9s), 1000/1000 VUs, 74910 complete and 0 interrupted iterations
+read_products   [  73% ] 1000 VUs  21.9s/30s
+
+running (22.9s), 1000/1000 VUs, 77690 complete and 0 interrupted iterations
+read_products   [  76% ] 1000 VUs  22.9s/30s
+
+running (23.9s), 1000/1000 VUs, 81231 complete and 0 interrupted iterations
+read_products   [  80% ] 1000 VUs  23.9s/30s
+
+running (24.9s), 1000/1000 VUs, 85136 complete and 0 interrupted iterations
+read_products   [  83% ] 1000 VUs  24.9s/30s
+
+running (25.9s), 1000/1000 VUs, 88935 complete and 0 interrupted iterations
+read_products   [  86% ] 1000 VUs  25.9s/30s
+
+running (26.9s), 1000/1000 VUs, 92655 complete and 0 interrupted iterations
+read_products   [  90% ] 1000 VUs  26.9s/30s
+
+running (27.9s), 1000/1000 VUs, 96379 complete and 0 interrupted iterations
+read_products   [  93% ] 1000 VUs  27.9s/30s
+
+running (28.9s), 1000/1000 VUs, 100050 complete and 0 interrupted iterations
+read_products   [  96% ] 1000 VUs  28.9s/30s
+
+running (29.9s), 1000/1000 VUs, 103803 complete and 0 interrupted iterations
+read_products   [ 100% ] 1000 VUs  29.9s/30s
+profile=read requests=105268 request_rate=3474.554080482942 checks_rate=1 sanitized_summary=artifacts/day4/final-read-warm-r3-20260829/k6-summary.json
+
+running (30.3s), 0000/1000 VUs, 105268 complete and 0 interrupted iterations
+read_products ✓ [ 100% ] 1000 VUs  30s
