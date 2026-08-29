@@ -1,0 +1,34 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6/competition.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 10s max duration (incl. graceful stop):
+              * read_products: 50 looping VUs for 5s (exec: readProducts, gracefulStop: 5s)
+
+
+running (01.0s), 50/50 VUs, 638 complete and 0 interrupted iterations
+read_products   [  20% ] 50 VUs  1.0s/5s
+
+running (02.0s), 50/50 VUs, 1265 complete and 0 interrupted iterations
+read_products   [  40% ] 50 VUs  2.0s/5s
+
+running (03.0s), 50/50 VUs, 1859 complete and 0 interrupted iterations
+read_products   [  60% ] 50 VUs  3.0s/5s
+
+running (04.0s), 50/50 VUs, 2427 complete and 0 interrupted iterations
+read_products   [  80% ] 50 VUs  4.0s/5s
+
+running (05.0s), 50/50 VUs, 3027 complete and 0 interrupted iterations
+read_products   [ 100% ] 50 VUs  5.0s/5s
+profile=read requests=3077 request_rate=594.5887576297416 checks_rate=1 sanitized_summary=artifacts/day4/preflight-read-warm-20260829/k6-summary.json
+
+running (05.2s), 00/50 VUs, 3077 complete and 0 interrupted iterations
+read_products ✓ [ 100% ] 50 VUs  5s

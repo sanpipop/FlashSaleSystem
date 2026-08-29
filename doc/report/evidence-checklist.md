@@ -1,76 +1,58 @@
-# รายการตรวจสอบหลักฐานสำหรับการส่งมอบงาน (Final Report Evidence Checklist)
+# Final Evidence Checklist
 
-**วันที่อัปเดต:** 26 สิงหาคม 2026  
-**สถานะ:** PREPARATION FRAMEWORK (Phase 6)  
-**ขอบเขตโปรเจกต์:** คู่มือการจัดเก็บหลักฐานเชิงประจักษ์ (Evidence Collection Checklist) สำหรับจัดทำรายงานฉบับสมบูรณ์ (ทุกสมาชิกในทีม)
+**วันที่ตรวจ:** 29 สิงหาคม 2026
 
----
+**สถานะ:** `CLI / BENCHMARK EVIDENCE AVAILABLE; RELEASE EVIDENCE PENDING`
 
-## 1. วัตถุประสงค์ (Purpose)
+## Evidence matrix
 
-เอกสารฉบับนี้จัดทำขึ้นเพื่อใช้เป็น **คู่มือรวบรวมหลักฐานเชิงประจักษ์ (Evidence Checklist)** สำหรับการทำรายงานฉบับสมบูรณ์ (Final Report PDF) โดยช่วยให้ทีมรับทราบว่าต้องจัดเก็บหลักฐานประเภทใด จากส่วนประกอบใด เมื่อไร และใครเป็นผู้รับผิดชอบ เพื่อป้องกันการตกหล่นของ Screenshot, Metric หรือ Log สำคัญก่อนถึงกำหนดส่งมอบงาน
+| ID | หลักฐาน | สถานะ | ตำแหน่ง/หมายเหตุ |
+| --- | --- | --- | --- |
+| EVD-001 | Git SHA และ CI green บน release PR | `PENDING` | รอ merge `develop → main` |
+| EVD-002 | Docker Compose services healthy | `AVAILABLE` | VM smoke test ผ่าน |
+| EVD-003 | Nginx กระจาย health ไป API 1/2/3 | `AVAILABLE` | `scripts/smoke-test.sh` |
+| EVD-004 | Auth profile | `AVAILABLE` | `artifacts/day4/final-auth-r1-20260829/` |
+| EVD-005 | Read API/caching profile | `AVAILABLE` | final read warm/cold artifacts |
+| EVD-006 | Order admission 202 + Job ID | `AVAILABLE` | final write artifacts/integration tests |
+| EVD-007 | Cache miss/hit | `AVAILABLE` | Day 3 integration suite |
+| EVD-008 | Versioned invalidation + outbox recovery | `AVAILABLE` | Day 3 integration suite |
+| EVD-009 | Duplicate/retry prevention | `AVAILABLE` | duplicate artifact + worker integration |
+| EVD-010 | Bull Board UI screenshot | `AVAILABLE` | `artifacts/day5/bull-board.png` |
+| EVD-011 | Worker micro-batch/correlation | `AVAILABLE` | worker integration + queue evidence |
+| EVD-012 | Stock ไม่ติดลบ | `AVAILABLE` | `integrity.txt` ทุก valid write run |
+| EVD-013 | Successful orders = 50 | `AVAILABLE` | `integrity.txt` |
+| EVD-014 | Distinct successful users = 50 | `AVAILABLE` | `integrity.txt` |
+| EVD-015 | Duplicate successful orders = 0 | `AVAILABLE` | `integrity.txt` |
+| EVD-016 | Observability + resource metrics | `AVAILABLE` | `artifacts/day5/grafana-overview.png`, `target-resource.txt`, `load-generator-resource.txt` |
+| EVD-017 | Official 3-run baseline | `AVAILABLE` | final-read-warm และ final-write series |
+| EVD-018 | Keep/Revert tuning log | `AVAILABLE` | `doc/performance/tuning-results.md` |
+| EVD-019 | Final 3-run benchmark | `AVAILABLE` | singleflight-write series + final report |
+| EVD-020 | Cross-team comparison | `PENDING EXTERNAL DATA` | ต้องได้ผลทีมอื่นภายใต้เงื่อนไขเดียวกัน |
 
----
+## Correctness gate
 
-## 2. กฎการรวบรวมหลักฐาน (Evidence Collection Rules)
+- [x] `remaining_stock >= 0` และ final stock = 0
+- [x] successful orders = 50
+- [x] distinct successful users = 50
+- [x] duplicate successful `(user_id, product_id)` = 0
+- [x] durable results = 500
+- [x] retry idempotency ผ่าน
 
-1. **No Fake Evidence Rule:** ห้ามสร้าง Screenshot, Metric, Log หรือตัวเลขการทดลองปลอมขึ้นมาโดยเด็ดขาด ให้ใช้เฉพาะหลักฐานที่รันจากระบบจริงเท่านั้น
-2. **Primary Evidence Priority:** รายงานต้องอ้างอิงหลักฐานปฐมภูมิ (Primary Evidence) เช่น k6 Summary JSON, Grafana/Bull Board Screenshot, SQL Query Log เป็นหลัก
-3. **Sensitive Data Redaction:** ก่อนนำ Screenshot หรือ Log มาใช้ในรายงาน ต้องตรวจสอบและเซ็นเซอร์ข้อมูลลับ (JWT Secret, Database Password, `.env` file) เสมอ
+## Sensitive-data review
 
----
+- [x] สแกน artifacts ไม่พบ `JWT_SECRET`, database password, Bearer token, private-key marker หรือ local test secret
+- [x] `metadata.json` เก็บเฉพาะ allowlisted environment fields
+- [x] ไม่ commit `.env`
+- [x] ตรวจภาพหน้าจอ Bull Board/Grafana ด้วยตาและไม่พบ secret/token/password
 
-## 3. สถานะของหลักฐาน (Evidence Status Convention)
+## Final submission gate
 
-- **`AVAILABLE`:** มีหลักฐานจริง ตรวจสอบย้อนกลับได้ พร้อมใช้นำเสนอในรายงาน
-- **`PENDING`:** อยู่ในระหว่างรอรันการทดสอบและจัดเก็บหลักฐาน
-- **`PARTIAL`:** มีหลักฐานบางส่วน แต่ยังไม่สมบูรณ์สำหรับหัวข้อนั้น
-- **`INVALID`:** หลักฐานถูกรันจากสภาวะที่ผิดเงื่อนไขหรือเกิด Data Integrity Failure
-- **`NOT IMPLEMENTED`:** ฟังก์ชันดังกล่าวไม่ได้พัฒนาจริง (ไม่ต้องเก็บหลักฐาน)
+- [x] Typecheck, lint, unit test และ build ผ่าน
+- [x] Integration/concurrency/correctness suites ผ่าน
+- [x] Official external k6 3 runs และ SQL gate ผ่าน
+- [x] Valid/invalid/diagnostic runs แยกชัดใน `notes.md`
+- [ ] Release PR CI green และ merge เข้า `main`
+- [x] เก็บ Bull Board/Grafana screenshots จาก Target VM
+- [ ] เติมผลทีมอื่นเมื่ออาจารย์ให้ข้อมูลเทียบ
 
----
-
-## 4. เมทริกซ์การรวบรวมหลักฐาน (Evidence Matrix 20 Categories)
-
-| Evidence ID | Requirement / Item | Source | Expected Evidence | Target Report Section | Primary Owner | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| **EVD-001** | Repository Structure & CI | GitHub / Repo | Git Commit SHA & CI Green Result | Section 1, 18 | Member 1 | `AVAILABLE` |
-| **EVD-002** | Docker Compose Deployment | VM Console | `docker compose ps` (All containers healthy) | Section 3 | Integration Captain | `PENDING` |
-| **EVD-003** | Nginx Multi-API Load Balancing | Nginx Log / API | Access log showing distribution to 3 API instances | Section 3, 4 | Member 1 | `PENDING` |
-| **EVD-004** | Authentication API (`POST /auth/token`) | curl / HTTP Client | Valid 200 response with JWT access token | Section 4 | Member 1 | `PENDING` |
-| **EVD-005** | Products Read API & Pagination | curl / HTTP Client | 200 JSON response with page & limit | Section 4 | Member 1 | `PENDING` |
-| **EVD-006** | Orders Async Admission API | curl / HTTP Client | 202 Accepted response with `orderJobId` | Section 4, 6 | Member 1 | `PENDING` |
-| **EVD-007** | Redis Product Cache-Aside (Hit/Miss)| API Metrics / Log | First GET = Miss, Second GET = Hit | Section 5 | Member 2 | `PENDING` |
-| **EVD-008** | Versioned Cache + Outbox Recovery | Redis / API / DB | Epoch changes after Commit and Outbox repairs Redis outage | Section 5, 8 | Member 2, 3 | `PENDING` |
-| **EVD-009** | Duplicate/Retry Prevention | Integration Test | Concurrent duplicates create 1 logical Job; retry returns durable result without extra stock cut | Section 7 | Member 3 | `PENDING` |
-| **EVD-010** | Bull Board Queue Dashboard UI | Browser Screenshot | Real-time Waiting/Active/Completed/Failed counts | Section 6, 9 | Member 2 | `PENDING` |
-| **EVD-011** | BullMQ Micro-batch Worker | Worker/DB Metrics | Job count, batch-call count, mapping and JSON correlation logs | Section 6, 9 | Member 3 | `PENDING` |
-| **EVD-012** | Database Non-Negative Stock Proof | SQL Query Output | `SELECT remaining_stock FROM products WHERE product_id='p-1001'` (>=0) | Section 8, 15 | Member 3 | `PENDING` |
-| **EVD-013** | Database Total Successful Orders Proof | SQL Query Output | `SELECT COUNT(*) FROM orders WHERE product_id='p-1001'` (==50) | Section 8, 15 | Member 3 | `PENDING` |
-| **EVD-014** | Database Distinct Users Proof | SQL Query Output | `SELECT COUNT(DISTINCT user_id) FROM orders` (==50) | Section 8, 15 | Member 3 | `PENDING` |
-| **EVD-015** | Zero Duplicate Successful Orders Proof | SQL Query Output | `HAVING COUNT(*) > 1` query returning 0 rows | Section 8, 15 | Member 3 | `PENDING` |
-| **EVD-016** | System Observability Metrics | Prometheus / API | HTTP RPS, p95 Latency, Cache Hit Ratio %, CPU/RAM | Section 9 | Member 2 | `PENDING` |
-| **EVD-017** | Baseline k6 Benchmark Results | k6 Summary JSON | Raw k6 output summary for Baseline run | Section 10, 11 | Member 1 | `PENDING` |
-| **EVD-018** | Performance Tuning Experiments Log | `tuning-results.md` | Single-variable experiment before/after table | Section 13 | Member 1, 2, 3 | `PENDING` |
-| **EVD-019** | Final Benchmark Competition Results | k6 Summary JSON | Peak RPS, p95 Latency, Error Rate summary | Section 14 | Member 1 | `PENDING` |
-| **EVD-020** | Cross-Team Benchmark Comparison | Load Test Metrics | Comparative RPS/p95 table under same load script | Section 16 | Member 1, 2 | `PENDING` |
-
----
-
-## 5. รายการตรวจสอบความปลอดภัยของข้อมูลลับ (Sensitive Data Review Checklist)
-
-ก่อนนำหลักฐานทุกชิ้นใส่ในรายงาน ให้ตรวจสอบและขีดฆ่า/ปิดทับ (Redact) ข้อมูลต่อไปนี้:
-
-- [ ] **JWT Secret / Signing Keys:** ปิดทับ Secret ที่อยู่ใน `.env` หรือโค้ด
-- [ ] **Database & Redis Passwords:** ปิดทับ Password ใน Connection String
-- [ ] **User Credentials:** ปิดทับ Plaintext Password ในคำขอทดสอบ
-- [ ] **Full JWT Access Tokens:** ตัดแสดงเฉพาะตัวอย่างย่อ (เช่น `eyJhbGciOi...`)
-
----
-
-## 6. ประตูตรวจสอบความพร้อมของการส่งมอบ (Final Submission Gate)
-
-- [ ] หลักฐาน EVD-001 ถึง EVD-020 ถูกจัดเก็บครบถ้วนและอยู่ในสถานะ `AVAILABLE`
-- [ ] ผลการรัน SQL Verification ใน EVD-012 ถึง EVD-015 ผ่าน 100% (สต็อก 0, Order 50, User 50, Duplicate 0)
-- [ ] มี k6 Summary JSON และ Screenshots คุณภาพสูงที่อ่านตัวเลขได้ชัดเจน
-- [ ] ผ่านการตรวจขีดฆ่าข้อมูลลับเรียบร้อยแล้ว
+ห้ามเปลี่ยน `PENDING` เป็น `AVAILABLE` จากการคาดเดา ต้องมีหลักฐานจริงเท่านั้น

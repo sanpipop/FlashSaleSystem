@@ -1,0 +1,10 @@
+targetCommitSha=8c30c552e80f5dadc900bf05ead3996b67be16b4
+targetDirtyState=clean
+targetHostname=mob07-mob
+targetCpu=QEMU Virtual CPU version 2.5+
+targetLogicalCpuCount=4
+targetRamBytes=6220013568
+targetKernel=Linux 6.12.96+deb13-cloud-amd64 x86_64 GNU/Linux
+targetOs=Debian GNU/Linux 13 (trixie)
+targetDockerVersion=Docker version 26.1.5+dfsg1, build a72d7cd
+targetComposeVersion=Docker Compose version 2.26.1-4

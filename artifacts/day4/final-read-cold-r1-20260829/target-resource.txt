@@ -1,0 +1,334 @@
+classification=TARGET_VM_RESOURCE_EVIDENCE
+timestamp_start=2026-08-29T09:23:20Z
+commit=0230002ccfb1a14c09aaa4044d5545565e1c61d3
+dirty_state=clean
+hostname=mob07-mob
+logical_cpus=4
+               total        used        free      shared  buff/cache   available
+Mem:           5.8Gi       1.9Gi       378Mi       123Mi       4.0Gi       3.9Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G  6.6G   41G  14% /
+NAME                                IMAGE                       COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+flash-sale-system-api-1-1           flash-sale-api:local        "docker-entrypoint.s…"   api-1           13 minutes ago   Up 13 minutes (healthy)   
+flash-sale-system-api-2-1           flash-sale-api:local        "docker-entrypoint.s…"   api-2           13 minutes ago   Up 13 minutes (healthy)   
+flash-sale-system-api-3-1           flash-sale-api:local        "docker-entrypoint.s…"   api-3           13 minutes ago   Up 13 minutes (healthy)   
+flash-sale-system-grafana-1         grafana/grafana:12.1.1      "/run.sh"                grafana         13 minutes ago   Up 12 minutes             
+flash-sale-system-nginx-1           nginx:1.27-alpine           "/docker-entrypoint.…"   nginx           13 minutes ago   Up 9 seconds (healthy)    0.0.0.0:80->80/tcp, :::80->80/tcp
+flash-sale-system-node-exporter-1   prom/node-exporter:v1.9.1   "/bin/node_exporter …"   node-exporter   55 minutes ago   Up 54 minutes             
+flash-sale-system-postgres-1        postgres:16-alpine          "docker-entrypoint.s…"   postgres        55 minutes ago   Up 54 minutes (healthy)   
+flash-sale-system-prometheus-1      prom/prometheus:v3.5.0      "/bin/prometheus --c…"   prometheus      13 minutes ago   Up 12 minutes             
+flash-sale-system-redis-cache-1     redis:7.4-alpine            "docker-entrypoint.s…"   redis-cache     55 minutes ago   Up 54 minutes (healthy)   
+flash-sale-system-redis-ops-1       redis:7.4-alpine            "docker-entrypoint.s…"   redis-ops       55 minutes ago   Up 54 minutes (healthy)   
+flash-sale-system-worker-1          flash-sale-worker:local     "docker-entrypoint.s…"   worker          13 minutes ago   Up 29 seconds             
+
+=== sample=1 timestamp=2026-08-29T09:23:21Z elapsed_seconds=0 ===
+container=flash-sale-system-grafana-1 cpu=0.20% memory=109.8MiB / 256MiB memory_percent=42.91% net=8.21kB / 0B block=672kB / 426kB
+container=flash-sale-system-nginx-1 cpu=0.00% memory=16.39MiB / 128MiB memory_percent=12.81% net=4.09kB / 964B block=0B / 4.1kB
+container=flash-sale-system-prometheus-1 cpu=0.22% memory=39.95MiB / 256MiB memory_percent=15.61% net=18.9MB / 549kB block=553kB / 2.03MB
+container=flash-sale-system-api-1-1 cpu=0.33% memory=66.43MiB / 320MiB memory_percent=20.76% net=1.2MB / 6.43MB block=0B / 0B
+container=flash-sale-system-api-2-1 cpu=0.32% memory=65.8MiB / 320MiB memory_percent=20.56% net=1.21MB / 6.59MB block=0B / 0B
+container=flash-sale-system-worker-1 cpu=1.10% memory=43.17MiB / 640MiB memory_percent=6.74% net=89.7kB / 209kB block=0B / 0B
+container=flash-sale-system-api-3-1 cpu=0.34% memory=68.3MiB / 320MiB memory_percent=21.34% net=1.23MB / 6.17MB block=0B / 0B
+container=flash-sale-system-postgres-1 cpu=0.25% memory=34.02MiB / 1.367GiB memory_percent=2.43% net=11.6MB / 7.5MB block=1.4MB / 12.9MB
+container=flash-sale-system-node-exporter-1 cpu=0.47% memory=12.73MiB / 64MiB memory_percent=19.90% net=427kB / 7.87MB block=0B / 0B
+container=flash-sale-system-redis-ops-1 cpu=4.05% memory=10.46MiB / 384MiB memory_percent=2.73% net=11.2MB / 18.7MB block=6.16MB / 14MB
+container=flash-sale-system-redis-cache-1 cpu=3.85% memory=8.223MiB / 256MiB memory_percent=3.21% net=144MB / 1.16GB block=0B / 0B
+-- PostgreSQL activity and lock waits --
+connections total=2 active=1 waiting=1
+ungranted_locks=0
+-- Redis operations/cache counters --
+service=redis-ops total_commands_processed=191156 instantaneous_ops_per_sec=13 keyspace_hits=50944 keyspace_misses=31342 
+service=redis-cache total_commands_processed=2324670 instantaneous_ops_per_sec=0 keyspace_hits=769748 keyspace_misses=778840 
+-- Application metrics --
+service=api-1
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-1"} 189
+flash_sale_http_requests_total{method="GET",route="/admin/queues/",status="200",service="api",instance="api-1"} 1
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-1"} 189
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-1"} 678
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-1"} 533
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/health",status="200"} 0.1418709770000314
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/health",status="200"} 189
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 0.006433796000001166
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 1
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 0.8284620500000749
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 189
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 0.5997804450001272
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 678
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 29.191635850999738
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 533
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-1"} 0
+service=api-2
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-2"} 193
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-2"} 12797
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-2"} 194
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-2"} 700
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-2"} 552
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/health",status="200"} 0.1535333860019045
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/health",status="200"} 193
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 632.5673186259976
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 12797
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 1.089639707999871
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 194
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 0.6333589599999537
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 700
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 17.45208794400016
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 552
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-2"} 40
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-2"} 12795
+flash_sale_product_cache_fills_total{outcome="winner",service="api",instance="api-2"} 2
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-2"} 38
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-2"} 0
+service=api-3
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-3"} 184
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-3"} 197
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-3"} 672
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-3"} 565
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-3"} 31430
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/health",status="200"} 0.1306270830001085
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/health",status="200"} 184
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 1.2635266229998579
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 197
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 0.5232663079991616
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 672
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 21.003754378000185
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 565
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 1522.1647396229846
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 31430
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-3"} 42
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-3"} 31435
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-3"} 42
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-3"} 0
+service=worker
+flash_sale_worker_batch_duration_seconds_sum{service="worker"} 0
+flash_sale_worker_batch_duration_seconds_count{service="worker"} 0
+flash_sale_worker_queue_jobs{state="waiting",service="worker"} 0
+flash_sale_worker_queue_jobs{state="active",service="worker"} 0
+flash_sale_worker_queue_jobs{state="completed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="failed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="delayed",service="worker"} 0
+
+=== sample=2 timestamp=2026-08-29T09:23:55Z elapsed_seconds=34 ===
+container=flash-sale-system-grafana-1 cpu=0.19% memory=109.8MiB / 256MiB memory_percent=42.91% net=8.25kB / 0B block=672kB / 438kB
+container=flash-sale-system-nginx-1 cpu=0.00% memory=20.72MiB / 128MiB memory_percent=16.19% net=196MB / 205MB block=0B / 4.1kB
+container=flash-sale-system-prometheus-1 cpu=0.25% memory=39.96MiB / 256MiB memory_percent=15.61% net=19.8MB / 574kB block=553kB / 2.11MB
+container=flash-sale-system-api-1-1 cpu=0.34% memory=76.9MiB / 320MiB memory_percent=24.03% net=54.3MB / 64.1MB block=0B / 0B
+container=flash-sale-system-api-2-1 cpu=0.31% memory=79.2MiB / 320MiB memory_percent=24.75% net=64.9MB / 75.9MB block=0B / 0B
+container=flash-sale-system-worker-1 cpu=1.16% memory=43.48MiB / 640MiB memory_percent=6.79% net=140kB / 446kB block=0B / 0B
+container=flash-sale-system-api-3-1 cpu=0.86% memory=77.12MiB / 320MiB memory_percent=24.10% net=63.6MB / 73.9MB block=0B / 0B
+container=flash-sale-system-postgres-1 cpu=0.27% memory=34.02MiB / 1.367GiB memory_percent=2.43% net=11.7MB / 7.56MB block=1.4MB / 13.2MB
+container=flash-sale-system-node-exporter-1 cpu=2.31% memory=12.86MiB / 64MiB memory_percent=20.09% net=431kB / 7.96MB block=0B / 0B
+container=flash-sale-system-redis-ops-1 cpu=0.57% memory=10.44MiB / 384MiB memory_percent=2.72% net=11.2MB / 18.7MB block=6.17MB / 14MB
+container=flash-sale-system-redis-cache-1 cpu=3.98% memory=8.277MiB / 256MiB memory_percent=3.23% net=162MB / 1.31GB block=0B / 0B
+-- PostgreSQL activity and lock waits --
+connections total=2 active=1 waiting=1
+ungranted_locks=0
+-- Redis operations/cache counters --
+service=redis-ops total_commands_processed=191444 instantaneous_ops_per_sec=0 keyspace_hits=50952 keyspace_misses=31545 
+service=redis-cache total_commands_processed=2618727 instantaneous_ops_per_sec=0 keyspace_hits=867284 keyspace_misses=877256 
+-- Application metrics --
+service=api-1
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-1"} 194
+flash_sale_http_requests_total{method="GET",route="/admin/queues/",status="200",service="api",instance="api-1"} 1
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-1"} 197
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-1"} 678
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-1"} 533
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-1"} 28868
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/health",status="200"} 0.1433785609999213
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/health",status="200"} 194
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 0.006433796000001166
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 1
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 1.7639472620000451
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 197
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 0.5997804450001272
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 678
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 29.191635850999738
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 533
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/api/v1/products",status="200"} 1804.515918677012
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/api/v1/products",status="200"} 28868
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-1"} 34
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-1"} 28892
+flash_sale_product_cache_fills_total{outcome="winner",service="api",instance="api-1"} 1
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-1"} 33
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-1"} 0
+service=api-2
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-2"} 200
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-2"} 34699
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-2"} 200
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-2"} 700
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-2"} 552
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/health",status="200"} 0.15546738600179646
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/health",status="200"} 200
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 1755.399619505991
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 34699
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 1.6272648139997468
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 200
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 0.6333589599999537
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 700
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 17.45208794400016
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 552
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-2"} 40
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-2"} 34701
+flash_sale_product_cache_fills_total{outcome="winner",service="api",instance="api-2"} 2
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-2"} 38
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-2"} 0
+service=api-3
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-3"} 187
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-3"} 199
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-3"} 672
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-3"} 565
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-3"} 33935
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/health",status="200"} 0.18165107900017027
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/health",status="200"} 187
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 1.2766533459998226
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 199
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 0.5232663079991616
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 672
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 21.003754378000185
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 565
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 1652.4619959139889
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 33935
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-3"} 42
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-3"} 33941
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-3"} 42
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-3"} 0
+service=worker
+flash_sale_worker_batch_duration_seconds_sum{service="worker"} 0
+flash_sale_worker_batch_duration_seconds_count{service="worker"} 0
+flash_sale_worker_queue_jobs{state="waiting",service="worker"} 0
+flash_sale_worker_queue_jobs{state="active",service="worker"} 0
+flash_sale_worker_queue_jobs{state="completed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="failed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="delayed",service="worker"} 0
+
+=== sample=3 timestamp=2026-08-29T09:24:02Z elapsed_seconds=41 ===
+container=flash-sale-system-grafana-1 cpu=0.20% memory=109.8MiB / 256MiB memory_percent=42.91% net=8.25kB / 0B block=672kB / 438kB
+container=flash-sale-system-nginx-1 cpu=0.00% memory=20.72MiB / 128MiB memory_percent=16.19% net=196MB / 205MB block=0B / 4.1kB
+container=flash-sale-system-prometheus-1 cpu=0.21% memory=39.96MiB / 256MiB memory_percent=15.61% net=20.1MB / 581kB block=553kB / 2.13MB
+container=flash-sale-system-api-1-1 cpu=5.05% memory=59.39MiB / 320MiB memory_percent=18.56% net=54.3MB / 64.2MB block=0B / 0B
+container=flash-sale-system-api-2-1 cpu=0.81% memory=79.2MiB / 320MiB memory_percent=24.75% net=64.9MB / 75.9MB block=0B / 0B
+container=flash-sale-system-worker-1 cpu=2.35% memory=43.63MiB / 640MiB memory_percent=6.82% net=151kB / 519kB block=0B / 0B
+container=flash-sale-system-api-3-1 cpu=11.04% memory=60.79MiB / 320MiB memory_percent=19.00% net=63.6MB / 74MB block=0B / 0B
+container=flash-sale-system-postgres-1 cpu=0.29% memory=34.02MiB / 1.367GiB memory_percent=2.43% net=11.8MB / 7.56MB block=1.4MB / 13.2MB
+container=flash-sale-system-node-exporter-1 cpu=0.05% memory=12.95MiB / 64MiB memory_percent=20.23% net=432kB / 7.97MB block=0B / 0B
+container=flash-sale-system-redis-ops-1 cpu=0.60% memory=10.44MiB / 384MiB memory_percent=2.72% net=11.2MB / 18.7MB block=6.17MB / 14MB
+container=flash-sale-system-redis-cache-1 cpu=0.58% memory=8.281MiB / 256MiB memory_percent=3.23% net=162MB / 1.31GB block=0B / 0B
+-- PostgreSQL activity and lock waits --
+connections total=2 active=1 waiting=1
+ungranted_locks=0
+-- Redis operations/cache counters --
+service=redis-ops total_commands_processed=191524 instantaneous_ops_per_sec=4 keyspace_hits=50953 keyspace_misses=31607 
+service=redis-cache total_commands_processed=2618729 instantaneous_ops_per_sec=0 keyspace_hits=867284 keyspace_misses=877256 
+-- Application metrics --
+service=api-1
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-1"} 197
+flash_sale_http_requests_total{method="GET",route="/admin/queues/",status="200",service="api",instance="api-1"} 1
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-1"} 199
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-1"} 678
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-1"} 533
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-1"} 28868
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/health",status="200"} 0.14565346899994255
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/health",status="200"} 197
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 0.006433796000001166
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/admin/queues/",status="200"} 1
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 1.7740059080000357
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/metrics",status="200"} 199
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 0.5997804450001272
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/auth/token",status="200"} 678
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 29.191635850999738
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="POST",route="/api/v1/orders",status="202"} 533
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-1",method="GET",route="/api/v1/products",status="200"} 1804.515918677012
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-1",method="GET",route="/api/v1/products",status="200"} 28868
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-1"} 34
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-1"} 28892
+flash_sale_product_cache_fills_total{outcome="winner",service="api",instance="api-1"} 1
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-1"} 33
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-1"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-1"} 0
+service=api-2
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-2"} 201
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-2"} 34699
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-2"} 202
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-2"} 700
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-2"} 552
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/health",status="200"} 0.1557517080017887
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/health",status="200"} 201
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 1755.399619505991
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/api/v1/products",status="200"} 34699
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 1.6362561729997245
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="GET",route="/metrics",status="200"} 202
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 0.6333589599999537
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/auth/token",status="200"} 700
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 17.45208794400016
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-2",method="POST",route="/api/v1/orders",status="202"} 552
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-2"} 40
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-2"} 34701
+flash_sale_product_cache_fills_total{outcome="winner",service="api",instance="api-2"} 2
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-2"} 38
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-2"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-2"} 0
+service=api-3
+flash_sale_http_requests_total{method="GET",route="/health",status="200",service="api",instance="api-3"} 189
+flash_sale_http_requests_total{method="GET",route="/metrics",status="200",service="api",instance="api-3"} 202
+flash_sale_http_requests_total{method="POST",route="/api/v1/auth/token",status="200",service="api",instance="api-3"} 672
+flash_sale_http_requests_total{method="POST",route="/api/v1/orders",status="202",service="api",instance="api-3"} 565
+flash_sale_http_requests_total{method="GET",route="/api/v1/products",status="200",service="api",instance="api-3"} 33935
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/health",status="200"} 0.1828425760001046
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/health",status="200"} 189
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 1.291740517999793
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/metrics",status="200"} 202
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 0.5232663079991616
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/auth/token",status="200"} 672
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 21.003754378000185
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="POST",route="/api/v1/orders",status="202"} 565
+flash_sale_http_request_duration_seconds_sum{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 1652.4619959139889
+flash_sale_http_request_duration_seconds_count{service="api",instance="api-3",method="GET",route="/api/v1/products",status="200"} 33935
+flash_sale_product_cache_requests_total{outcome="miss",service="api",instance="api-3"} 42
+flash_sale_product_cache_requests_total{outcome="hit",service="api",instance="api-3"} 33941
+flash_sale_product_cache_fills_total{outcome="follower",service="api",instance="api-3"} 42
+flash_sale_queue_jobs{state="waiting",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="active",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="completed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="failed",service="api",instance="api-3"} 0
+flash_sale_queue_jobs{state="delayed",service="api",instance="api-3"} 0
+service=worker
+flash_sale_worker_batch_duration_seconds_sum{service="worker"} 0
+flash_sale_worker_batch_duration_seconds_count{service="worker"} 0
+flash_sale_worker_queue_jobs{state="waiting",service="worker"} 0
+flash_sale_worker_queue_jobs{state="active",service="worker"} 0
+flash_sale_worker_queue_jobs{state="completed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="failed",service="worker"} 0
+flash_sale_worker_queue_jobs{state="delayed",service="worker"} 0
+
+timestamp_end=2026-08-29T09:24:09Z
+samples=3

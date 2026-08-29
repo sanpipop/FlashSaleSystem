@@ -38,7 +38,7 @@ x-api-service: &api-service
     - "3000"
   networks:
     - backend
-  cpus: 0.40
+  cpus: ${API_CPU_LIMIT:-0.65}
   mem_limit: 320m
   healthcheck:
     test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/health >/dev/null || exit 1"]
@@ -66,7 +66,7 @@ services:
     networks:
       - edge
       - backend
-    cpus: 0.10
+    cpus: ${NGINX_CPU_LIMIT:-0.50}
     mem_limit: 128m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null || exit 1"]
@@ -106,14 +106,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-flashsale}
       POSTGRES_USER: ${POSTGRES_USER:-flashsale}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
-      POSTGRES_POOL_MAX: 12
+      POSTGRES_POOL_MAX: ${WORKER_POSTGRES_POOL_MAX:-12}
       REDIS_OPS_HOST: redis-ops
       REDIS_OPS_PORT: 6379
       REDIS_CACHE_HOST: redis-cache
       REDIS_CACHE_PORT: 6379
-      WORKER_CONCURRENCY: 8
-      WORKER_BATCH_SIZE: 16
-      WORKER_BATCH_WAIT_MS: 1
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-8}
+      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-16}
+      WORKER_BATCH_WAIT_MS: ${WORKER_BATCH_WAIT_MS:-1}
       WORKER_METRICS_PORT: 9464
       NODE_OPTIONS: --max-old-space-size=512
     depends_on:
@@ -127,7 +127,7 @@ services:
       - backend
     expose:
       - "9464"
-    cpus: 0.90
+    cpus: ${WORKER_CPU_LIMIT:-1.25}
     mem_limit: 640m
     logging: *default-logging
 
@@ -199,7 +199,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - backend
-    cpus: 0.90
+    cpus: ${POSTGRES_CPU_LIMIT:-1.25}
     mem_limit: 1400m
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -218,7 +218,7 @@ services:
       - redis-ops-data:/data
     networks:
       - backend
-    cpus: 0.25
+    cpus: ${REDIS_OPS_CPU_LIMIT:-0.50}
     mem_limit: 384m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -235,7 +235,7 @@ services:
       - ./infra/redis/redis-cache.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - backend
-    cpus: 0.15
+    cpus: ${REDIS_CACHE_CPU_LIMIT:-0.40}
     mem_limit: 256m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -262,7 +262,7 @@ services:
         condition: service_started
     networks:
       - backend
-    cpus: 0.15
+    cpus: ${PROMETHEUS_CPU_LIMIT:-0.10}
     mem_limit: 256m
     logging: *default-logging
 
@@ -283,7 +283,7 @@ services:
       - prometheus
     networks:
       - backend
-    cpus: 0.10
+    cpus: ${GRAFANA_CPU_LIMIT:-0.05}
     mem_limit: 256m
     logging: *default-logging
 
@@ -296,7 +296,7 @@ services:
       - /:/host:ro
     networks:
       - backend
-    cpus: 0.05
+    cpus: ${NODE_EXPORTER_CPU_LIMIT:-0.03}
     mem_limit: 64m
     logging: *default-logging
 

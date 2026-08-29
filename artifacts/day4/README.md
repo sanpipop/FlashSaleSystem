@@ -1,43 +1,32 @@
-# Day 4 benchmark evidence
+# Day 4–5 benchmark evidence
 
-Official run evidence belongs in a unique directory per profile, cache state, run number,
-and timestamp. A run must never overwrite another run.
+แต่ละ directory เป็นหลักฐานหนึ่งรอบและต้องอ่าน `notes.md` ก่อนนำตัวเลขไปใช้
 
-Expected files include:
+## Valid final evidence
 
-- `metadata.json` — target and load-generator identity, profile, parameters, and validity.
-- `k6-summary.json` — k6 `handleSummary` output with only sensitive `setup_data`
-  removed; metrics remain unedited.
-- `k6-output.txt` — console summary from the same run.
-- `integrity.txt` — output from `scripts/verify-integrity.sh` after queue drain.
-- `queue.txt` — queue depth and drain-time evidence.
-- `load-generator-resource.txt` — GNU time CPU/RAM observations from the external k6 host.
-- `target-environment.txt` — allowlisted target identity collected over SSH before load.
-- `target-resource.txt` — output from `k6/support/capture-target-evidence.sh` on the VM
-  while the matching k6 run is active.
-- `notes.md` — validity decision and any invalidating condition.
+- `final-read-warm-r1-20260829/` ถึง `r3` — official warm-read 3 runs
+- `singleflight-write-r1-20260829/` ถึง `r3` — final write 3 runs หลัง Single-Flight
+- `final-read-cold-r1-20260829/` — cold-cache read
+- `final-duplicate-r1-20260829/` — duplicate burst
+- `final-auth-r1-20260829/` — authentication profile
 
-Never store JWTs, authorization headers, signing secrets, database passwords, Redis
-credentials, SSH keys, or `.env` contents in this directory.
+## Valid comparison evidence
 
-For an official run, start target sampling in a separate VM terminal immediately before
-launching k6 from the external host:
+- `final-write-r1-20260829/` ถึง `r3` — write baseline ก่อน Single-Flight
+- `candidate4-read-warm-r1-20260829/` ถึง `r3` — 4 API experiment; ผลคือ REVERT
 
-```bash
-CAPTURE_SECONDS=45 CAPTURE_INTERVAL_SECONDS=5 \
-  bash k6/support/capture-target-evidence.sh > /tmp/target-resource.txt
-```
+## ห้ามใช้ตัดสิน performance
 
-Configure the external runner to collect target identity directly from the same VM over
-SSH; do not copy target values from a developer laptop:
+Directory ที่ `notes.md` ระบุ `INVALID`, `DIAGNOSTIC ONLY` หรือ `NON-OFFICIAL PREFLIGHT` เก็บไว้เพื่อความโปร่งใสและกฎ no cherry-picking เท่านั้น
 
-```bash
-BASE_URL=https://team-x.example.com TEST_PROFILE=write RUN_ID=write-run-1 \
-TARGET_SSH='benchmark-user@target-host' \
-TARGET_REPO_DIR='/srv/project_backend/FlashSaleSystem' \
-  bash k6/run-external.sh
-```
+## ไฟล์ที่ official run ต้องมี
 
-After the run, copy `/tmp/target-resource.txt` into the matching artifact directory. A
-run without this file, integrity output, a clean target commit SHA, and the external k6
-summary remains `AWAITING_INTEGRITY_VERIFICATION` and must not be used as a baseline.
+- `metadata.json` — target/load-generator identity, profile, parameters, commit cleanliness
+- `k6-summary.json` และ `k6-output.txt` — metric จริงจาก k6
+- `integrity.txt` — SQL correctness หลัง queue drain
+- `queue.txt` — queue depth/drain evidence
+- `load-generator-resource.txt` และ `target-resource.txt` — resource ของทั้งสองฝั่ง
+- `target-environment.txt` — สเปกและ commit ของ Target VM
+- `notes.md` — คำตัดสิน validity
+
+ห้ามเก็บ JWT, Authorization header, signing secret, database/Redis password, SSH key หรือ `.env` ใน artifacts

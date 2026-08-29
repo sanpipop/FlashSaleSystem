@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Detect Node.js project
         id: project
@@ -36,9 +36,12 @@ jobs:
 
       - name: Setup Node.js
         if: steps.project.outputs.node_project == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
+          # pnpm is exposed by Corepack in the next step. Keep setup-node from
+          # probing pnpm before that; this workflow owns its cache explicitly.
+          package-manager-cache: false
 
       - name: Enable Corepack
         if: steps.project.outputs.node_project == 'true'
@@ -66,7 +69,7 @@ jobs:
 
       - name: Restore pnpm cache
         if: steps.project.outputs.node_project == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-store.outputs.path }}
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}

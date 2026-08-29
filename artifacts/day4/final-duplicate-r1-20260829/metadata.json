@@ -1,0 +1,41 @@
+{
+  "runId": "final-duplicate-r1-20260829",
+  "timestampStart": "2026-08-29T09:18:47.182Z",
+  "timestampEnd": "2026-08-29T09:18:49.076Z",
+  "scenario": "duplicate",
+  "cacheState": "not-applicable",
+  "baseUrl": "http://172.30.58.6",
+  "targetCommitSha": "0230002ccfb1a14c09aaa4044d5545565e1c61d3",
+  "targetDirtyState": "clean",
+  "targetHostname": "mob07-mob",
+  "targetCpu": "QEMU Virtual CPU version 2.5+",
+  "targetLogicalCpuCount": 4,
+  "targetRamBytes": 6220013568,
+  "targetKernel": "Linux 6.12.96+deb13-cloud-amd64 x86_64 GNU/Linux",
+  "targetOs": "Debian GNU/Linux 13 (trixie)",
+  "targetDockerVersion": "Docker version 26.1.5+dfsg1, build a72d7cd",
+  "targetComposeVersion": "Docker Compose version 2.26.1-4",
+  "targetRam": "6220013568 bytes",
+  "loadGenerator": {
+    "hostname": "de059fe73460",
+    "cpu": "AMD Ryzen 9 8940HX with Radeon Graphics / 32 logical CPUs",
+    "ramBytes": 16261447680,
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x64"
+  },
+  "k6Version": "k6 v2.2.0 (commit/00a9a1b7f5, go1.26.5, linux/amd64)",
+  "k6ScriptSha256": "57857ad5b7141596eaf046b01ad2013aeff4edc4d816141969599e67af6760fd",
+  "harnessCommitSha": "0230002ccfb1a14c09aaa4044d5545565e1c61d3",
+  "harnessDirtyState": "clean",
+  "parameters": {
+    "readVus": "1000",
+    "readDuration": "30s",
+    "writeUsers": "500",
+    "duplicateUsers": "50",
+    "productId": "p-1001",
+    "userPrefix": "user"
+  },
+  "proxyVariablesDetected": false,
+  "validityStatus": "AWAITING_INTEGRITY_VERIFICATION",
+  "invalidReason": null,
+  "k6ExitCode": 0
+}

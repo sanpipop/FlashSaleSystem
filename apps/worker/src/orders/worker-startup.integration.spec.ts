@@ -34,7 +34,10 @@ async function waitForCompletedJob(queue: OrdersQueue): Promise<void> {
     const job = await queue.getJob(jobId);
     const state = await job?.getState();
     if (state === 'completed') {
-      expect(job?.attemptsMade).toBe(1);
+      // attemptsMade is updated around the completed transition and can be
+      // observed as either 0 or 1 while polling. attemptsStarted is the stable
+      // counter that proves this backlog job was consumed exactly once.
+      expect(job?.attemptsStarted).toBe(1);
       return;
     }
     if (state === 'failed') {
