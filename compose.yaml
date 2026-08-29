@@ -63,8 +63,6 @@ services:
         condition: service_healthy
       api-3:
         condition: service_healthy
-      api-4:
-        condition: service_healthy
     networks:
       - edge
       - backend
@@ -97,12 +95,6 @@ services:
     environment:
       <<: *api-environment
       INSTANCE_ID: api-3
-
-  api-4:
-    <<: *api-service
-    environment:
-      <<: *api-environment
-      INSTANCE_ID: api-4
 
   worker:
     image: flash-sale-worker:local
