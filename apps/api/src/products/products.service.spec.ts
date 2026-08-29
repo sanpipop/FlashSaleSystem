@@ -21,7 +21,13 @@ describe('ProductsService product lookup single-flight', () => {
     expect(results).toEqual(Array.from({ length: 100 }, () => product));
     expect(findOneBy).toHaveBeenCalledTimes(1);
 
-    await service.findById('p-1001');
+    // Cached lookup within TTL
+    const cachedResult = await service.findById('p-1001');
+    expect(cachedResult).toEqual(product);
+    expect(findOneBy).toHaveBeenCalledTimes(1);
+
+    // Non-cached lookup when TTL is 0
+    await service.findById('p-1001', 0);
     expect(findOneBy).toHaveBeenCalledTimes(2);
   });
 });
