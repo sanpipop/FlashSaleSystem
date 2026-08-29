@@ -1,0 +1,2 @@
+# Bash must receive LF line endings when the repository is used from Windows/WSL.
+*.sh text eol=lf
