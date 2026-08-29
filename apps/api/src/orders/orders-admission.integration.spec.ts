@@ -10,12 +10,6 @@ const testUserId = 'it-admission-remediation-user';
 const testProductId = 'p-1001';
 const testClaimKey = orderClaimKey(testUserId, testProductId);
 
-function activeProductsService(): { findById: () => Promise<{ isFlashSaleActive: boolean }> } {
-  return {
-    findById: () => Promise.resolve({ isFlashSaleActive: true }),
-  };
-}
-
 async function expectApiStatus(promise: Promise<unknown>, status: number): Promise<void> {
   try {
     await promise;
@@ -42,7 +36,6 @@ describe('Orders admission remediation with real Redis Operations', () => {
 
   it('releases only its own Redis claim when enqueue fails and never returns 202', async () => {
     const orders = new OrdersService(
-      activeProductsService() as never,
       claims,
       {
         enqueue: vi.fn().mockRejectedValue(new Error('injected queue failure')),
@@ -71,7 +64,6 @@ describe('Orders admission remediation with real Redis Operations', () => {
   it('returns the deterministic job when it becomes visible during the bounded duplicate check', async () => {
     const findJob = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     const orders = new OrdersService(
-      activeProductsService() as never,
       { acquire: vi.fn().mockResolvedValue({ acquired: false, token: 'unused' }) } as never,
       { enqueue: vi.fn(), findJob } as never,
     );
@@ -88,7 +80,6 @@ describe('Orders admission remediation with real Redis Operations', () => {
 
   it('returns 409 instead of a false 202 when the duplicate job remains invisible', async () => {
     const orders = new OrdersService(
-      activeProductsService() as never,
       { acquire: vi.fn().mockResolvedValue({ acquired: false, token: 'unused' }) } as never,
       { enqueue: vi.fn(), findJob: vi.fn().mockResolvedValue(false) } as never,
     );
