@@ -15,7 +15,7 @@ x-api-environment: &api-environment
   POSTGRES_DB: ${POSTGRES_DB:-flashsale}
   POSTGRES_USER: ${POSTGRES_USER:-flashsale}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
-  POSTGRES_POOL_MAX: 4
+  POSTGRES_POOL_MAX: 12
   REDIS_OPS_HOST: redis-ops
   REDIS_OPS_PORT: 6379
   REDIS_CACHE_HOST: redis-cache
