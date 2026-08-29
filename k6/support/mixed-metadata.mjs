@@ -111,6 +111,7 @@ if (action === 'start') {
     secretScan: Number(secretExit),
   };
   const droppedIterations = metric(summary, 'dropped_iterations', 'count', 0);
+  const readsBadContract = metric(summary, 'reads_bad_contract', 'count', 0);
   const failures = Object.entries(exitCodes)
     .filter(([name, value]) => name !== 'k6' && value !== 0)
     .map(([name, value]) => `${name}=${value}`);
@@ -123,18 +124,24 @@ if (action === 'start') {
   if (droppedIterations !== 0) {
     failures.push(`dropped_iterations=${droppedIterations}`);
   }
+  if (readsBadContract !== 0) {
+    failures.push(`reads_bad_contract=${readsBadContract}`);
+  }
   metadata.timestampEnd = new Date().toISOString();
   metadata.exitCodes = exitCodes;
   metadata.k6Evidence = {
     checksRate: metric(summary, 'checks', 'rate', null),
     httpFailureRate: metric(summary, 'http_req_failed', 'rate', null),
     droppedIterations,
+    readsBadContract,
     orders202: metric(summary, 'orders_202', 'count', 0),
     orders409: metric(summary, 'orders_409', 'count', 0),
     orders503: metric(summary, 'orders_503', 'count', 0),
     orders5xx: metric(summary, 'orders_5xx', 'count', 0),
     ordersUnexpected: metric(summary, 'orders_unexpected', 'count', 0),
     infrastructureErrorRate: metric(summary, 'orders_infrastructure_error', 'rate', null),
+    placeOrder202P95Ms: metric(summary, 'place_order_202_latency', 'p(95)', null),
+    placeOrder5xxP95Ms: metric(summary, 'place_order_5xx_latency', 'p(95)', null),
   };
   metadata.performanceGate = exitCodes.k6 === 0
     ? 'PASS'

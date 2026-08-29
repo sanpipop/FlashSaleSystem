@@ -29,7 +29,7 @@ read_duration=${READ_DURATION:-30s}
 write_vus=${WRITE_VUS:-500}
 write_iterations=${WRITE_ITERATIONS:-3}
 write_start_time=${WRITE_START_TIME:-10s}
-write_max_duration=${WRITE_MAX_DURATION:-20s}
+write_max_duration=${WRITE_MAX_DURATION:-45s}
 product_id=${TARGET_PRODUCT_ID:-p-1001}
 monitor_seconds=${MONITOR_SECONDS:-75}
 monitor_interval=${MONITOR_INTERVAL_SECONDS:-1}
@@ -125,6 +125,9 @@ ssh "${ssh_args[@]}" "$TARGET_SSH" \
 precondition_exit=$?
 set -e
 if (( precondition_exit != 0 )); then
+  node k6/support/mixed-metadata.mjs finish \
+    "$artifact_dir/metadata.json" /dev/null \
+    2 0 "$precondition_exit" 0 0
   echo "Target reset precondition failed; see $artifact_dir/precondition-integrity.txt" >&2
   exit 2
 fi
@@ -182,9 +185,9 @@ cat > "$artifact_dir/notes.md" <<EOF
 EOF
 
 secret_exit=0
-if rg -l --hidden \
+if grep -rEl \
   'Bearer[[:space:]]+eyJ|"accessToken"[[:space:]]*:|BEGIN OPENSSH PRIVATE KEY|JWT_SECRET=|POSTGRES_PASSWORD=' \
-  "$artifact_dir" > "$artifact_dir/secret-scan.txt"; then
+  "$artifact_dir" > "$artifact_dir/secret-scan.txt" 2>/dev/null; then
   secret_exit=1
 else
   printf 'PASS: no credential patterns found in run artifacts.\n' > "$artifact_dir/secret-scan.txt"

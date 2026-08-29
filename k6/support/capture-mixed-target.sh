@@ -61,16 +61,22 @@ cgroup_snapshot() {
   local phase=$1
   local output=$2
   : > "$output"
-  local service id pid cgroup_path cpu_stat
+  local service id pid cgroup_path cpu_stat cpu_max
   for service in "${services[@]}"; do
     id=$(docker compose ps -q "$service")
     [[ -n "$id" ]] || continue
     pid=$(docker inspect -f '{{.State.Pid}}' "$id")
     cgroup_path=$(awk -F: '$1 == "0" {print $3}' "/proc/$pid/cgroup" 2>/dev/null || true)
     cpu_stat="/sys/fs/cgroup${cgroup_path}/cpu.stat"
+    cpu_max="/sys/fs/cgroup${cgroup_path}/cpu.max"
     printf 'phase=%s timestamp=%s service=%s container=%s pid=%s\n' \
       "$phase" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$service" "$id" "$pid" >> "$output"
     if [[ -r "$cpu_stat" ]]; then
+      if [[ -r "$cpu_max" ]]; then
+        printf '  cpu.max %s\n' "$(cat "$cpu_max")" >> "$output"
+      else
+        printf '  cpu.max unavailable\n' >> "$output"
+      fi
       sed 's/^/  /' "$cpu_stat" >> "$output"
     else
       printf '  cpu.stat unavailable\n' >> "$output"

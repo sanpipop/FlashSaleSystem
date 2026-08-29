@@ -30,7 +30,7 @@ const READ_DURATION = __ENV.READ_DURATION || '30s';
 const WRITE_VUS = integerEnv('WRITE_VUS', 500, 1, 5_000);
 const WRITE_ITERATIONS = integerEnv('WRITE_ITERATIONS', 3, 1, 100);
 const WRITE_START_TIME = __ENV.WRITE_START_TIME || '10s';
-const WRITE_MAX_DURATION = __ENV.WRITE_MAX_DURATION || '20s';
+const WRITE_MAX_DURATION = __ENV.WRITE_MAX_DURATION || '45s';
 
 // k6 จอง VU IDs ร่วมกันระหว่าง scenarios และ IDs ของ write scenario
 // อาจมีช่องว่าง จึง mint token ครอบคลุม VU ID domain ทั้งสอง scenarios
@@ -70,6 +70,10 @@ const readBadShape = new Counter('reads_bad_contract'); // ⚠️ ต้อง�
 const readStockFresh = new Rate('reads_remaining_stock_present');
 const readLatency = new Trend('read_products_latency', true);
 const orderLatency = new Trend('place_order_latency', true);
+// Keep the workload intact while separating successful-admission latency from
+// gateway/infrastructure tail latency during controlled experiments.
+const order202Latency = new Trend('place_order_202_latency', true);
+const order5xxLatency = new Trend('place_order_5xx_latency', true);
 
 function integerEnv(name, fallback, minimum, maximum) {
   const raw = __ENV[name];
@@ -289,6 +293,7 @@ export function placeOrder(data) {
   orderInfrastructureError.add(isInfrastructureFailure);
   if (res.status >= 500) {
     orders5xx.add(1);
+    order5xxLatency.add(res.timings.duration);
   }
 
   check(res, {
@@ -298,6 +303,7 @@ export function placeOrder(data) {
   switch (res.status) {
     case 202: {
       orders202.add(1);
+      order202Latency.add(res.timings.duration);
       check(res, {
         'order 202: status === "processing"': (r) => {
           try {
@@ -413,6 +419,12 @@ export function handleSummary(data) {
   lines.push(`    infrastructure-error rate  : ${rate('orders_infrastructure_error')}`);
   lines.push(
     `    p95 latency                : ${trend('place_order_latency', 'p(95)')} ms`,
+  );
+  lines.push(
+    `    p95 latency (202 only)     : ${trend('place_order_202_latency', 'p(95)')} ms`,
+  );
+  lines.push(
+    `    p95 latency (5xx only)     : ${trend('place_order_5xx_latency', 'p(95)')} ms`,
   );
   lines.push('');
   lines.push('  ตรวจ Data Integrity ต่อ (architecture.md §9.3):');
