@@ -7,6 +7,8 @@ import type { ProductsQueryDto } from './products.dto.js';
 
 @Injectable()
 export class ProductsService {
+  private readonly inFlightProductLookups = new Map<string, Promise<ProductEntity | null>>();
+
   constructor(
     private readonly database: DatabaseService,
     private readonly cache: ProductsCacheService,
@@ -37,7 +39,21 @@ export class ProductsService {
   }
 
   async findById(productId: string): Promise<ProductEntity | null> {
-    return this.database.dataSource.getRepository(ProductEntity).findOneBy({ productId });
+    const existing = this.inFlightProductLookups.get(productId);
+    if (existing) {
+      return existing;
+    }
+
+    const lookup = this.database.dataSource.getRepository(ProductEntity).findOneBy({ productId });
+    this.inFlightProductLookups.set(productId, lookup);
+
+    try {
+      return await lookup;
+    } finally {
+      if (this.inFlightProductLookups.get(productId) === lookup) {
+        this.inFlightProductLookups.delete(productId);
+      }
+    }
   }
 
   private toResponse(product: ProductEntity): ProductResponseItem {
