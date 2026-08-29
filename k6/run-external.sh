@@ -82,8 +82,9 @@ if [[ -e "$artifact_dir" ]]; then
 fi
 
 target_metadata_file=$(mktemp)
+benchmark_metadata_file=$(mktemp)
 cleanup() {
-  rm -f "$target_metadata_file"
+  rm -f "$target_metadata_file" "$benchmark_metadata_file"
 }
 trap cleanup EXIT INT TERM
 
@@ -94,12 +95,13 @@ if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$TARGET_SSH" \
   exit 2
 fi
 
-mkdir -p "$artifact_dir"
-cp "$target_metadata_file" "$artifact_dir/target-environment.txt"
-
 export K6_BIN="$k6_bin"
 node k6/support/metadata.mjs start \
-  "$artifact_dir/metadata.json" "$target_metadata_file"
+  "$benchmark_metadata_file" "$target_metadata_file"
+
+mkdir -p "$artifact_dir"
+cp "$target_metadata_file" "$artifact_dir/target-environment.txt"
+cp "$benchmark_metadata_file" "$artifact_dir/metadata.json"
 
 resource_file="$artifact_dir/load-generator-resource.txt"
 timed_command=(/usr/bin/time -v -o "$resource_file")
