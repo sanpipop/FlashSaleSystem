@@ -10,3 +10,7 @@ coverage/
 Thumbs.db
 output/evidence/*.json
 output/evidence/*.log
+artifacts/
+*.k6-summary.json
+loadtest.k6-summary.json
+*.zip
