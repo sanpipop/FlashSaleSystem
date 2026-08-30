@@ -18,22 +18,24 @@
 ```mermaid
 flowchart LR
     Client[Mobile / Browser / k6] --> Nginx[Nginx Load Balancer]
-    Nginx --> API[NestJS + Fastify API x3]
+    Nginx --> ReadAPI[NestJS + Fastify Read/General API x3]
+    Nginx --> OrderAPI[NestJS + Fastify Order API x1]
 
-    API -->|GET products: Cache-Aside| Cache[(Redis Cache)]
+    ReadAPI -->|GET products: Cache-Aside| Cache[(Redis Cache)]
     Cache -->|Cache miss| DB[(PostgreSQL)]
 
-    API -->|Atomic claim + enqueue| Queue[(Redis Operations + BullMQ)]
+    OrderAPI -->|Atomic claim + enqueue| Queue[(Redis Operations + BullMQ)]
     Queue --> Worker[BullMQ Worker]
     Worker -->|ACID transaction + stock lock| DB
     Worker -->|Invalidate after commit| Cache
 
-    API -. metrics / logs .-> Observe[Prometheus / Grafana]
+    ReadAPI -. metrics / logs .-> Observe[Prometheus / Grafana]
+    OrderAPI -. metrics / logs .-> Observe
     Worker -. metrics / logs .-> Observe
     Queue -. queue status .-> Board[Bull Board]
 ```
 
-ระบบใช้ API แบบ Stateless จำนวน 3 Instance หลัง Nginx เพื่อกระจายโหลด ส่วน Redis มีบทบาททางตรรกะแยกกันระหว่าง Queue/Admission และ Product Cache โดย PostgreSQL เป็นแหล่งข้อมูลจริงเพียงแห่งเดียวสำหรับ Order และ Stock
+ระบบใช้ API แบบ Stateless จำนวน 4 Instance หลัง Nginx โดยแยก 3 Instance สำหรับ Read/General Traffic และสงวน 1 Instance สำหรับ Order Admission เพื่อไม่ให้ Read Flood ทำให้คำสั่งซื้อ timeout ส่วน Redis แยกบทบาทระหว่าง Queue/Admission และ Product Cache และ PostgreSQL เป็นแหล่งข้อมูลจริงเพียงแห่งเดียวสำหรับ Order และ Stock
 
 ## Request Flows
 
@@ -146,7 +148,7 @@ docker compose up --build -d
 3. seed           → เพิ่มสินค้าตัวอย่าง 20 รายการ (p-1001 สต็อก 50)
 4. redis-ops      → Redis สำหรับ BullMQ Queue (AOF, noeviction)
 5. redis-cache    → Redis สำหรับ Product Cache (allkeys-lru)
-6. api-1/2/3      → NestJS API x3 Instances รอ Healthy
+6. api-1/2/3/4    → NestJS API x4 Instances รอ Healthy (3 Read/General + 1 Order)
 7. worker         → BullMQ Worker Consumer
 8. nginx          → Nginx Load Balancer เปิดรับ Traffic ที่ port 80
 ```
@@ -241,7 +243,7 @@ curl -s -X POST http://localhost/api/v1/orders \
 | อาการ | สาเหตุ / วิธีแก้ |
 | --- | --- |
 | Container `migrate` หรือ `seed` ล้มเหลว | `postgres` ยังไม่ Healthy — รอสักครู่แล้วรัน `docker compose up -d` อีกครั้ง |
-| `curl /health` ตอบ `Connection refused` | `nginx` ยังไม่ขึ้น — รัน `docker compose ps` ตรวจว่า `api-1/2/3` ทุกตัว Healthy แล้ว |
+| `curl /health` ตอบ `Connection refused` | `nginx` ยังไม่ขึ้น — รัน `docker compose ps` ตรวจว่า `api-1/2/3/4` ทุกตัว Healthy แล้ว |
 | สถานะ Container เป็น `Restarting` | ดู log ด้วย `docker compose logs <service-name>` หาสาเหตุ |
 | Port 80 ถูกใช้งานอยู่ | หยุด service อื่นที่ใช้ Port 80 หรือแก้ `ports: "8080:80"` ใน `compose.yaml` ชั่วคราว |
 | ต้องการล้างข้อมูลและเริ่มใหม่ทั้งหมด | `docker compose down -v && docker compose up --build -d` |

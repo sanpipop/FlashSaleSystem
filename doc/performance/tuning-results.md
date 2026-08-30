@@ -42,10 +42,49 @@
 - **Decision:** `KEEP` เพราะลด latency อย่างมีนัยสำคัญ โดย stock/order/dedup/retry ยังถูกต้องครบ
 - **หลักฐาน:** `singleflight-write-r1-20260829/` ถึง `r3`
 
+## PERF-MIXED-BULKHEAD — แยก Read Traffic ออกจาก Order Admission
+
+- **Baseline evidence:** `artifacts/day5/stress/baseline-mixed-r3-20260830T131958Z/`
+- **Baseline workload:** Read 1,000 VUs เป็นเวลา 30 วินาที พร้อม Write 500 VUs คนละ 3 requests
+- **ปัญหา:** Read Traffic ใช้ CPU ของ API ทั้งสามตัวพร้อมกันจน Order Admission รอเกิน Nginx timeout 10 วินาที เกิด `504` จำนวน 288 requests, Write infrastructure error 19.20% และ Write 202 p95 6,623.94 ms แม้ SQL correctness ผ่านทั้งหมด
+- **ตัวแปรเดียวที่เปลี่ยน:** Nginx route isolation โดยให้ `api-1` และ `api-2` รับ Read/General Traffic และสงวน `api-3` สำหรับ `POST /api/v1/orders`; จำนวน API, CPU limit, timeout และ keepalive รวม 256 เท่าเดิม
+- **สมมติฐาน:** การแยก Event Loop ของ Order Admission จะป้องกัน Read Flood แย่ง CPU จน POST ค้าง โดยไม่เปลี่ยน Business Logic หรือฐานข้อมูล
+- **Correctness:** Baseline PASS; Candidate ต้องผ่าน `remainingStock=0`, `successfulOrders=50`, `duplicatePairs=0`, `negativeStockRows=0` และ `durableResults=500`
+- **Decision:** `REJECTED` — Route isolation แก้ Order 504 ได้ แต่ Read Pool สองตัวมี Capacity ไม่พอ
+
+### ผลรอบแรก — `REJECTED`
+
+- Run: `candidate-bulkhead-r1b-20260830`
+- Order ดีขึ้นจาก 1,212 Accepted และ 288 HTTP 504 เป็น 1,500/1,500 HTTP 202; Write p95 ดีขึ้นจาก 6,623.94 ms เป็น 4,042.34 ms
+- PostgreSQL correctness, durable result และ retry idempotency ผ่านทั้งหมด
+- ไม่เลือก Candidate นี้ เพราะ Read Pool ที่เหลือสอง API ทำให้ `GET /api/v1/products` เกิด HTTP 504 จำนวน 368 requests
+- ปัญหานี้ไม่ใช่ข้อมูล Stock ค้าง: Product response ทุกคำขอที่ได้ HTTP 200 ผ่าน Contract และมี `remainingStock` เป็นตัวเลข
+
+## PERF-MIXED-FOURTH-API — เพิ่ม Read API โดยคง Order Bulkhead
+
+- **ตัวแปรที่เปลี่ยนจาก Candidate ก่อนหน้า:** เพิ่ม API process หนึ่งตัวเข้า Read Pool
+- Read/General Traffic ใช้ `api-1`, `api-2`, `api-4`; `POST /api/v1/orders` ยังคงใช้ `api-3` แยกต่างหาก
+- ไม่เปลี่ยน Database, Redis, Worker, Timeout, Test Load หรือ CPU limit ต่อ Container
+- **เหตุผล:** คืนความสามารถฝั่ง Read เป็นสาม Event Loops เท่ากับ Baseline และยังรักษา Event Loop อิสระสำหรับ Order Admission โดย VM มี RAM เพียงพอ แต่ต้องวัดว่า 4 vCPU จัดตาราง CPU ได้ดีพอหรือไม่
+- **ผล 3 Valid Runs:** `candidate-fourthapi-r1c-20260830T1531Z`, `candidate-fourthapi-r2-20260830T1536Z`, `candidate-fourthapi-r3-20260830T1540Z`
+
+| Mixed-load metric | Baseline 3 API | Candidate median (3 runs) | ผลต่าง |
+| --- | ---: | ---: | ---: |
+| Read HTTP 200 | 112,807 | 107,675 | -4.55% |
+| Read p95 | 360.33 ms | 371.06 ms | +2.98% |
+| Order HTTP 202 | 1,212/1,500 | 1,500/1,500 | ครบ 100% |
+| Order HTTP 5xx | 288 | 0 | กำจัด 504 ทั้งหมด |
+| Order 202 p95 | 6,623.94 ms | 2,146.20 ms | เร็วขึ้น 67.60% |
+| SQL correctness | PASS | PASS ทั้ง 3 รอบ | เท่าเดิม |
+
+- ทุก Candidate run มี Contract violation = 0, Queue drain สำเร็จ, `remainingStock=0`, successful orders = 50 users, duplicate pair = 0, negative stock = 0, durable results = 500 และ retry แล้วข้อมูลไม่เปลี่ยน
+- k6 latency threshold แบบเข้มของ Mixed Investigation ยังไม่ผ่าน จึงไม่อ้างว่ารองรับ Latency SLO ทุกระดับ แต่ Candidate กำจัด Availability failure และลด Write p95 อย่างชัดเจนโดยแลก Read p95 เพียง 2.98%
+- **Decision:** `KEEP` — เลือก 3 Read APIs + 1 Order API เพราะเป็นค่าที่ดีที่สุดจาก Candidate ที่วัดบน Target VM และผ่าน Correctness ครบ
+
 ## Final selected configuration
 
-- Nginx `least_conn`, API 3 instances
-- API CPU limit 0.65 ต่อ instance; Nginx 0.50
+- Nginx แยก Upstream แบบ Bulkhead: `api-1`, `api-2`, `api-4` รับ Read/General และ `api-3` รับ `POST /api/v1/orders`
+- API 4 instances, CPU limit 0.85 ต่อ instance; Nginx 0.80
 - Worker CPU 1.25, concurrency 8, batch 16, wait 1 ms
 - PostgreSQL CPU 1.25; API pool 4 ต่อ instance และ Worker pool 12
 - Redis Operations `noeviction + AOF`; Redis Cache `allkeys-lru`

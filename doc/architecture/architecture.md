@@ -57,9 +57,10 @@ graph TD
     end
 
     subgraph API Layer Stateless
-        API1["NestJS API Instance 1"]
-        API2["NestJS API Instance 2"]
-        API3["NestJS API Instance 3"]
+        API1["Read / General API 1"]
+        API2["Read / General API 2"]
+        API4["Read / General API 4"]
+        API3["Order Admission API 3"]
     end
 
     subgraph Data & Queue Layer
@@ -78,16 +79,15 @@ graph TD
 
     Client --> Nginx
     k6 --> Nginx
-    Nginx -->|Least Connections / Round Robin| API1
-    Nginx -->|Least Connections / Round Robin| API2
-    Nginx -->|Least Connections / Round Robin| API3
+    Nginx -->|Read / General: Least Connections| API1
+    Nginx -->|Read / General: Least Connections| API2
+    Nginx -->|Read / General: Least Connections| API4
+    Nginx -->|Exact POST /api/v1/orders| API3
 
     API1 -->|Read Product| RedisCache
     API2 -->|Read Product| RedisCache
-    API3 -->|Read Product| RedisCache
+    API4 -->|Read Product| RedisCache
 
-    API1 -->|Enqueue Job / Atomic Dedup| RedisOps
-    API2 -->|Enqueue Job / Atomic Dedup| RedisOps
     API3 -->|Enqueue Job / Atomic Dedup| RedisOps
 
     RedisOps -->|Fetch Job| Worker
@@ -100,10 +100,12 @@ graph TD
     API1 -.-> Logs
     API2 -.-> Logs
     API3 -.-> Logs
+    API4 -.-> Logs
     Worker -.-> Logs
     API1 -.-> Metrics
     API2 -.-> Metrics
     API3 -.-> Metrics
+    API4 -.-> Metrics
     Worker -.-> Metrics
 ```
 
@@ -113,7 +115,7 @@ graph TD
    - **หน้าที่:** เป็น Public Entry Point รับ HTTP Traffic ทั้งหมด, กระจาย Load ไปยัง NestJS API ด้วย Least Connections หรือ Round Robin, จัดการ SSL/TLS Termination (ถ้ามี)
    - **ข้อห้าม:** ห้ามประมวลผล Business Logic หรือตรวจสอบ JWT Authentication ใน Nginx
 
-2. **NestJS API Instances (อย่างน้อย 3 Container):**
+2. **NestJS API Instances (ใช้ 4 Container จากผล Benchmark):**
    - **หน้าที่:** ตรวจสอบความถูกต้องของ JWT Token, รับและตรวจสอบ Request Format, ดึงข้อมูลสินค้าจาก Redis Cache ( Cache-Aside), คำนวณ Atomic Deduplication และ Enqueue งานไปยัง BullMQ ก่อนตอบกลับ `202 Accepted`
    - **ข้อห้าม:** **ห้ามเปิด Database Transaction เพื่อตัดสต็อกโดยตรง**, ห้ามเก็บ In-Memory Session หรือ Local State ที่ทำให้ระบบไม่เป็น Stateless
 
@@ -166,23 +168,22 @@ graph TD
 
 ## 7. แบบโมเดลการขยายระบบและการจัดการทรัพยากร (Scaling Model & Resource Budget)
 
-- **Stateless API Scaling:** Requirement บังคับอย่างน้อย 3 Instances; บน 4 vCPU ให้เริ่มที่ 3 และเพิ่มเป็น 4 เฉพาะเมื่อ Benchmark ชนะ เพราะ Container เพิ่มอาจทำให้ Context Switching สูงขึ้น
+- **Stateless API Scaling:** Requirement บังคับอย่างน้อย 3 Instances; ผล Mixed Stress บน Target VM เลือก 4 Instances โดย 3 ตัวรับ Read/General และ 1 ตัวรับ Order Admission เพื่อทำ Bulkhead Isolation
 - **Worker Scaling:** Hot Product เดียวไม่ควรเพิ่ม Concurrency สูงแบบสุ่ม เพราะทุก Transaction แย่ง Row Lock เดียวกัน ให้ลด DB Round-trip ด้วย Micro-batch แล้วค่อยปรับ Concurrency 8/12/16
-- **Connection Budget:** PostgreSQL `max_connections` เริ่ม 35–40; API 3 ตัวใช้ไม่เกิน 4 ต่อ Instance, Worker 12, และเผื่อ Migration/Admin/Monitoring โดย Pool รวมต้องไม่เกิน Budget
+- **Connection Budget:** PostgreSQL `max_connections` เริ่ม 35–40; API 4 ตัวใช้ไม่เกิน 4 ต่อ Instance, Worker 12, และเผื่อ Migration/Admin/Monitoring โดย Pool รวมต้องไม่เกิน Budget
 - **Resource Allocation Target (Container RSS รวมไม่เกินประมาณ 4.4 GB):**
 
 | Component | CPU Budget | RAM Limit Target |
 | --- | ---: | ---: |
-| Nginx | 0.10 vCPU | 64 MB |
-| NestJS API x3 รวม | 1.20 vCPU | 960 MB |
-| Worker + Outbox Relay | 0.90 vCPU | 640 MB |
-| Redis Operations | 0.25 vCPU | 384 MB |
-| Redis Cache | 0.15 vCPU | 256 MB |
-| PostgreSQL | 0.90 vCPU | 1,400 MB |
-| Bull Board | 0.05 vCPU | 128 MB |
-| Prometheus + Grafana | 0.25 vCPU | 550 MB |
+| Nginx | 0.80 vCPU | 128 MB |
+| NestJS API x4 | 0.85 vCPU ต่อ Instance | 320 MB ต่อ Instance |
+| Worker + Outbox Relay | 1.25 vCPU | 640 MB |
+| Redis Operations | 0.75 vCPU | 384 MB |
+| Redis Cache | 0.40 vCPU | 256 MB |
+| PostgreSQL | 1.25 vCPU | 1,400 MB |
+| Prometheus + Grafana + Node Exporter | 0.18 vCPU | 576 MB |
 
-เหลือ RAM ประมาณ 1.2–1.5 GB สำหรับ Ubuntu, Docker daemon และ filesystem page cache ส่วน Disk 50 GB ต้องเปิด Docker log rotation และจำกัด Prometheus retention 2–3 วัน
+CPU limit เป็นเพดาน ไม่ใช่การจอง CPU จึงสามารถ Oversubscribe ได้และให้ Linux scheduler แบ่ง 4 vCPU ตามโหลดจริง ส่วน RAM limit รวมยังอยู่ภายใน 6 GB โดยเหลือพื้นที่ให้ OS/Docker/page cache; Disk 50 GB ใช้ Docker log rotation และจำกัด Prometheus retention 2–3 วัน
 
 ---
 
@@ -190,7 +191,7 @@ graph TD
 
 ### 8.1 โครงสร้างบังคับที่ต้อง Implement
 
-- **LB & API:** Nginx Round Robin / Least Connections กระจายเข้า NestJS API 3 Containers
+- **LB & API:** Nginx Bulkhead แยก 3 Read/General APIs แบบ Least Connections และ 1 Order Admission API สำหรับ exact `POST /api/v1/orders`
 - **Auth:** Stateless JWT Authentication
 - **Products API:** Versioned Cache-Aside + Single-Flight ด้วย Redis Cache Instance แยก
 - **Orders API:** รับคำสั่งซื้อ อนุมัติผ่าน Queue และตอบ `202 Accepted` ทันที
