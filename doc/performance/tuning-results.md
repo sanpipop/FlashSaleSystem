@@ -88,6 +88,36 @@
 - หลังประมวลผล PostgreSQL มี successful order 1 รายการ, distinct user 1, duplicate pair 0, stock ลดเพียง 1 และ durable result 1
 - Retry proof ผ่านและไม่เปลี่ยน stock/order/result ซ้ำ จากนั้น reset ระบบคืน stock 50 และ smoke test ผ่าน
 
+## PERF-HOT-READ-LOGGING — ลด synchronous log บนเส้นทางอ่านที่ร้อนที่สุด
+
+- **ตัวแปรที่เปลี่ยน:** ไม่เขียน Nginx access log เฉพาะ `GET /api/v1/products` ที่ตอบ 2xx; request ที่ผิดพลาด, Order, Auth, Health และ Admin ยังคงบันทึกตามเดิม
+- **เหตุผล:** Prometheus เก็บ request count/latency ของ successful read อยู่แล้ว การเขียนข้อความซ้ำมากกว่าหนึ่งแสนบรรทัดใน 30 วินาทีเพิ่ม CPU และ Docker logging I/O โดยไม่เพิ่มหลักฐาน correctness
+- **หลักฐาน 3 Valid Runs:** `candidate-accesslog-r1-20260830T170905Z`, `candidate-accesslog-r2b-20260830T171911Z`, `candidate-accesslog-r3-20260830T172206Z`
+
+| Mixed-load metric | ก่อนปรับ median | หลังปรับ median | ผลต่าง |
+| --- | ---: | ---: | ---: |
+| Read HTTP 200 | 107,675 | 119,106 | **+10.62%** |
+| Read p95 | 371.06 ms | 327.84 ms | **เร็วขึ้น 11.65%** |
+| Order HTTP 202 | 1,500/1,500 | 1,500/1,500 | เท่าเดิม |
+| Order HTTP 5xx | 0 | 0 | เท่าเดิม |
+| Order 202 p95 | 2,146.20 ms | 2,432.36 ms | ช้าลง 13.33% |
+| Order 202 average | 505.00 ms | 476.78 ms | เร็วขึ้น 5.59% |
+| SQL correctness | PASS | PASS ทั้ง 3 รอบ | เท่าเดิม |
+
+- Nginx log ต่อรอบลดจากประมาณ 12.4 MB เหลือประมาณ 0.4 MB โดยยังเก็บ error และเส้นทางสำคัญอื่นครบ
+- **Decision:** `KEEP` — Read throughput/p95 ดีขึ้นชัดเจน, Order availability และ correctness ไม่ถดถอย และ Order average ดีขึ้น แต่บันทึกอย่างตรงไปตรงมาว่า Order p95 ยังผันผวนและ strict mixed-load threshold ยังไม่ผ่าน
+
+## PERF-REJECTED-EDGE-EXPERIMENTS — ทดลองแล้วไม่เก็บ
+
+| Candidate | ผลที่วัด | Decision |
+| --- | --- | --- |
+| Nginx `reuseport` + backlog 4,096 | 3-run median Read p95 338.47 ms, Order p95 2,895.51 ms; ทุก integrity gate ผ่าน | `REVERT` เพราะ Order p95 แย่กว่าค่าที่เลือก |
+| ให้ `api-3` มี CPU shares 2 เท่า | รอบแรก Order p95 6,237.36 ms แม้ไม่มี 5xx และ integrity ผ่าน | `REVERT EARLY` เพราะแย่ง scheduling จาก edge/cache และแย่ชัดเจน |
+| ปิด success access log ของ Order เพิ่ม | รอบแรก Order p95 5,479.83 ms แม้ไม่มี 5xx และ integrity ผ่าน | `REVERT EARLY` เพราะไม่ใช่คอขวด |
+| เปิด overflow จาก `api-3` ไป Read APIs ที่ 256 connections | Order p95 4,862.05 ms; Order ถูกกระจายไป API ที่กำลังรับ read flood | `REVERT EARLY` เพราะทำลาย bulkhead |
+
+การสุ่มตัวอย่าง application timing ยืนยันว่า business logic ภายใน API ใช้เวลาหลักสิบมิลลิวินาที (สร้าง Job เฉลี่ย 10.29 ms, ตรวจ Job ซ้ำเฉลี่ย 27.19 ms) ขณะที่ client-side p95 เป็นหลักวินาที จึงไม่ลด Redis/BullMQ/PostgreSQL safety เพื่อแก้ latency ที่เกิดจาก VM scheduling/connection queue ภายใต้ 1,500 concurrent VUs
+
 ## Final selected configuration
 
 - Nginx แยก Upstream แบบ Bulkhead: `api-1`, `api-2`, `api-4` รับ Read/General และ `api-3` รับ `POST /api/v1/orders`; Read APIs เป็น failover สำรองเมื่อ `api-3` ติดต่อไม่ได้
@@ -97,5 +127,6 @@
 - Redis Operations `noeviction + AOF`; Redis Cache `allkeys-lru`
 - Versioned cache invalidation หลัง DB commit พร้อม transactional outbox retry
 - In-flight Single-Flight สำหรับ concurrent product lookup
+- Nginx ไม่เขียน access log ซ้ำสำหรับ successful product GET; Prometheus metrics และ error/access logs ของเส้นทางอื่นยังคงอยู่
 
 ค่าที่ไม่ได้วัดแบบ 3 รอบจะไม่ถูกอ้างว่าเร็วกว่าค่าอื่น
