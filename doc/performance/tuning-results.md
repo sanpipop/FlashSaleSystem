@@ -81,9 +81,16 @@
 - k6 latency threshold แบบเข้มของ Mixed Investigation ยังไม่ผ่าน จึงไม่อ้างว่ารองรับ Latency SLO ทุกระดับ แต่ Candidate กำจัด Availability failure และลด Write p95 อย่างชัดเจนโดยแลก Read p95 เพียง 2.98%
 - **Decision:** `KEEP` — เลือก 3 Read APIs + 1 Order API เพราะเป็นค่าที่ดีที่สุดจาก Candidate ที่วัดบน Target VM และผ่าน Correctness ครบ
 
+### Order admission failover validation
+
+- หยุด `api-3` จริงแล้วส่ง `POST /api/v1/orders` เดิมสองครั้งผ่าน Nginx
+- ทั้งสองคำขอได้ HTTP 202 และ deterministic Job ID เดียวกัน โดย Read API รับหน้าที่เป็น Backup เฉพาะช่วงที่ Primary ติดต่อไม่ได้
+- หลังประมวลผล PostgreSQL มี successful order 1 รายการ, distinct user 1, duplicate pair 0, stock ลดเพียง 1 และ durable result 1
+- Retry proof ผ่านและไม่เปลี่ยน stock/order/result ซ้ำ จากนั้น reset ระบบคืน stock 50 และ smoke test ผ่าน
+
 ## Final selected configuration
 
-- Nginx แยก Upstream แบบ Bulkhead: `api-1`, `api-2`, `api-4` รับ Read/General และ `api-3` รับ `POST /api/v1/orders`
+- Nginx แยก Upstream แบบ Bulkhead: `api-1`, `api-2`, `api-4` รับ Read/General และ `api-3` รับ `POST /api/v1/orders`; Read APIs เป็น failover สำรองเมื่อ `api-3` ติดต่อไม่ได้
 - API 4 instances, CPU limit 0.85 ต่อ instance; Nginx 0.80
 - Worker CPU 1.25, concurrency 8, batch 16, wait 1 ms
 - PostgreSQL CPU 1.25; API pool 4 ต่อ instance และ Worker pool 12

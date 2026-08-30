@@ -35,7 +35,7 @@ flowchart LR
     Queue -. queue status .-> Board[Bull Board]
 ```
 
-ระบบใช้ API แบบ Stateless จำนวน 4 Instance หลัง Nginx โดยแยก 3 Instance สำหรับ Read/General Traffic และสงวน 1 Instance สำหรับ Order Admission เพื่อไม่ให้ Read Flood ทำให้คำสั่งซื้อ timeout ส่วน Redis แยกบทบาทระหว่าง Queue/Admission และ Product Cache และ PostgreSQL เป็นแหล่งข้อมูลจริงเพียงแห่งเดียวสำหรับ Order และ Stock
+ระบบใช้ API แบบ Stateless จำนวน 4 Instance หลัง Nginx โดยแยก 3 Instance สำหรับ Read/General Traffic และสงวน 1 Instance สำหรับ Order Admission เพื่อไม่ให้ Read Flood ทำให้คำสั่งซื้อ timeout หาก Order Instance ล่ม Nginx จะ fail over ไปยัง Read Instance โดยการ retry ยังคงปลอดภัยด้วย Redis Claim และ deterministic Job ID ส่วน Redis แยกบทบาทระหว่าง Queue/Admission และ Product Cache และ PostgreSQL เป็นแหล่งข้อมูลจริงเพียงแห่งเดียวสำหรับ Order และ Stock
 
 ## Request Flows
 

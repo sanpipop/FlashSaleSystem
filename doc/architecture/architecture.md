@@ -83,6 +83,9 @@ graph TD
     Nginx -->|Read / General: Least Connections| API2
     Nginx -->|Read / General: Least Connections| API4
     Nginx -->|Exact POST /api/v1/orders| API3
+    Nginx -.->|Order failover only| API1
+    Nginx -.->|Order failover only| API2
+    Nginx -.->|Order failover only| API4
 
     API1 -->|Read Product| RedisCache
     API2 -->|Read Product| RedisCache
@@ -191,7 +194,7 @@ CPU limit เป็นเพดาน ไม่ใช่การจอง CPU �
 
 ### 8.1 โครงสร้างบังคับที่ต้อง Implement
 
-- **LB & API:** Nginx Bulkhead แยก 3 Read/General APIs แบบ Least Connections และ 1 Order Admission API สำหรับ exact `POST /api/v1/orders`
+- **LB & API:** Nginx Bulkhead แยก 3 Read/General APIs แบบ Least Connections และ 1 Order Admission API สำหรับ exact `POST /api/v1/orders`; หาก Order API ล่มจะ fail over ไปยัง Read API โดย retry POST ได้อย่างปลอดภัยจาก Redis Claim + deterministic Job ID
 - **Auth:** Stateless JWT Authentication
 - **Products API:** Versioned Cache-Aside + Single-Flight ด้วย Redis Cache Instance แยก
 - **Orders API:** รับคำสั่งซื้อ อนุมัติผ่าน Queue และตอบ `202 Accepted` ทันที
