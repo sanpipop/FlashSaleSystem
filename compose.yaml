@@ -112,7 +112,7 @@ services:
       REDIS_CACHE_HOST: redis-cache
       REDIS_CACHE_PORT: 6379
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-8}
-      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-16}
+      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-32}
       WORKER_BATCH_WAIT_MS: ${WORKER_BATCH_WAIT_MS:-1}
       WORKER_METRICS_PORT: 9464
       NODE_OPTIONS: --max-old-space-size=512
@@ -218,7 +218,7 @@ services:
       - redis-ops-data:/data
     networks:
       - backend
-    cpus: ${REDIS_OPS_CPU_LIMIT:-0.50}
+    cpus: ${REDIS_OPS_CPU_LIMIT:-0.75}
     mem_limit: 384m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
