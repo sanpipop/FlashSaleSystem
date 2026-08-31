@@ -435,9 +435,6 @@ export function handleSummary(data) {
   lines.push(
     "            WHERE product_id = 'p-1001';                             -- ต้อง = 50, 50",
   );
-  lines.push(
-    '    redis-cli -p 6380 GET stock:flash_sale:p-1001                    -- ต้อง = "0"',
-  );
   lines.push('══════════════════════════════════════════════════════════════');
   lines.push('');
 

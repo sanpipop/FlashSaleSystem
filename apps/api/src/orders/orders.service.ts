@@ -69,7 +69,7 @@ export class OrdersService {
     return {
       status: 'processing',
       orderJobId: jobId,
-      message: 'Your order has been accepted and is processing in the queue.',
+      message: 'Your order is in the queue.',
     };
   }
 }

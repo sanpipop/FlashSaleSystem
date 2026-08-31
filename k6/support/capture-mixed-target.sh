@@ -25,7 +25,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-services=(nginx api-1 api-2 api-3 worker postgres redis-cache redis-ops)
+services=(nginx api-1 api-2 api-3 api-4 worker postgres redis-cache redis-ops)
 start_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 monitored_ids=()

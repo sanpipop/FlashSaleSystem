@@ -64,7 +64,7 @@ export class ProductsService {
       return existing;
     }
 
-    const lookup = (async () => {
+    const lookup = (async (): Promise<ProductEntity | null> => {
       try {
         const product = await this.database.dataSource.getRepository(ProductEntity).findOneBy({ productId });
         this.setInCache(productId, product, ttlMs);
