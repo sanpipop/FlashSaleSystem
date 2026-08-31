@@ -122,7 +122,7 @@
 
 - Nginx แยก Upstream แบบ Bulkhead: `api-1`, `api-2`, `api-4` รับ Read/General และ `api-3` รับ `POST /api/v1/orders`; Read APIs เป็น failover สำรองเมื่อ `api-3` ติดต่อไม่ได้
 - API 4 instances, CPU limit 0.85 ต่อ instance; Nginx 0.80
-- Worker CPU 1.25, concurrency 8, batch 16, wait 1 ms
+- Worker CPU 1.25, concurrency 8, batch 32, wait 1 ms
 - PostgreSQL CPU 1.25; API pool 4 ต่อ instance และ Worker pool 12
 - Redis Operations `noeviction + AOF`; Redis Cache `allkeys-lru`
 - Versioned cache invalidation หลัง DB commit พร้อม transactional outbox retry

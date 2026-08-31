@@ -74,7 +74,10 @@ describe('Orders admission remediation with real Redis Operations', () => {
       '123e4567-e89b-42d3-a456-426614174000',
     );
 
-    expect(response).toMatchObject({ status: 'processing' });
+    expect(response).toMatchObject({
+      status: 'processing',
+      message: 'Your order is in the queue.',
+    });
     expect(findJob).toHaveBeenCalledTimes(2);
   });
 

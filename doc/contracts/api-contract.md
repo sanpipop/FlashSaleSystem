@@ -148,7 +148,7 @@
   {
     "status": "processing",
     "orderJobId": "ord-6f4d8f0f-example-sha256",
-    "message": "Your order has been accepted and is processing in the queue."
+    "message": "Your order is in the queue."
   }
   ```
 - **ความหมายของ `202 Accepted` (`FROZEN BASELINE`):**

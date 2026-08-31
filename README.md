@@ -190,7 +190,7 @@ docker compose logs -f worker
 | `http://localhost/api/v1/auth/token` | ออก JWT Token |
 | `http://localhost/api/v1/products` | อ่านรายการสินค้า |
 | `http://localhost/api/v1/orders` | สั่งซื้อสินค้า (ต้องมี JWT) |
-| `http://localhost/admin/queues` | Bull Board — ดูสถานะ Queue |
+| `http://localhost/admin/queues` | Bull Board — ดูสถานะ Queue แบบ Read-only (ยังไม่มี Authentication ห้ามเปิดสู่ Internet โดยตรง) |
 
 ---
 
