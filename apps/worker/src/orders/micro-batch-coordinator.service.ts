@@ -72,6 +72,14 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
     }
 
     try {
+      if (batch.some((p) => typeof p.job.updateProgress === 'function')) {
+        await Promise.all(
+          batch.map(({ job }) =>
+            typeof job.updateProgress === 'function' ? job.updateProgress(50) : Promise.resolve(),
+          ),
+        ).catch(() => undefined);
+      }
+
       const results = await this.processor.process(batch.map(({ job }) => job.data));
       const resultByJobId = new Map(results.map((result) => [result.jobId, result]));
 
@@ -80,6 +88,10 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
 
         if (result === undefined) {
           throw new Error(`Missing result for jobId: ${pendingJob.job.data.jobId}`);
+        }
+
+        if (typeof pendingJob.job.updateProgress === 'function') {
+          await pendingJob.job.updateProgress(100).catch(() => undefined);
         }
 
         pendingJob.resolve(result);
