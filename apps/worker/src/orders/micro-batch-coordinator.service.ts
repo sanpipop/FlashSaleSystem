@@ -95,6 +95,8 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
             percent: 100,
             status: result.status,
             orderId: result.orderId ?? null,
+            productId: result.productId,
+            remainingStock: result.remainingStock ?? (result.status === 'REJECTED_SOLD_OUT' ? 0 : null),
             message: result.message ?? null,
           }).catch(() => undefined);
         }
