@@ -10,6 +10,28 @@ const testUserId = 'it-admission-remediation-user';
 const testProductId = 'p-1001';
 const testClaimKey = orderClaimKey(testUserId, testProductId);
 
+interface ObservabilitySpies {
+  startRedisClaim: ReturnType<typeof vi.fn>;
+  finishRedisClaim: ReturnType<typeof vi.fn>;
+  startDuplicateLookup: ReturnType<typeof vi.fn>;
+  finishDuplicateLookup: ReturnType<typeof vi.fn>;
+  startEnqueue: ReturnType<typeof vi.fn>;
+  finishEnqueue: ReturnType<typeof vi.fn>;
+  setOutcome: ReturnType<typeof vi.fn>;
+}
+
+function createObservability(): ObservabilitySpies {
+  return {
+    startRedisClaim: vi.fn(),
+    finishRedisClaim: vi.fn(),
+    startDuplicateLookup: vi.fn(),
+    finishDuplicateLookup: vi.fn(),
+    startEnqueue: vi.fn(),
+    finishEnqueue: vi.fn(),
+    setOutcome: vi.fn(),
+  };
+}
+
 async function expectApiStatus(promise: Promise<unknown>, status: number): Promise<void> {
   try {
     await promise;
@@ -41,10 +63,11 @@ describe('Orders admission remediation with real Redis Operations', () => {
         enqueue: vi.fn().mockRejectedValue(new Error('injected queue failure')),
         findJob: vi.fn(),
       } as never,
+      createObservability() as never,
     );
 
     await expectApiStatus(
-      orders.admit(testUserId, testProductId, '123e4567-e89b-42d3-a456-426614174000'),
+      orders.admit(testUserId, testProductId, '123e4567-e89b-42d3-a456-426614174000', {}),
       503,
     );
     expect(await redis.get(testClaimKey)).toBeNull();
@@ -66,12 +89,14 @@ describe('Orders admission remediation with real Redis Operations', () => {
     const orders = new OrdersService(
       { acquire: vi.fn().mockResolvedValue({ acquired: false, token: 'unused' }) } as never,
       { enqueue: vi.fn(), findJob } as never,
+      createObservability() as never,
     );
 
     const response = await orders.admit(
       testUserId,
       testProductId,
       '123e4567-e89b-42d3-a456-426614174000',
+      {},
     );
 
     expect(response).toMatchObject({
@@ -85,10 +110,11 @@ describe('Orders admission remediation with real Redis Operations', () => {
     const orders = new OrdersService(
       { acquire: vi.fn().mockResolvedValue({ acquired: false, token: 'unused' }) } as never,
       { enqueue: vi.fn(), findJob: vi.fn().mockResolvedValue(false) } as never,
+      createObservability() as never,
     );
 
     await expectApiStatus(
-      orders.admit(testUserId, testProductId, '123e4567-e89b-42d3-a456-426614174000'),
+      orders.admit(testUserId, testProductId, '123e4567-e89b-42d3-a456-426614174000', {}),
       409,
     );
   });

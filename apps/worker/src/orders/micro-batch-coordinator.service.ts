@@ -1,5 +1,6 @@
 import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common';
 import type { OrderJobPayload, OrderJobResult } from '@flash-sale/contracts';
+import { AppDataSource } from '@flash-sale/database';
 import type { Job } from 'bullmq';
 import { OrderBatchProcessorService } from './order-batch-processor.service.js';
 import { workerSettingsFromEnv } from './worker-settings.js';
@@ -61,10 +62,12 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
   }
 
   private enqueueFlush(): void {
-    this.flushChain = this.flushChain.then(() => this.flushOneBatch());
+    this.flushChain = this.flushChain
+      .catch(() => undefined)
+      .then(() => this.flushCurrentBatch());
   }
 
-  private async flushOneBatch(): Promise<void> {
+  private async flushCurrentBatch(): Promise<void> {
     const batch = this.pending.splice(0, this.settings.batchSize);
 
     if (batch.length === 0) {
@@ -83,6 +86,22 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
       const results = await this.processor.process(batch.map(({ job }) => job.data));
       const resultByJobId = new Map(results.map((result) => [result.jobId, result]));
 
+      let remainingStockByProduct = new Map<string, number>();
+      try {
+        const productIds = [...new Set(batch.map(({ job }) => job.data.productId))];
+        if (AppDataSource.isInitialized && productIds.length > 0) {
+          const stockRows = await AppDataSource.query<{ product_id: string; remaining_stock: number }[]>(
+            'SELECT product_id, remaining_stock FROM products WHERE product_id = ANY($1)',
+            [productIds],
+          );
+          remainingStockByProduct = new Map(
+            stockRows.map((row) => [row.product_id, Number(row.remaining_stock)]),
+          );
+        }
+      } catch {
+        // Non-blocking fallback
+      }
+
       for (const pendingJob of batch) {
         const result = resultByJobId.get(pendingJob.job.data.jobId);
 
@@ -90,11 +109,21 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
           throw new Error(`Missing result for jobId: ${pendingJob.job.data.jobId}`);
         }
 
+        const remainingStock = remainingStockByProduct.get(pendingJob.job.data.productId);
+
+        if (typeof pendingJob.job.updateData === 'function') {
+          await pendingJob.job.updateData({
+            ...pendingJob.job.data,
+            ...(remainingStock !== undefined ? { remainingStock } : {}),
+          }).catch(() => undefined);
+        }
+
         if (typeof pendingJob.job.updateProgress === 'function') {
           await pendingJob.job.updateProgress({
             percent: 100,
             status: result.status,
             orderId: result.orderId ?? null,
+            ...(remainingStock !== undefined ? { remainingStock } : {}),
             message: result.message ?? null,
           }).catch(() => undefined);
         }
