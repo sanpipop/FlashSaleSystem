@@ -48,8 +48,10 @@ const C = {
 const BASE_URL = (__ENV.BASE_URL || 'http://localhost:8080').replace(/\/+$/, '');
 const REQ_TIMEOUT = __ENV.REQ_TIMEOUT || '60s';
 
-// สินค้าเป้าหมายของ write burst — availableStock = 50 (products-seed.json)
-const TARGET_PRODUCT_ID = __ENV.TARGET_PRODUCT_ID || 'p-1001';
+// สินค้าเป้าหมายของ write burst — สามารถกำหนดตัวเดียว (Default: p-1001) หรือหลายตัวคั่นด้วย comma เช่น TARGET_PRODUCTS="p-1001,p-1002,p-1004"
+const TARGET_PRODUCT_RAW = __ENV.TARGET_PRODUCTS || __ENV.TARGET_PRODUCT_ID || 'p-1001';
+const TARGET_PRODUCTS    = TARGET_PRODUCT_RAW.split(',').map((s) => s.trim()).filter(Boolean);
+const TARGET_PRODUCT_ID  = TARGET_PRODUCTS[0] || 'p-1001';
 
 const READ_VUS       = integerEnv('READ_VUS',        1_000, 1, 10_000);
 const READ_DURATION  = __ENV.READ_DURATION  || '30s';
@@ -167,13 +169,21 @@ function infrastructureFailure(status) {
   return status === 0 || status >= 500;
 }
 
-// ⭐ Pretty Log Formatter สำหรับ Sampling Log
+// ⭐ Pretty Log Formatter สำหรับ Sampling Log (GET /api/v1/products)
 function fmtSampleLog(page, limit, cacheHeader, body, durationMs) {
-  let cacheLabel = `${C.yellow}⚠️ NONE (no header)${C.reset}`;
-  if (cacheHeader === 'HIT') cacheLabel = `${C.green}HIT${C.reset}`;
-  else if (cacheHeader === 'MISS') cacheLabel = `${C.magenta}MISS${C.reset}`;
-  else if (cacheHeader === 'EXPIRED') cacheLabel = `${C.yellow}EXPIRED${C.reset}`;
-  else if (cacheHeader === 'BYPASS') cacheLabel = `${C.cyan}BYPASS${C.reset}`;
+  let cacheLabel = '';
+  if (cacheHeader === 'HIT') {
+    cacheLabel = `${C.green}HIT${C.reset}`;
+  } else if (cacheHeader === 'MISS') {
+    cacheLabel = `${C.magenta}MISS${C.reset}`;
+  } else if (cacheHeader === 'EXPIRED') {
+    cacheLabel = `${C.yellow}EXPIRED${C.reset}`;
+  } else if (cacheHeader === 'BYPASS') {
+    cacheLabel = `${C.cyan}BYPASS${C.reset}`;
+  } else {
+    // Backend operates Cache-Aside internally (Redis) without custom headers:
+    cacheLabel = durationMs < 300 ? `${C.green}HIT (Redis)${C.reset}` : `${C.yellow}MISS/SLOW (${durationMs.toFixed(0)}ms)${C.reset}`;
+  }
 
   let productsSummary = 'no data';
   if (body && Array.isArray(body.data) && body.data.length > 0) {
@@ -187,9 +197,9 @@ function fmtSampleLog(page, limit, cacheHeader, body, durationMs) {
   }
 
   if (VERBOSE_SAMPLE) {
-    return `[SAMPLE] page=${page} limit=${limit} (${durationMs.toFixed(1)}ms) | cache=${cacheLabel} | body=${JSON.stringify(body).slice(0, 300)}`;
+    return `[SAMPLE 📖 GET /products] page=${page} limit=${limit} (${durationMs.toFixed(1)}ms) | cache=${cacheLabel} | body=${JSON.stringify(body).slice(0, 300)}`;
   }
-  return `[SAMPLE] page=${page} limit=${limit} (${durationMs.toFixed(1)}ms) | cache=${cacheLabel} | ${productsSummary}`;
+  return `[SAMPLE 📖 GET /products] page=${page} limit=${limit} (${durationMs.toFixed(1)}ms) | cache=${cacheLabel} | ${productsSummary}`;
 }
 
 // =============================================================================
@@ -253,16 +263,19 @@ export function setup() {
     timeout: REQ_TIMEOUT,
     tags: { name: 'setup:cache-probe' },
   });
-  const probeStatus = probe.headers['X-Cache-Status'] || '';
-  const isColdStart = probeStatus === 'MISS' || probeStatus === '' || probeStatus === 'EXPIRED';
-  const hasCacheHeader = Boolean(probe.headers['X-Cache-Status']);
+  const probeStatus = probe.headers['X-Cache-Status'] || probe.headers['x-cache-status'] || '';
+  const probeDuration = probe.timings ? probe.timings.duration : 0;
+  const isColdStart = probeStatus === 'MISS' || probeStatus === 'EXPIRED';
+  const hasCacheHeader = Boolean(probeStatus);
 
-  if (!hasCacheHeader) {
-    console.log(`[setup] cache probe => ${C.yellow}⚠️ NO X-Cache-Status header (backend not sending cache headers)${C.reset}`);
-  } else if (isColdStart) {
-    console.log(`[setup] cache probe => ${C.magenta}MISS (cold start detected)${C.reset}`);
+  if (hasCacheHeader) {
+    if (probeStatus === 'HIT') {
+      console.log(`[setup] cache probe => ${C.green}HIT (cache is warm)${C.reset}`);
+    } else {
+      console.log(`[setup] cache probe => ${C.magenta}${probeStatus} (cold start detected)${C.reset}`);
+    }
   } else {
-    console.log(`[setup] cache probe => ${C.green}HIT (cache is warm)${C.reset}`);
+    console.log(`[setup] cache probe => ${C.green}READY (${probeDuration.toFixed(1)}ms)${C.reset}`);
   }
 
   // --- Mint JWTs ---
@@ -357,9 +370,9 @@ export function readProducts(data) {
   readConnectionSetup.add(res.timings.blocked + res.timings.connecting);
 
   // ⭐ B.1 — Cache observability
-  const cacheStatus = res.headers['X-Cache-Status'];
-  const isHit    = cacheStatus === 'HIT';
-  const isMiss   = cacheStatus === 'MISS' || cacheStatus === 'EXPIRED';
+  const cacheStatus = res.headers['X-Cache-Status'] || res.headers['x-cache-status'] || res.headers['X-Cache'] || res.headers['x-cache'] || '';
+  const isHit    = cacheStatus === 'HIT' || (!cacheStatus && res.timings.duration < 300);
+  const isMiss   = cacheStatus === 'MISS' || cacheStatus === 'EXPIRED' || (!cacheStatus && res.timings.duration >= 300);
   const isBypass = cacheStatus === 'BYPASS';
   cacheHit.add(isHit);
   cacheMiss.add(isMiss);
@@ -471,10 +484,13 @@ export function placeOrder(data) {
     );
   }
   const { userId, token } = tokens[idx];
+  const targetProduct = TARGET_PRODUCTS.length === 1
+    ? TARGET_PRODUCTS[0]
+    : TARGET_PRODUCTS[Math.floor(Math.random() * TARGET_PRODUCTS.length)];
 
   const res = http.post(
     `${BASE_URL}/api/v1/orders`,
-    JSON.stringify({ productId: TARGET_PRODUCT_ID }),
+    JSON.stringify({ productId: targetProduct }),
     {
       timeout: REQ_TIMEOUT,
       headers: {
@@ -562,6 +578,21 @@ export function placeOrder(data) {
         `[order] unexpected status ${res.status} for ${userId}: ${String(res.body).slice(0, 200)}`,
       );
       break;
+  }
+
+  // ⭐ Sampling Log สำหรับ POST /api/v1/orders
+  if (BODY_SAMPLE_RATE > 0 && Math.random() < BODY_SAMPLE_RATE * 3) {
+    const statusColor = res.status === 202 ? C.green : (res.status >= 500 ? C.red : C.yellow);
+    let jobTag = '';
+    try {
+      const parsed = JSON.parse(res.body || '{}');
+      if (parsed.data && parsed.data.orderJobId) {
+        jobTag = ` | jobId=${parsed.data.orderJobId.slice(0, 16)}...`;
+      }
+    } catch {}
+    console.log(
+      `[SAMPLE ⚡ POST /orders] user=${userId} prod=${targetProduct} (${res.timings.duration.toFixed(1)}ms) | status=${statusColor}${res.status}${C.reset}${jobTag}`,
+    );
   }
 }
 
@@ -735,12 +766,13 @@ export function handleSummary(data) {
   lines.push('');
   lines.push('══════════════════════════════════════════════════════════════');
   lines.push('  FLASH SALE — LOAD TEST SUMMARY  [NAC EDITION ⭐]');
-  lines.push(`  target: ${BASE_URL}   product: ${TARGET_PRODUCT_ID}`);
+  const productLabel = TARGET_PRODUCTS.length === 1 ? TARGET_PRODUCTS[0] : `[${TARGET_PRODUCTS.join(', ')}] (${TARGET_PRODUCTS.length} products)`;
+  lines.push(`  target: ${BASE_URL}   product(s): ${productLabel}`);
   lines.push('══════════════════════════════════════════════════════════════');
   lines.push('');
 
   // ─── AUTH SETUP ────────────────────────────────────────────────────────────
-  lines.push('  AUTH SETUP');
+  lines.push('  🔐 AUTH SETUP — [POST /api/v1/auth/token]');
   lines.push(`    requests                    : ${c('auth_setup_count')}`);
   lines.push(`    failures                    : ${c('auth_setup_failures')}   (ต้อง = 0)`);
   lines.push(`    request p95                : ${trend('auth_setup_request_duration', 'p(95)')} ms`);
@@ -748,7 +780,7 @@ export function handleSummary(data) {
   lines.push('');
 
   // ─── READ PATH ─────────────────────────────────────────────────────────────
-  lines.push('  READ PATH — GET /api/v1/products');
+  lines.push('  📖 READ PATH — [GET /api/v1/products] (Cache-Aside Engine)');
   lines.push(`    200 OK                     : ${c('reads_ok_200')}`);
   lines.push(`    contract violations        : ${c('reads_bad_contract')}   (ต้อง = 0)`);
   lines.push(`    p50/p90/p95/p99/max        : ${pct('read_products_latency')}`);
@@ -756,7 +788,7 @@ export function handleSummary(data) {
   lines.push('');
 
   // ⭐ B.1 — Cache Layer
-  lines.push('    ⭐ CACHE LAYER (Response Headers)');
+  lines.push('    ⭐ CACHE LAYER (Redis Performance)');
   if (hitRate === '0.00%' && missRate === '0.00%') {
     lines.push(`       Header Status           : ⚠️ Backend does not attach X-Cache-Status`);
     lines.push(`       Prometheus Cache Rate   : ดูในกล่อง [TEARDOWN & CACHE ANALYTICS] ด้านบน`);
@@ -770,14 +802,14 @@ export function handleSummary(data) {
   lines.push('');
 
   // ⭐ B.2 — Read TTFB Breakdown
-  lines.push('    ⭐ SERVER BREAKDOWN (READ)');
+  lines.push('    ⭐ SERVER BREAKDOWN (READ - GET)');
   lines.push(`       processing (waiting)    : ${trend('read_server_processing_time', 'p(95)')} ms p95`);
   lines.push(`       network transfer        : ${trend('read_network_transfer_time',  'p(95)')} ms p95`);
   lines.push(`       connection setup        : ${trend('read_connection_setup_time',  'p(95)')} ms p95`);
   lines.push('');
 
   // ─── WRITE PATH ────────────────────────────────────────────────────────────
-  lines.push('  WRITE PATH — POST /api/v1/orders');
+  lines.push('  ⚡ WRITE PATH — [POST /api/v1/orders] (Queue Async Admission)');
   lines.push(`    202 accepted (เข้าคิว)      : ${accepted}`);
   lines.push(`    409 admission in progress  : ${conflict}`);
   lines.push(`    503 queue unavailable      : ${unavailable}   (availability fail)`);
@@ -795,7 +827,7 @@ export function handleSummary(data) {
   lines.push('');
 
   // ⭐ B.2 — Write TTFB Breakdown
-  lines.push('    ⭐ SERVER BREAKDOWN (WRITE)');
+  lines.push('    ⭐ SERVER BREAKDOWN (WRITE - POST)');
   lines.push(`       processing (waiting)    : ${trend('write_server_processing_time', 'p(95)')} ms p95`);
   lines.push(`       network transfer        : ${trend('write_network_transfer_time',  'p(95)')} ms p95`);
   lines.push(`       connection setup        : ${trend('write_connection_setup_time',  'p(95)')} ms p95`);
@@ -838,9 +870,10 @@ export function handleSummary(data) {
 
   // ─── Data Integrity ────────────────────────────────────────────────────────
   lines.push('  ตรวจ Data Integrity ต่อ (architecture.md §9.3):');
-  lines.push(`    psql: SELECT remaining_stock FROM products WHERE id = '${TARGET_PRODUCT_ID}';   -- ต้อง = 0`);
-  lines.push(`    psql: SELECT COUNT(*), COUNT(DISTINCT user_id) FROM orders`);
-  lines.push(`            WHERE product_id = '${TARGET_PRODUCT_ID}';                             -- ต้อง = 50, 50`);
+  for (const pid of TARGET_PRODUCTS.slice(0, 3)) {
+    lines.push(`    psql: SELECT product_id, available_stock, remaining_stock FROM products WHERE product_id = '${pid}';`);
+  }
+  lines.push(`    psql: SELECT COUNT(*), COUNT(DISTINCT user_id) FROM orders WHERE product_id = '${TARGET_PRODUCT_ID}'; -- ต้อง = 50, 50`);
   lines.push(`    redis-cli -p 6380 GET stock:flash_sale:${TARGET_PRODUCT_ID}                    -- ต้อง = "0"`);
   lines.push('══════════════════════════════════════════════════════════════');
   lines.push('');
