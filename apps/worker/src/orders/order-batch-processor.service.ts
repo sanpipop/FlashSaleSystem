@@ -41,18 +41,6 @@ export class OrderBatchProcessorService {
       );
     }
 
-    let stockByProductId = new Map<string, number>();
-    try {
-      const productIds = [...new Set(distinctJobs.map((job) => job.productId))];
-      const stockRows = await AppDataSource.query<{ product_id: string; remaining_stock: number }[]>(
-        'SELECT product_id, remaining_stock FROM products WHERE product_id = ANY($1)',
-        [productIds],
-      );
-      stockByProductId = new Map(stockRows.map((r) => [r.product_id, Number(r.remaining_stock)]));
-    } catch {
-      // Best-effort stock lookup
-    }
-
     const results = databaseResults.map((result) => {
       const payload = payloadByJobId.get(result.jobId);
 
@@ -60,17 +48,12 @@ export class OrderBatchProcessorService {
         throw new Error(`Database returned an unknown jobId: ${result.jobId}`);
       }
 
-      const currentRemaining = result.status === 'REJECTED_SOLD_OUT'
-        ? 0
-        : stockByProductId.get(payload.productId);
-
       return {
         status: result.status,
         jobId: payload.jobId,
         userId: payload.userId,
         productId: payload.productId,
         ...(result.orderId === undefined ? {} : { orderId: result.orderId }),
-        ...(currentRemaining === undefined ? {} : { remainingStock: currentRemaining }),
         processedAt,
         message: result.message,
       };

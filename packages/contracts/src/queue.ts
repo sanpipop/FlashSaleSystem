@@ -21,7 +21,6 @@ export interface OrderJobResult {
   userId: string;
   productId: string;
   orderId?: string;
-  remainingStock?: number;
   processedAt: string;
   message: string;
 }
