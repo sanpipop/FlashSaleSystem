@@ -91,7 +91,12 @@ export class MicroBatchCoordinatorService implements OnModuleDestroy {
         }
 
         if (typeof pendingJob.job.updateProgress === 'function') {
-          await pendingJob.job.updateProgress(100).catch(() => undefined);
+          await pendingJob.job.updateProgress({
+            percent: 100,
+            status: result.status,
+            orderId: result.orderId ?? null,
+            message: result.message ?? null,
+          }).catch(() => undefined);
         }
 
         pendingJob.resolve(result);
