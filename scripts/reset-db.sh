@@ -89,6 +89,9 @@ docker compose exec -T postgres psql \
 echo "Clearing the isolated volatile Redis Cache database"
 docker compose exec -T redis-cache redis-cli FLUSHDB ASYNC >/dev/null
 
+echo "Restarting API instances to reset in-memory cache and metrics"
+docker compose restart api-1 api-2 api-3 api-4 >/dev/null
+
 echo "Starting Worker and waiting for readiness"
 docker compose up -d --wait worker >/dev/null
 worker_stopped=0
