@@ -10,6 +10,7 @@ import { ApiExceptionFilter } from './common/api-exception.filter.js';
 import { canonicalRequestId } from './common/request-id.js';
 import { writeStructuredLog } from './common/logger/structured-log.js';
 import { ApiMetricsService } from './common/metrics/api-metrics.service.js';
+import { OrderAdmissionObservabilityService } from './common/metrics/order-admission-observability.service.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -19,6 +20,7 @@ async function bootstrap(): Promise<void> {
   );
   const server = app.getHttpAdapter().getInstance();
   const metrics = app.get(ApiMetricsService);
+  const orderAdmissionObservability = app.get(OrderAdmissionObservabilityService);
   const requestStarts = new WeakMap<object, number>();
   const successLogSampleRate = Math.min(
     1,
@@ -32,6 +34,9 @@ async function bootstrap(): Promise<void> {
     reply.header('x-request-id', requestId);
     request.headers['x-request-id'] = requestId;
     requestStarts.set(request, performance.now());
+    if (request.method === 'POST' && request.url.split('?')[0] === '/api/v1/orders') {
+      orderAdmissionObservability.begin(request);
+    }
   });
 
   server.addHook('onResponse', async (request, reply) => {
@@ -39,6 +44,13 @@ async function bootstrap(): Promise<void> {
     const route = request.routeOptions.url ?? request.url.split('?')[0] ?? 'unknown';
     const durationMs = performance.now() - (requestStarts.get(request) ?? performance.now());
     metrics.observeHttp(request.method, route, reply.statusCode, durationMs);
+    if (request.method === 'POST' && route === '/api/v1/orders') {
+      orderAdmissionObservability.completeResponse(
+        request,
+        reply.statusCode,
+        typeof requestId === 'string' ? requestId : 'unknown',
+      );
+    }
     if (reply.statusCode >= 400 || Math.random() < successLogSampleRate) {
       writeStructuredLog(reply.statusCode >= 500 ? 'error' : 'info', {
         event: 'HTTP_REQUEST_COMPLETED',
@@ -59,7 +71,7 @@ async function bootstrap(): Promise<void> {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalFilters(new ApiExceptionFilter(orderAdmissionObservability));
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3000);

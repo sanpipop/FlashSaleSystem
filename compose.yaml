@@ -38,7 +38,7 @@ x-api-service: &api-service
     - "3000"
   networks:
     - backend
-  cpus: ${API_CPU_LIMIT:-0.65}
+  cpus: ${API_CPU_LIMIT:-0.85}
   mem_limit: 320m
   healthcheck:
     test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/health >/dev/null || exit 1"]
@@ -63,10 +63,12 @@ services:
         condition: service_healthy
       api-3:
         condition: service_healthy
+      api-4:
+        condition: service_healthy
     networks:
       - edge
       - backend
-    cpus: ${NGINX_CPU_LIMIT:-0.50}
+    cpus: ${NGINX_CPU_LIMIT:-0.80}
     mem_limit: 128m
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null || exit 1"]
@@ -96,6 +98,12 @@ services:
       <<: *api-environment
       INSTANCE_ID: api-3
 
+  api-4:
+    <<: *api-service
+    environment:
+      <<: *api-environment
+      INSTANCE_ID: api-4
+
   worker:
     image: flash-sale-worker:local
     restart: unless-stopped
@@ -112,7 +120,7 @@ services:
       REDIS_CACHE_HOST: redis-cache
       REDIS_CACHE_PORT: 6379
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-8}
-      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-16}
+      WORKER_BATCH_SIZE: ${WORKER_BATCH_SIZE:-32}
       WORKER_BATCH_WAIT_MS: ${WORKER_BATCH_WAIT_MS:-1}
       WORKER_METRICS_PORT: 9464
       NODE_OPTIONS: --max-old-space-size=512
@@ -218,7 +226,7 @@ services:
       - redis-ops-data:/data
     networks:
       - backend
-    cpus: ${REDIS_OPS_CPU_LIMIT:-0.50}
+    cpus: ${REDIS_OPS_CPU_LIMIT:-0.75}
     mem_limit: 384m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

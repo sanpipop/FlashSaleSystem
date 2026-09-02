@@ -7,9 +7,12 @@ import {
 } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ApiErrorResponse } from '@flash-sale/contracts';
+import { OrderAdmissionObservabilityService } from './metrics/order-admission-observability.service.js';
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+  constructor(private readonly orderAdmissionObservability?: OrderAdmissionObservabilityService) {}
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const context = host.switchToHttp();
     const request = context.getRequest<FastifyRequest>();
@@ -32,6 +35,8 @@ export class ApiExceptionFilter implements ExceptionFilter {
           : 'An unexpected error occurred.';
     const requestId = this.requestId(request);
 
+    this.orderAdmissionObservability?.setOutcome(request, 'error');
+    this.orderAdmissionObservability?.completeAdmission(request, 'error');
     reply.status(status).send({ status: 'error', code, message, requestId } satisfies ApiErrorResponse);
   }
 

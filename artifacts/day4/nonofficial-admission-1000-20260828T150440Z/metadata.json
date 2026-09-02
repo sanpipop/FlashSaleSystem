@@ -1,0 +1,41 @@
+{
+  "runId": "nonofficial-admission-1000-20260828T150440Z",
+  "timestampStart": "2026-08-28T15:04:40.386Z",
+  "timestampEnd": "2026-08-28T15:05:17.290Z",
+  "scenario": "write",
+  "cacheState": "cold",
+  "baseUrl": "http://172.30.58.6",
+  "targetCommitSha": "c0319e094d3b72bb825d04e1aaeb3e198c7f7021",
+  "targetDirtyState": "clean",
+  "targetHostname": "mob07-mob",
+  "targetCpu": "QEMU Virtual CPU version 2.5+",
+  "targetLogicalCpuCount": 4,
+  "targetRamBytes": 6220013568,
+  "targetKernel": "Linux 6.12.96+deb13-cloud-amd64 x86_64 GNU/Linux",
+  "targetOs": "Debian GNU/Linux 13 (trixie)",
+  "targetDockerVersion": "Docker version 26.1.5+dfsg1, build a72d7cd",
+  "targetComposeVersion": "Docker Compose version 2.26.1-4",
+  "targetRam": "6220013568 bytes",
+  "loadGenerator": {
+    "hostname": "debian",
+    "cpu": "Intel(R) Core(TM) 7 240H / 16 logical CPUs",
+    "ramBytes": 24810934272,
+    "os": "Linux 6.12.105+deb13-amd64 x64"
+  },
+  "k6Version": "k6 v2.2.0 (commit/00a9a1b7f5, go1.26.5, linux/amd64)",
+  "k6ScriptSha256": "57857ad5b7141596eaf046b01ad2013aeff4edc4d816141969599e67af6760fd",
+  "harnessCommitSha": "d05a6767ba4e93eca00b85439ed858754ea67c55",
+  "harnessDirtyState": "dirty",
+  "parameters": {
+    "readVus": "1000",
+    "readDuration": "30s",
+    "writeUsers": "1000",
+    "duplicateUsers": "50",
+    "productId": "p-1001",
+    "userPrefix": "user"
+  },
+  "proxyVariablesDetected": false,
+  "validityStatus": "INVALID",
+  "invalidReason": "queue failed or did not drain within the bounded timeout",
+  "k6ExitCode": 1
+}
